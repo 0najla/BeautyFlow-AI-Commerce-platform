@@ -1,0 +1,88 @@
+/* ===========================
+   RESET & BASE
+   =========================== */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #fff;
+  color: #333;
+}
+
+/* ===========================
+   HEADER & NAVBAR
+   =========================== */
+header {
+  background: #f7c9d4;           /* لون خلفية الهيدر (وردي فاتح) */
+  padding: 20px;
+  display: flex;
+  justify-content: space-between; /* اللوقو يسار والروابط يمين */
+  align-items: center;
+}
+
+/* ==== اللوقو ==== */
+.logo {
+  width: 140px;
+  height: 50px;
+  background-image: url("images/BFlogo.png"); /* عدّلي الاسم لو مختلف */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+
+/* ==== روابط النافبار ==== */
+nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  color: #000;
+}
+
+nav a:hover {
+  color: #800040; /* لون غامق عند المرور */
+}
+
+/* ===========================
+   HERO SECTION
+   =========================== */
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hero h1 {
+  font-family: "Brush Script MT", cursive;
+  font-size: 42px;
+  margin: 0 0 16px;
+}
+
+.hero p {
+  font-size: 18px;
+  margin: 0 0 28px;
+}
+
+/* ==== الأزرار ==== */
+.btn {
+  display: inline-block;
+  background: #f7c9d4;   /* وردي فاتح */
+  padding: 12px 30px;
+  border-radius: 999px;  /* شكل دائري ناعم */
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: #f09bb8;  /* لون أغمق عند المرور */
+}
+
+/* ==== زر بخط خارجي (اختياري) ==== */
+.btn-outline {
+  background: transparent;
+  border: 2px solid #f7c9d4;
+}
+
+.btn-outline:hover {
+  background: #f7c9d4;
+}
