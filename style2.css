@@ -1,0 +1,558 @@
+nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    color: #000;
+}
+
+nav a:hover {
+    color: #800040;
+}
+
+/* =========================== HERO SECTION =========================== */
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.hero h1 {
+    font-family: "Brush Script MT", cursive;
+    font-size: 42px;
+    margin: 0 0 16px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin: 0 0 28px;
+}
+
+.btn {
+    display: inline-block;
+    background: #f7c9d4;
+    padding: 12px 30px;
+    border-radius: 999px;
+    font-weight: bold;
+    color: #000;
+    text-decoration: none;
+    transition: background 0.3s ease;
+
+}
+
+.btn:hover {
+    background: #f09bb8;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #f7c9d4;
+}
+
+.btn-outline:hover {
+    background: #f7c9d4;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #000000;
+}
+
+/* ===========================
+   LOGIN PAGE LAYOUT
+   =========================== */
+/* نخلي صفحة اللوقين مركزية */
+body.login-page {
+    display: grid;
+    place-items: center;
+    /* توسيط أفقي وعمودي */
+    min-height: 100vh;
+    background: #0b0b0b;
+    /* لون احتياطي تحت الخلفية */
+    position: relative;
+    overflow: hidden;
+}
+
+/* الخلفية الكاملة */
+.login-bg {
+    position: fixed;
+    inset: 0;
+    background: url("images/background.png") center/cover no-repeat;
+    /* بدّلي الصورة لو تبين */
+    z-index: -2;
+}
+
+/* طبقة تعتيم فوق الخلفية */
+.login-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.307);
+    backdrop-filter: blur(2px);
+    z-index: -1;
+}
+
+/* ===========================
+   HEADER (اختياري صغير فوق)
+   =========================== */
+.login-header {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+}
+
+
+
+/* ===========================
+   LOGIN CARD (المربع الكبير)
+   =========================== */
+.login-card {
+    width: 100%;
+    max-width: 440px;
+    /* حجم مناسب للكارد */
+    padding: 28px 24px 32px;
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.414);
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+}
+
+/* الهوية أعلى الكارد */
+.login-brand {
+    margin-bottom: 10px;
+}
+
+.brand-mark {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 10px;
+    border-radius: 14px;
+    background: #f7c9d4;
+    color: #000;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    font-size: 26px;
+}
+
+.brand-title,
+.login-card .title {
+    /* توافقًا مع تسميات سابقة */
+    font-size: 26px;
+    font-weight: 800;
+    margin: 6px 0 2px;
+}
+
+.brand-sub,
+.login-card .subtitle {
+    font-size: 12px;
+    opacity: .85;
+    margin: 0 0 14px;
+}
+
+/* ===========================
+   FORM FIELDS (أصغر ومتناسبة)
+   =========================== */
+.login-form label {
+    display: block;
+    margin: 10px 0;
+    text-align: left;
+}
+
+.login-form label>span {
+    display: block;
+    font-size: 12px;
+    opacity: .9;
+    color: #e9e9e9;
+    margin: 0 0 6px 4px;
+}
+
+.login-form input[type="text"],
+.login-form input[type="email"] {
+    width: 100%;
+    max-width: 280px;
+    /* تصغير العرض */
+    display: block;
+    margin: 0 auto;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, .18);
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+    outline: none;
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.login-form input::placeholder {
+    color: rgba(255, 255, 255, .65);
+}
+
+.login-form input:focus {
+    border-color: #f7c9d4;
+    background: rgba(255, 255, 255, .12);
+    box-shadow: 0 0 0 3px rgba(247, 201, 212, .25);
+}
+
+/* ===========================
+   BUTTONS (بنفس عرض الحقول)
+   =========================== */
+.btn {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    /* نفس مقاس الحقول */
+    margin: 10px auto 0;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 999px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity .2s ease, background .2s ease, transform .06s ease-in;
+}
+
+.btn:active {
+    transform: scale(0.99);
+}
+
+.btn-primary {
+    background: #f7c9d4;
+    color: #000;
+}
+
+.btn-primary:hover {
+    background: #f09bb8;
+}
+
+.btn-google {
+    background: #fff;
+    color: #000;
+}
+
+.btn-google:hover {
+    opacity: .9;
+}
+
+.btn-apple {
+    background: #fff;
+    color: #000;
+
+}
+
+.btn-apple:hover {
+    opacity: .9;
+}
+
+/* ===========================
+   DIVIDER
+   =========================== */
+.login-divider {
+    width: 100%;
+    max-width: 280px;
+    /* محاذاة مع الحقول */
+    margin: 12px auto;
+    color: rgba(255, 255, 255, .85);
+    font-size: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    height: 1px;
+    background: rgba(255, 255, 255, .28);
+}
+
+.btn img.icon {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 8px;
+    /* مسافة بين الأيقونة والنص */
+}
+
+
+/* أيقونة أبل فقط */
+.btn img.icon-apple {
+    width: 20px;
+    /* غيري الرقم على المقاس اللي يناسبك */
+    height: 25px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* الهيدر */
+.site-header {
+    background: #f7c9d4;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-header .logo {
+    width: 120px;
+    height: 44px;
+    background: url("images/BFlogo.png") center/contain no-repeat;
+    display: inline-block
+}
+
+.site-header nav a {
+    margin-left: 20px;
+    font-weight: 700;
+    color: #000;
+    text-decoration: none
+}
+
+.site-header nav a:hover {
+    color: #800040
+}
+
+.auth-shell {
+    position: relative;
+    min-height: calc(100vh - 76px); /* الارتفاع الكامل ناقص الهيدر */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px; /* عشان ما يلصق بالكروت */
+  
+}
+
+.auth-bg {
+    position: absolute;
+    inset: 0;
+    background: url("images/login-bg.jpg") center/cover no-repeat;
+    z-index: -2
+}
+
+.auth-overlay {
+    position: absolute;
+    inset: 0;
+    background: #f7c9d4;
+    backdrop-filter: blur(2px);
+    z-index: -1
+
+}
+
+/* العناوين */
+.login-brand {
+    margin-bottom: 8px
+}
+/* النصوص داخل الحقول */
+.login-form input {
+    color: #989898; 
+  }
+  
+  /* النصوص المؤقتة (placeholder) */
+  .login-form input::placeholder {
+    color: #989898; 
+  }
+  
+  /* عناوين الحقول (الـ labels) */
+  .login-form label > span {
+    color: #000000; 
+  }
+  .login-form label > span {
+    text-align: center;
+    display: block; /* عشان يطبق التوسيط */
+  }
+  
+  
+
+.brand-mark {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 10px;
+    border-radius: 14px;
+    background: #f7c9d4;
+    color: #000;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    font-size: 26px
+}
+
+/* الكارد */
+.login-card {
+    width: 100%;
+    max-width: 480px;
+    background: #f2f2f270;      /* رمادي فاتح */
+    color: #222;
+    border-radius: 16px;
+    padding: 28px 24px 32px;
+    text-align: center;
+    box-shadow: 0 12px 32px rgba(0,0,0,.22);
+}
+
+/* الحقول */
+.login-form label {
+    display: block;
+    margin: 10px 0;
+    text-align: left
+}
+
+.login-form input[type="text"],
+.login-form input[type="email"],
+.login-form input[type="password"] {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d8d8d8;
+  background: rgba(255,255,255,.3); /* نفس ستايل الرمادي الشفاف */
+  color: #222;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.login-form input[type="password"]:focus,
+.login-form input[type="text"]:focus,
+.login-form input[type="email"]:focus {
+  border-color: #f7c9d4;
+  box-shadow: 0 0 0 3px rgba(247,201,212,.28);
+  background: rgba(255,255,255,.45);
+}
+
+/* صف الاسم الأول/الأخير */
+.name-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;            /* مسافة أوضح بينهم */
+    max-width: 100%;      /* خليها تاخذ كامل عرض الكارد */
+    margin: 0 auto 12px;
+  }
+
+/* رسالة الخطأ */
+.form-error {
+    display: none;
+    color: #c01414;
+    font-size: 13px;
+    margin: 6px 0 0;
+    text-align: center
+}
+
+/* الأزرار */
+.btn {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    margin: 10px auto 0;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 999px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity .2s, background .2s, transform .06s
+}
+
+.btn:active {
+    transform: scale(.99)
+}
+
+.btn-primary {
+    background: #f7c9d4;
+    color: #000
+}
+
+.btn-primary:hover {
+    background: #f09bb8
+}
+
+.btn-google {
+    background: #fff;
+    color: #000
+}
+
+.btn-google:hover {
+    opacity: .9
+}
+
+.btn-apple {
+    background: #fff;
+    color: #000
+}
+
+.btn-apple:hover {
+    opacity: .9
+}
+
+/* الأيقونات داخل الأزرار */
+.btn img.icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle
+}
+
+.btn img.icon-apple {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    vertical-align: middle
+}
+
+/* فاصل */
+.login-divider {
+    width: 100%;
+    max-width: 280px;
+    margin: 12px auto;
+    color: #555;
+    font-size: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    height: 1px;
+    background: #ccc
+}
+
+/* تذييل صغير */
+.auth-foot {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #e4e4e4
+}
+
+.auth-foot a {
+    color: #800040;
+    font-weight: 700
+}
+
+
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 420px) {
+    .login-card {
+        padding: 24px 18px;
+    }
+
+    .brand-title,
+    .login-card .title {
+        font-size: 22px;
+    }
+}

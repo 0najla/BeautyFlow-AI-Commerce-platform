@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <head>
+    <link rel="icon" type="image/png" href="images/B.png">
+  </head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow </title>
+  <link rel="stylesheet" href="style2.css" />
+</head>
+
+<body class="login-page">
+  <!-- هيدر بسيط (اختياري) -->
+  <header class="login-header">
+    <a href="index.html" class="logo"></a> <!-- اللوقو يرجع للهوم -->
+  </header>
+
+  <!-- خلفية + طبقة تعتيم -->
+  <div class="login-bg"></div>
+  <div class="login-overlay"></div>
+
+  <!-- كرت تسجيل الدخول -->
+  <main class="login-card">
+    <div class="login-brand">
+      <div class="brand-mark">B</div>
+      <div class="brand-title">BeautyFlow</div>
+      <p class="brand-sub">Collaborative AI-powered makeup import system</p>
+    </div>
+    <br>
+
+    <!-- نموذج بسيط -->
+    <form action="#" class="login-form">
+      <label>
+        <span style="text-align: center;">First Name</span>
+        <input type="text" placeholder="Enter first name" required>
+      </label>
+      <label>
+        <span style="text-align: center;">Email Address</span>
+        <input type="email" placeholder="name@example.com" required>
+      </label>
+
+      <button type="submit" class="btn btn-primary"> <a href="index.html">Continue </a></button>
+    </form>
+
+    <p style="color: gray;">___________ or ___________ </p>
+
+
+    <!-- تسجيل عبر جوجل -->
+    <a href="#" class="btn btn-google">
+      <img src="images/Google_logo.png" alt="Google" class="icon">
+      Continue with Google
+    </a>
+
+    <!-- تسجيل عبر أبل -->
+    <a href="#" class="btn btn-apple">
+      <img src="images/Apple_logo.png" alt="Apple" class="icon-apple">
+      Continue with Apple
+    </a>
+    <p style="color: gray;">______________________ </p>
+    <p>
+      <span style="color: rgb(253, 225, 225); font-size: 15px">You do not have an account?</span>
+      <span style="color: rgb(80, 80, 181); font: size 15px;"><a href="new account.html">new account</a> </span>
+    </p>
+    <script>
+      const firstName = document.getElementById("firstName");
+      const email = document.getElementById("email");
+      const continueBtn = document.getElementById("continueBtn");
+      </script>
+    
+
+
+
+
+  </main>
+
+</body>
+
+</html>
