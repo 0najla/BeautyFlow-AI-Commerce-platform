@@ -1,89 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <head>
-        <link rel="icon" type="image/png" href="images/B.png">
-    </head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BeautyFlow </title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow - Sign Up</title>
+  <link rel="icon" type="image/png" href="images/B.png" />
+  <link rel="stylesheet" href="style2.css" />
+  <style>
+    /* لو ما عندك ستايل للخطأ في style2.css */
+    .form-error { display:none; color:red; font-size:13px; margin-top:8px; text-align:center; }
+    .field-error input { outline: 2px solid red; }
+    .auth-overlay { pointer-events: none; } /* يتأكد ما فيه طبقة تمنع الضغط */
+  </style>
 </head>
-
 <body>
-    <!DOCTYPE html>
-    <html lang="en">
+  <section class="auth-shell">
+    <div class="auth-bg"></div>
+    <div class="auth-overlay"></div>
 
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>BeautyFlow - Sign Up</title>
-        <link rel="stylesheet" href="style2.css" />
-    </head>
+    <main class="login-card">
+      <div class="login-brand">
+        <div class="brand-mark">B</div>
+        <div class="title">Create Account</div>
+        <p class="subtitle">Join BeautyFlow and start your journey</p>
+      </div>
 
-    <body>
+      <form action="#" class="login-form" id="signupForm" novalidate>
+        <div class="name-row">
+          <label id="fname-wrap">
+            <span>First Name</span>
+            <input type="text" id="fname" placeholder="Enter first name" required>
+          </label>
+          <label id="lname-wrap">
+            <span>Last Name</span>
+            <input type="text" id="lname" placeholder="Enter last name" required>
+          </label>
+        </div>
 
-        <section class="auth-shell">
-            <div class="auth-bg"></div>
-            <div class="auth-overlay"></div>
+        <label id="email-wrap">
+          <span>Email Address</span>
+          <input type="email" id="email" placeholder="name@example.com" required>
+        </label>
 
-            <main class="login-card">
-                <div class="login-brand">
-                    <div class="brand-mark">B</div>
-                    <div class="title">Create Account</div>
-                    <p class="subtitle">Join BeautyFlow and start your journey</p>
-                </div>
+        <label id="password-wrap">
+            <span>Password</span>
+            <input type="password" id="password" placeholder="Enter password" required>
+            <small id="password-error" class="form-error">Password must be at least 6 characters.</small>
+          </label>
+          
 
-                <form action="#" class="login-form" id="signupForm">
-                    <div class="name-row">
-                        <label>
-                            <span>First Name</span>
-                            <input type="text" id="fname" placeholder="Enter first name" required>
-                        </label>
-                        <label>
-                            <span>Last Name</span>
-                            <input type="text" id="lname" placeholder="Enter last name" required>
-                        </label>
-                    </div>
+        <label id="confirm-wrap">
+          <span>Confirm Password</span>
+          <input type="password" id="confirm-password" placeholder="Re-enter password" required>
+        </label>
 
-                    <label>
-                        <span>Email Address</span>
-                        <input type="email" id="email" placeholder="name@example.com" required>
-                    </label>
+          
 
-                    <label>
-                        <span>Password</span>
-                        <input type="password" id="password" placeholder="Enter password" required>
-                    </label>
+        <!-- رسالة خطأ عامة -->
+        <p id="error-message" class="form-error">Please fix the errors above.</p>
 
-                    <label>
-                        <span>Confirm Password</span>
-                        <input type="password" id="confirm-password" placeholder="Re-enter password" required>
-                    </label>
+        <button type="submit" id="continueBtn" class="btn btn-primary">Sign Up</button>
+      </form>
 
-                    <p id="error-message" class="form-error">Passwords do not match!</p>
+      <div class="login-divider">or</div>
 
-                    <button type="submit" class="btn btn-primary">Sign Up</button>
-                </form>
+      <a href="#" class="btn btn-google">
+        <img src="images/Google_logo.png" alt="Google" class="icon"> Continue with Google
+      </a>
+      <a href="#" class="btn btn-apple">
+        <img src="images/Apple_logo.png" alt="Apple" class="icon-apple"> Continue with Apple
+      </a>
 
-                <div class="login-divider">or</div>
+      <p class="auth-foot">
+        <span style="color:#fff;">Already have an account?</span> <a href="login.html">Login</a>
+      </p>
+    </main>
+  </section>
 
-                <a href="#" class="btn btn-google">
-                    <img src="images/Google_logo.png" alt="Google" class="icon"> Continue with Google
-                </a>
-                <a href="#" class="btn btn-apple">
-                    <img src="images/Apple_logo.png" alt="Apple" class="icon-apple"> Continue with Apple
-                </a>
+  <!-- سكربت التحقق والتحويل -->
+  <script>
+   document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("signupForm");
+  const password = document.getElementById("password");
+  const confirmPassword = document.getElementById("confirm-password");
+  const errorMessage = document.getElementById("error-message");
+  const passwordError = document.getElementById("password-error");
 
-                <p class="auth-foot" >
-                  <span style="color: black;" >Already have an account?</span>  <a href="login.html">Login</a>
-                </p>
-            </main>
-        </section>
+  form.addEventListener("submit", function (e) {
+    e.preventDefault(); // يمنع الإرسال الافتراضي
 
-      
-    </body>
+    let valid = true;
 
-    </html>
+    // تحقق كلمة المرور طولها
+    if (password.value.length < 6) {
+      passwordError.style.display = "block";
+      valid = false;
+    } else {
+      passwordError.style.display = "none";
+    }
+
+    // تحقق كلمة المرور والتأكيد
+    if (password.value !== confirmPassword.value) {
+      errorMessage.textContent = "Passwords do not match!";
+      errorMessage.style.display = "block";
+      valid = false;
+    } else {
+      errorMessage.style.display = "none";
+    }
+
+    // إذا كل شيء صحيح → يروح للصفحة الرئيسية
+    if (valid) {
+      window.location.href = "index.html";
+    }
+  });
+
+  // تحديث الرسالة مباشرة أثناء الكتابة
+  password.addEventListener("input", function () {
+    if (password.value.length > 0 && password.value.length < 6) {
+      passwordError.style.display = "block";
+    } else {
+      passwordError.style.display = "none";
+    }
+  });
+});
+
+  </script>
+</body>
+</html>

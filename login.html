@@ -2,23 +2,29 @@
 <html lang="en">
 
 <head>
-
-  <head>
-    <link rel="icon" type="image/png" href="images/B.png">
-  </head>
+  <link rel="icon" type="image/png" href="images/B.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BeautyFlow </title>
   <link rel="stylesheet" href="style2.css" />
+  <style>
+    .error-message {
+      color: red;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body class="login-page">
-  <!-- هيدر بسيط (اختياري) -->
+  <!-- هيدر -->
   <header class="login-header">
-    <a href="index.html" class="logo"></a> <!-- اللوقو يرجع للهوم -->
+    <a href="index.html" class="logo"></a>
   </header>
 
-  <!-- خلفية + طبقة تعتيم -->
+  <!-- خلفية + طبقة -->
   <div class="login-bg"></div>
   <div class="login-overlay"></div>
 
@@ -31,22 +37,24 @@
     </div>
     <br>
 
-    <!-- نموذج بسيط -->
-    <form action="#" class="login-form">
+    <!-- النموذج -->
+    <form id="loginForm" class="login-form">
       <label>
         <span style="text-align: center;">First Name</span>
-        <input type="text" placeholder="Enter first name" required>
+        <input type="text" id="firstName" placeholder="Enter first name">
       </label>
       <label>
         <span style="text-align: center;">Email Address</span>
-        <input type="email" placeholder="name@example.com" required>
+        <input type="email" id="email" placeholder="name@example.com">
       </label>
 
-      <button type="submit" class="btn btn-primary"> <a href="index.html">Continue </a></button>
+      <!-- رسالة خطأ -->
+      <div id="errorMessage" class="error-message">Please enter your name and email address </div>
+
+      <button type="submit" id="continueBtn" class="btn btn-primary">Continue</button>
     </form>
 
     <p style="color: gray;">___________ or ___________ </p>
-
 
     <!-- تسجيل عبر جوجل -->
     <a href="#" class="btn btn-google">
@@ -60,22 +68,28 @@
       Continue with Apple
     </a>
     <p style="color: gray;">______________________ </p>
-    <p>
-      <span style="color: rgb(253, 225, 225); font-size: 15px">You do not have an account?</span>
-      <span style="color: rgb(80, 80, 181); font: size 15px;"><a href="new account.html">new account</a> </span>
+   
+
+    <p class="auth-foot" >
+      <span style="color: rgb(255, 254, 254);" >You do not have an account?</span>  <a style="color: rgb(244, 135, 135);" href="new account.html">new account</a>
     </p>
     <script>
+      const form = document.getElementById("loginForm");
       const firstName = document.getElementById("firstName");
       const email = document.getElementById("email");
-      const continueBtn = document.getElementById("continueBtn");
-      </script>
+      const errorMessage = document.getElementById("errorMessage");
     
-
-
-
-
+      form.addEventListener("submit", function (e) {
+    e.preventDefault(); // يمنع الانتقال التلقائي
+    if (firstName.value.trim() === "" || email.value.trim() === "") {
+      errorMessage.style.display = "block"; // إظهار الخطأ
+    } else {
+      errorMessage.style.display = "none"; // إخفاء الخطأ
+      window.location.href = "index.html"; // ✅ الانتقال للرئيسية
+    }
+  });
+    </script>
+    
   </main>
-
 </body>
-
 </html>
