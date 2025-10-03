@@ -1,51 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="ltr">
 <head>
-  <head>
-    <link rel="icon" type="image/png" href="images/B.png">
-  </head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BeautyFlow - Design Options</title>
+
+  <!-- ربط ملف التنسيقات الأساسي (فيه جزء خاص لصفحة designOptions) -->
   <link rel="stylesheet" href="style.css" />
+
+ <!-- فافيكون (اختياري لو موجود) -->
+  <link rel="icon" type="image/png" href="images/B.png" /> 
 </head>
-<body>
-  <!-- الهيدر -->
-  <header>
+
+<!-- ملاحظة: كلاس الصفحة الخاصة عشان تنطبق عليها ستايلات designOptions فقط -->
+<body class="designOptions-page">
+
+  <!-- الهيدر: نفس الهيكل عشان ياخذ نفس الستايل اللي عندي في باقي الصفحات -->
+  <header class="site-header">
     <div class="logo"></div>
-    <nav>
-      <a href="index.html">Home</a>
+    <nav class="site-nav">
+      <!-- الروابط نفسها اللي استخدمتها سابقًا -->
       <a href="about.html">About</a>
       <a href="help.html">Help</a>
       <a href="account.html">Account</a>
+      <a href="index.html">Home</a>
     </nav>
   </header>
 
-  <!-- المحتوى -->
-  <main class="container">
-    <section class="hero">
-      <h1>Choose Your Design</h1>
-      <p>اختاري بين تصميمك الخاص أو اقتراحات الذكاء الاصطناعي</p>
-    </section>
+ <!-- الهيرو مع الشريطة (لازم هذا القسم عشان تطلع الخلفية) -->
+  <section class="hero hero--ribbon"></section>
 
-    <section class="options-grid">
-      <!-- خيار 1: تصميمي الخاص -->
-      <div class="option-card">
-        <div class="emoji">🎨</div>
-        <h2>تصميمي الخاص</h2>
-        <p>ارفعي شعارك وحددي الألوان والمواد وخيارات التغليف.</p>
-        <a class="btn" href="custom-design.html">ابدئي الآن</a>
-      </div>
+  <!-- المحتوى الرئيسي: كروت الميزات -->
+  <main class="features">
+    <section class="features-grid">
 
-      <!-- خيار 2: اقتراحات الذكاء الاصطناعي -->
-      <div class="option-card">
-        <div class="emoji">🤖</div>
-        <h2>اقتراحات الذكاء الاصطناعي</h2>
-        <p>اختيارات جاهزة مبنية على نوع المنتج والفئة المستهدفة.</p>
-        <a class="btn btn-outline" href="ai-suggestions.html">جرّبي الذكاء الاصطناعي</a>
-      </div>
+  <!-- كرت 1: AI SmartPicks -->
+      <!-- الصورة اسمها smart (داخل مجلد images) -->
+      <article class="feature-card">
+       <a href="smartPicks.html" class="card-link">
+        <img src="images/smartPicks.jpg" alt="Smart picks heart icon" class="feature-icon" />
+        <h3 class="feature-title">AI SmartPicks</h3>
+        <p class="feature-desc">
+          .No duplication.  No competition<br>
+          .100% yours
+        </p>
+       </a>
+      </article>
+
+      <!-- كرت  2: AI-Custom Packaging -->
+      <!-- الصورة اسمها aicous (أنا حاطتها داخل مجلد images) -->
+      <article class="feature-card">
+       <a href="aiCustom.html" class="card-link">
+        <img src="images/aiCustom.png" alt="AI icon for custom packaging" class="feature-icon" />
+        <h3 class="feature-title">AI-Custom<br>Packaging</h3>
+        <p class="feature-desc">.Describe it. See it. Approve it</p>
+       </a>
+      </article>
+
+    
     </section>
   </main>
+
+  <!-- فوتر (اختياري) -->
+  <!-- <footer class="site-footer">© 2025 BeautyFlow</footer> -->
+
 </body>
 </html>
-
