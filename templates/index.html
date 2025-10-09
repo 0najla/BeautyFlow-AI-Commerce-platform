@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow - Home</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+</head>
+
+<body class="index-page">
+  <header class="site-header">
+    <div class="logo"></div>
+    <nav class="site-nav">
+      <a href="{{ url_for('home_index') }}">Home</a>
+      <a href="#">About</a>
+      <a href="{{ url_for('help_page') }}">Help</a>
+      <a href="{{ url_for('account_page') }}">Account</a>
+    </nav>
+  </header>
+
+
+
+
+  <!-- المحتوى -->
+  <section class="hero">
+    <h1>Welcome to Beauty Flow</h1>
+    <p>Streamlining collaborative imports and smart packaging for small beauty businesses</p>
+    <!-- زر ينقلك لصفحة design Options -->
+    <a class="btn" href="{{ url_for('design_options') }}">Start Now</a>
+  </section>
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Help - BeautyFlow</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body>
+  <header>
+    <div class="logo"></div>
+    <nav>
+      <!-- لو تستخدمين Flask عدّلي الروتات على أسماء الفانكشن عندك -->
+      <a href="{{ url_for('home_index') }}">Home</a>
+      <a href="#">About</a>
+      <a href="{{ url_for('help_page') }}">Help</a>
+      <a href="{{ url_for('account_page') }}">Account</a>
+    </nav>
+  </header>
+
+  <!-- الحاوية العامة -->
+  <div class="contact-container">
+
+    <!-- قسم Contact Us -->
+    <div class="contact-form">
+      <h2>Contact Us</h2>
+      <p>
+        We are deeply committed to delivering unparalleled service and unwavering support
+        to ensure your experience exceeds expectations.
+      </p>
+
+      <!-- الفورم -->
+      <!-- IMPORTANT: ضفت action و method -->
+      <form id="contactForm" action="{{ url_for('submit_contact') }}" method="POST" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      </form>
+
+
+      <!-- الصف الأول: First + Last Name -->
+      <div class="name-row">
+        <div class="input-group">
+          <label for="first_name">First Name <span class="required">*</span></label>
+          <input id="first_name" name="first_name" type="text" placeholder="First Name" required>
+        </div>
+
+        <div class="input-group">
+          <label for="last_name">Last Name <span class="required">*</span></label>
+          <input id="last_name" name="last_name" type="text" placeholder="Last Name" required>
+        </div>
+      </div>
+
+      <!-- البريد -->
+      <div class="input-group">
+        <label for="email">Email <span class="required">*</span></label>
+        <input id="email" name="email" type="email" placeholder="Email" required>
+      </div>
+
+      <!-- الوصف / الرسالة -->
+      <div class="input-group">
+        <label for="message">Description <span class="required">*</span></label>
+        <textarea id="message" name="message" placeholder="Message" rows="4" required></textarea>
+      </div>
+
+      <!-- زر الإرسال -->
+      <button type="submit">Submit</button>
+      </form>
+    </div>
+
+    <!-- قسم معلومات التواصل -->
+    <div class="contact-info">
+      <div class="info-box">
+        <h3>📞 Contact</h3>
+        <p>Talk to us and see how we can work <br>1800-14-52</p>
+      </div>
+
+      <div class="info-box">
+        <h3>✉️ Email</h3>
+        <p>We’re usually replying within 24 hours <br>support@beautyflow.com</p>
+      </div>
+
+      <div class="info-box">
+        <h3>⏰ Working Hours</h3>
+        <p>Mon To Sat - 10 am To 10 pm <br>Sunday - 11 am To 5 pm</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // تحقق بسيط ثم إرسال للفورم (POST للـ action)
+    const form = document.getElementById("contactForm");
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault(); // نتحقق أولاً بدون تحديث الصفحة
+
+      const firstName = document.getElementById("first_name").value.trim();
+      const lastName = document.getElementById("last_name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      if (!firstName || !lastName || !email || !message) {
+        alert("الرجاء تعبئة جميع الحقول المطلوبة.");
+        return;
+      }
+
+      // Regex أبسط ومعقول
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+      if (!emailPattern.test(email)) {
+        alert("الرجاء إدخال بريد إلكتروني صالح.");
+        return;
+      }
+
+      // لو كل شيء تمام، نرسل الفورم للباك-إند
+      form.submit();
+    });
+  </script>
+</body>
+
+</html>

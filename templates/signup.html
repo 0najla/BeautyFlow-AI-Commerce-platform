@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow - Sign Up</title>
+
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}" />
+
+  <style>
+    .form-error {
+      display: none;
+      color: #ffdddd;
+      background: #6b000024;
+      border: 1px solid #ff9c9c;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-top: 8px;
+      text-align: center
+    }
+
+    .field-error input {
+      outline: 2px solid #ff6b6b
+    }
+
+    .auth-overlay {
+      pointer-events: none
+    }
+  </style>
+</head>
+
+<body>
+  <section class="auth-shell">
+    <div class="auth-bg"></div>
+    <div class="auth-overlay"></div>
+
+    <main class="login-card">
+      <div class="login-brand">
+        <div class="brand-mark">B</div>
+        <div class="title">Create Account</div>
+        <p class="subtitle">Join BeautyFlow and start your journey</p>
+      </div>
+
+      <!-- مهم: action يرسل لراوت Flask واسمه signup -->
+      <form id="signupForm" class="login-form" method="POST" action="{{ url_for('signup') }}" novalidate>
+        <div class="name-row">
+          <label id="fname-wrap">
+            <span>First Name</span>
+            <input type="text" id="fname" name="first_name" placeholder="Enter first name" required>
+          </label>
+          <label id="lname-wrap">
+            <span>Last Name</span>
+            <input type="text" id="lname" name="last_name" placeholder="Enter last name" required>
+          </label>
+        </div>
+
+        <label id="email-wrap">
+          <span>Email Address</span>
+          <input type="email" id="email" name="email" placeholder="name@example.com" required>
+        </label>
+
+        <label id="password-wrap">
+          <span>Password</span>
+          <input type="password" id="password" name="password" placeholder="Enter password" required>
+          <small id="password-error" class="form-error">Password must be at least 6 characters.</small>
+        </label>
+
+        <label id="confirm-wrap">
+          <span>Confirm Password</span>
+          <input type="password" id="confirm-password" name="confirm_password" placeholder="Re-enter password" required>
+        </label>
+
+        <p id="error-message" class="form-error">Please fix the errors above.</p>
+
+        <button type="submit" id="continueBtn" class="btn btn-primary">Sign Up</button>
+      </form>
+
+      <div class="login-divider">or</div>
+
+      <a href="#" class="btn btn-google">
+        <img src="{{ url_for('static', filename='images/Google_logo.png') }}" alt="Google" class="icon">
+        Continue with Google
+      </a>
+
+      <a href="#" class="btn btn-apple">
+        <img src="{{ url_for('static', filename='images/Apple_logo.png') }}" alt="Apple" class="icon-apple">
+        Continue with Apple
+      </a>
+
+      <p class="auth-foot">
+        <span style="color:#fff;">Already have an account?</span>
+        <a href="{{ url_for('login_page') }}">Login</a>
+      </p>
+    </main>
+  </section>
+
+  <!-- سكربت داخل نفس HTML -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("signupForm");
+
+      const fname = document.getElementById("fname");
+      const lname = document.getElementById("lname");
+      const email = document.getElementById("email");
+      const password = document.getElementById("password");
+      const confirmPassword = document.getElementById("confirm-password");
+
+      const errorMessage = document.getElementById("error-message");
+      const passwordError = document.getElementById("password-error");
+
+      // إظهار رسالة طول كلمة المرور أثناء الكتابة
+      password.addEventListener("input", () => {
+        if (password.value && password.value.length < 6) {
+          passwordError.style.display = "block";
+        } else {
+          passwordError.style.display = "none";
+        }
+      });
+
+      if (!form) return;
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault(); // نمنع الإرسال حتى نتحقق
+
+        let valid = true;
+        errorMessage.style.display = "none";
+        errorMessage.textContent = "Please fix the errors above.";
+
+        // تنظيف حالات الخطأ الشكلية
+        ["fname-wrap", "lname-wrap", "email-wrap", "password-wrap", "confirm-wrap"].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.remove("field-error");
+        });
+
+        // تحقق الحقول الأساسية
+        if (!fname.value.trim()) { document.getElementById("fname-wrap").classList.add("field-error"); valid = false; }
+        if (!lname.value.trim()) { document.getElementById("lname-wrap").classList.add("field-error"); valid = false; }
+        if (!email.value.trim()) { document.getElementById("email-wrap").classList.add("field-error"); valid = false; }
+
+        // طول كلمة المرور
+        if (password.value.length < 6) {
+          passwordError.style.display = "block";
+          document.getElementById("password-wrap").classList.add("field-error");
+          valid = false;
+        } else {
+          passwordError.style.display = "none";
+        }
+
+        // تطابق كلمة المرور
+        if (password.value !== confirmPassword.value) {
+          errorMessage.textContent = "Passwords do not match!";
+          errorMessage.style.display = "block";
+          document.getElementById("confirm-wrap").classList.add("field-error");
+          valid = false;
+        }
+
+        if (!valid) {
+          if (errorMessage.style.display !== "block") {
+            errorMessage.textContent = "Please fill all required fields.";
+            errorMessage.style.display = "block";
+          }
+          return;
+        }
+
+        // إذا تبين إرسال عادي بدون fetch: احذفي السطر التالي "return" وبدليه بـ form.submit()
+        // return form.submit();
+
+        // إرسال JSON لراوت Flask /signup
+        try {
+          const resp = await fetch("{{ url_for('signup') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              first_name: fname.value.trim(),
+              last_name: lname.value.trim(),
+              email: email.value.trim(),
+              password: password.value
+            })
+          });
+
+          if (resp.ok) {
+            // نجاح → وجهي المستخدم لصفحة تسجيل الدخول
+            window.location.href = "{{ url_for('login_page') }}";
+          } else {
+            const data = await resp.json().catch(() => ({}));
+            errorMessage.textContent = data.message || "Signup failed. Try again.";
+            errorMessage.style.display = "block";
+          }
+        } catch (err) {
+          errorMessage.textContent = "Network error. Please try again.";
+          errorMessage.style.display = "block";
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

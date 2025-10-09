@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}" />
+  <style>
+    .error-message {
+      color: red;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body class="login-page">
+  <header class="login-header">
+    <a href="{{ url_for('login_page') }}" class="logo"></a>
+  </header>
+
+  <div class="login-bg"></div>
+  <div class="login-overlay"></div>
+
+  <main class="login-card">
+    <div class="login-brand">
+      <div class="brand-mark">B</div>
+      <div class="brand-title">BeautyFlow</div>
+      <p class="brand-sub">Collaborative AI-powered makeup import system</p>
+    </div>
+
+    <form id="loginForm" class="login-form">
+      <label>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      </label>
+      <label>
+        <span style="text-align: center;">First Name</span>
+        <input type="text" id="firstName" placeholder="Enter first name">
+      </label>
+      <label>
+        <span style="text-align: center;">Email Address</span>
+        <input type="email" id="email" placeholder="name@example.com">
+      </label>
+
+
+
+      <div id="errorMessage" class="error-message">Please enter your name and email address</div>
+
+      <button type="submit" id="continueBtn" class="btn btn-primary">Continue</button>
+    </form>
+
+    <p style="color: gray;">___________ or ___________ </p>
+
+    <a href="#" class="btn btn-google">
+      <img src="{{ url_for('static', filename='images/Google_logo.png') }}" alt="Google" class="icon">
+      Continue with Google
+    </a>
+
+    <a href="#" class="btn btn-apple">
+      <img src="{{ url_for('static', filename='images/Apple_logo.png') }}" alt="Apple" class="icon-apple">
+      Continue with Apple
+    </a>
+
+    <p style="color: gray;">______________________ </p>
+
+    <p class="auth-foot">
+      <span style="color: rgb(255, 254, 254);">You do not have an account?</span>
+      <a style="color: rgb(244, 135, 135); " href="{{ url_for('signup') }}">new account</a>
+    </p>
+
+    <script>
+      const form = document.getElementById("loginForm");
+      const firstName = document.getElementById("firstName");
+      const email = document.getElementById("email");
+      const errorMessage = document.getElementById("errorMessage");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (firstName.value.trim() === "" || email.value.trim() === "") {
+          errorMessage.style.display = "block";
+        } else {
+          errorMessage.style.display = "none";
+          window.location.href = "{{ url_for('phone_login') }}";
+        }
+      });
+    </script>
+  </main>
+</body>
+
+</html>

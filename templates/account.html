@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow - Account</title>
+
+  <!-- Fonts & Styles -->
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+
+  <style>
+    .wave path {
+      fill: #f7c9d4;
+    }
+  </style>
+</head>
+
+<body class="index-page">
+  <!-- Header -->
+  <header class="site-header">
+    <div class="logo"></div>
+    <nav class="site-nav">
+      <a href="{{ url_for('home_index') }}">Home</a>
+      <a href="#">About</a>
+      <a href="{{ url_for('help_page') }}">Help</a>
+      <a href="{{ url_for('account_page') }}" id="accountNav">Account</a>
+    </nav>
+  </header>
+
+
+
+  <!-- Account Card -->
+  <!-- Account Card -->
+  <main class="container">
+    <section class="account-card" role="dialog" aria-labelledby="accountTitle" aria-modal="true">
+      <div class="card-header">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+        <h2 id="accountTitle">Account Settings</h2>
+        <button class="icon-btn close-btn" aria-label="Close dialog" title="Close">×</button>
+      </div>
+
+
+      <div class="card-body">
+        <!-- Left Tabs -->
+        <aside class="tabs" role="tablist" aria-orientation="vertical">
+          <button class="tab active" data-tab="profile" role="tab" aria-selected="true">Profile</button>
+          <button class="tab" data-tab="orders" role="tab">Order History</button>
+          <button class="tab" data-tab="notifications" role="tab">Notifications</button>
+          <button class="tab" data-tab="languages" role="tab">Languages</button>
+          <button class="tab" data-tab="security" role="tab">Security</button>
+          <button class="tab" data-tab="help" role="tab">Help</button>
+          <button class="tab" data-tab="signout" role="tab">Sign Out</button>
+        </aside>
+
+
+
+        <!-- Right Panels -->
+        <section class="panels">
+          <!-- Profile Panel -->
+          <form id="profile" class="panel active" data-panel="profile" novalidate>
+            <div class="avatar-and-names">
+              <div class="avatar">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f469-1f3fb-200d-1f4bb.svg"
+                  alt="User avatar" />
+              </div>
+
+              <div class="grid two">
+                <label class="field">
+                  <span>First Name</span>
+                  <input type="text" name="firstName" placeholder="Najla" value="{{ profile.firstName|default() }}" />
+
+                </label>
+
+                <label class="field">
+                  <span>Last Name</span>
+                  <input type="text" name="lastName" placeholder="Abdullah" value="{{ profile.lastName|default() }}" />
+
+                </label>
+              </div>
+            </div>
+
+            <div class="grid two phone-row">
+              <label class="field is-code">
+                <span>Phone Number</span>
+                <div class="phone-wrap">
+                  <span class="flag" title="Saudi Arabia">🇸🇦</span>
+                  <span class="cc">+966</span>
+                </div>
+              </label>
+
+              <label class="field">
+                <span>&nbsp;</span>
+                <input id="phoneInput" name="phone" type="tel" inputmode="numeric" pattern="[0-9]*"
+                  placeholder="5XXXXXXXX" value="{{ profile.phone|default('') }}" aria-describedby="phoneHint" />
+                <small class="hint" id="phoneHint">Start with 5 (KSA mobile)</small>
+                <p class="form-error" id="phoneError" style="display:none;">Phone must be 9 digits and start with 5.</p>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Address</span>
+              <textarea name="address" rows="2" placeholder="Saudi Arabia, Al Baha, City Center"></textarea>
+            </label>
+
+            <div class="actions">
+              <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
+              <button type="submit" class="btn primary">SAVE</button>
+            </div>
+          </form>
+
+          <!-- Orders -->
+          <div id="orders" class="panel" data-panel="orders">
+            <h3>Order History</h3>
+            <p>No orders yet.</p>
+          </div>
+
+          <!-- Notifications -->
+          <div id="notifications" class="panel" data-panel="notifications">
+            <h3>Notifications</h3>
+            <label class="switch">
+              <input type="checkbox" checked />
+              <span class="slider"></span>
+              <span class="switch-label">Email notifications</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" />
+              <span class="slider"></span>
+              <span class="switch-label">SMS notifications</span>
+            </label>
+          </div>
+
+          <!-- Languages -->
+          <div id="languages" class="panel" data-panel="languages">
+            <h3>Languages</h3>
+            <div class="chips">
+              <button class="chip selected">English</button>
+              <br>
+              <br>
+              <button class="chip">العربية</button>
+            </div>
+          </div>
+
+          <!-- Security -->
+          <div id="security" class="panel" data-panel="security">
+            <h3>Security</h3>
+            <p>Manage password, 2FA, and sessions here.</p>
+          </div>
+
+          <!-- Help -->
+          <div id="help" class="panel" data-panel="help">
+            <h3>Help</h3>
+            <p>Need assistance? Contact support@beautyflow.local</p>
+          </div>
+
+          <!-- Sign out -->
+          <div id="signout" class="panel" data-panel="signout">
+            <button class="btn danger" id="signOutBtn" type="button" href="{{ url_for('logout') }}">Sign Out </button>
+
+
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script>
+    // Tabs switching
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+
+        tab.classList.add('active');
+        document.querySelector(`.panel[data-panel="${target}"]`).classList.add('active');
+      });
+    });
+    // Nav -> Account: فعّل تبويب Profile
+    document.getElementById('accountNav')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelector('.tab[data-tab="profile"]')?.click();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Close (demo only)
+    document.querySelector('.close-btn')?.addEventListener('click', () => showToast('Dialog closed (demo)'));
+    document.getElementById('cancelBtn')?.addEventListener('click', () => showToast('Changes discarded (demo)'));
+
+
+    // Profile form validation + fake save
+    const profileForm = document.getElementById('profile');
+    const phoneInput = document.getElementById('phoneInput');
+    const phoneError = document.getElementById('phoneError');
+
+    profileForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const raw = (phoneInput.value || '').replace(/\D/g, '');
+      // KSA format: 9 digits, starts with 5
+      const valid = /^5\d{8}$/.test(raw);
+
+      if (!valid) {
+        phoneError.style.display = 'block';
+        phoneInput.setAttribute('aria-invalid', 'true');
+        phoneInput.focus();
+        return;
+      }
+
+      phoneError.style.display = 'none';
+      phoneInput.removeAttribute('aria-invalid');
+
+      // Demo: pretend to save
+      fetch("{{ url_for('profile_save') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token() }}" },
+
+        body: JSON.stringify({ firstName, lastName, phone, address })
+      })
+        .then(async (r) => {
+          if (!r.ok) throw new Error((await r.json()).message || "Save failed");
+          return r.json();
+        })
+        .then(() => showToast('Profile saved ✔'))
+        .catch(err => showToast(err.message || 'Save failed'));
+    });
+
+    // Sign out
+    document.getElementById('signOutBtn')?.addEventListener('click', () => {
+      window.location.href = "{{ url_for('logout') }}";
+    });
+
+    // Simple toast
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+    const menuBtn = document.getElementById("menuBtn");
+    const tabsContainer = document.querySelector(".tabs");
+
+    menuBtn?.addEventListener("click", () => {
+      tabsContainer.classList.toggle("open");
+    });
+
+  </script>
+
+</body>
+
+</html>

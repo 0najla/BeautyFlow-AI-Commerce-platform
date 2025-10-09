@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Phone Login</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+</head>
+
+<body class="login-page phone-page">
+  <main class="login-card phone-card" style="max-width:560px">
+    <h1 class="title">Enter Phone Number</h1>
+    <label class="field-label" for="phone">Mobile Number</label>
+
+    <!-- 📱 نموذج إدخال الرقم -->
+    <form class="phone-form" action="{{ url_for('send_otp') }}" method="post">
+      <input type="hidden" name="country" id="countryHidden" value="SA">
+      <input type="hidden" name="cc" id="ccHidden" value="+966">
+
+      <div class="phone-input" id="phoneInput">
+        <div class="flag">
+          <img id="flagImg" src="{{ url_for('static', filename='images/ksa.png') }}" alt="Saudi flag">
+        </div>
+
+        <button type="button" class="country" id="countryBtn" aria-haspopup="listbox" aria-expanded="false">
+          <span id="countryCode">SA</span>
+          <span class="caret"></span>
+        </button>
+
+        <div class="cc" id="ccText">+966</div>
+        <div class="sep"></div>
+
+        <input id="phone" name="phone" type="tel" inputmode="numeric" placeholder="500000000" required>
+
+        <!-- 🔽 القائمة المنسدلة لاختيار الدولة -->
+        <ul class="country-dropdown" id="countryDropdown" role="listbox">
+          <li data-country="SA" data-cc="+966" data-flag="{{ url_for('static', filename='images/ksa.png') }}"
+            role="option" aria-selected="true">
+            <img src="{{ url_for('static', filename='images/ksa.png') }}" alt=""> Saudi Arabia (+966)
+          </li>
+          <li data-country="CN" data-cc="+86" data-flag="{{ url_for('static', filename='images/china.png') }}"
+            role="option">
+            <img src="{{ url_for('static', filename='images/china.png') }}" alt=""> China (+86)
+          </li>
+        </ul>
+      </div>
+
+      <!-- 🌸 زر الإرسال -->
+      <button type="submit" class="btn btn-primary">Send Verification Code</button>
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div style="margin-top:12px; color:#fff;">{{ messages[-1] }}</div>
+    {% endif %}
+    {% endwith %}
+  </main>
+
+  <script>
+    // 🌍 القائمة المنسدلة للدول
+    document.addEventListener("DOMContentLoaded", function () {
+      const btn = document.getElementById("countryBtn");
+      const dd = document.getElementById("countryDropdown");
+      const flagImg = document.getElementById("flagImg");
+      const ccText = document.getElementById("ccText");
+      const codeEl = document.getElementById("countryCode");
+      const hiddenCountry = document.getElementById("countryHidden");
+      const hiddenCc = document.getElementById("ccHidden");
+
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dd.classList.toggle("show");
+        btn.setAttribute("aria-expanded", dd.classList.contains("show") ? "true" : "false");
+      });
+
+      dd.querySelectorAll("li").forEach(li => {
+        li.addEventListener("click", () => {
+          const country = li.dataset.country;
+          const cc = li.dataset.cc;
+          const flag = li.dataset.flag;
+
+          flagImg.src = flag;
+          ccText.textContent = cc;
+          codeEl.textContent = country;
+          hiddenCountry.value = country;
+          hiddenCc.value = cc;
+
+          dd.querySelectorAll("li").forEach(x => x.removeAttribute("aria-selected"));
+          li.setAttribute("aria-selected", "true");
+          dd.classList.remove("show");
+          btn.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove("show");
+      });
+    });
+  </script>
+</body>
+
+</html>

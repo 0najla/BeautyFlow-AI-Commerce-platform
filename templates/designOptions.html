@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow - Design Options</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+</head>
+
+<body class="designOptions-page">
+  <header class="site-header">
+    <div class="logo"></div>
+    <nav class="site-nav">
+      <a href="{{ url_for('home_index') }}">Home</a>
+      <a href="#">About</a>
+      <a href="{{ url_for('help_page') }}">Help</a>
+      <a href="{{ url_for('account_page') }}">Account</a>
+    </nav>
+  </header>
+
+  <section class="hero hero--ribbon"></section>
+
+  <main class="features">
+    <section class="features-grid">
+      <article class="feature-card">
+        <a href="/smartPicks" class="card-link">
+          <img src="{{ url_for('static', filename='images/smartPicks.jpg') }}" alt="Smart picks" class="feature-icon" />
+          <h3 class="feature-title">AI SmartPicks</h3>
+          <p class="feature-desc">.No duplication. No competition<br>.100% yours</p>
+        </a>
+      </article>
+
+      <article class="feature-card">
+        <a href="/aiCustom" class="card-link">
+          <img src="{{ url_for('static', filename='images/aiCustom.png') }}" alt="AI custom packaging"
+            class="feature-icon" />
+          <h3 class="feature-title">AI-Custom<br>Packaging</h3>
+          <p class="feature-desc">.Describe it. See it. Approve it</p>
+        </a>
+      </article>
+    </section>
+  </main>
+</body>
+
+</html>

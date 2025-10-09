@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Verify</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+</head>
+
+<body class="login-page phone-page">
+  <main class="login-card phone-card" style="max-width:560px">
+    <h1 class="title">Enter Verification Code</h1>
+    <p class="subtitle" style="color:#8b8b8b;margin-top:-6px;">
+      We sent a 6-digit code to <strong>{{ phone_mask }}</strong>
+    </p>
+
+    <form id="verifyForm" action="{{ url_for('verify_submit') }}" method="post" novalidate>
+
+      <!-- إذا ما أعفيتِ الراوت من CSRF، ضيفي: -->
+      <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
+      <div class="phone-input" style="background:#f2f3f5;">
+        <input id="code" name="code" type="text" inputmode="numeric" placeholder="Enter any code"
+          style="letter-spacing:8px; text-align:center; font-weight:700; font-size:20px;">
+      </div>
+      <button type="submit" class="btn btn-primary" id="verifyBtn">Verify</button>
+    </form>
+
+    <form action="{{ url_for('resend_otp') }}" method="post" style="margin-top:10px; text-align:center;">
+      <button type="submit" class="btn btn-outline" id="resendBtn" disabled>Resend code (30s)</button>
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div style="margin-top:12px; color:#fff;">{{ messages[-1] }}</div>
+    {% endif %}
+    {% endwith %}
+  </main>
+
+  <script>
+    // احذف أي مسافات قبل الإرسال (لو كتبتي 2 2 2 2 2 2)
+    const form = document.getElementById('verifyForm');
+    const code = document.getElementById('code');
+    form.addEventListener('submit', () => {
+      code.value = (code.value || '').replace(/\s+/g, '');
+    });
+
+    // عدّاد زر إعادة الإرسال (اختياري)
+    const resendBtn = document.getElementById('resendBtn');
+    let t = 30;
+    (function tick() {
+      if (t <= 0) { resendBtn.disabled = false; resendBtn.textContent = 'Resend code'; return; }
+      resendBtn.textContent = `Resend code (${t--}s)`;
+      setTimeout(tick, 1000);
+    })();
+  </script>
+</body>
+
+</html>

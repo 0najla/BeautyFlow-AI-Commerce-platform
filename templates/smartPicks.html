@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow - AI SmartPicks</title>
+
+  <!-- ✅ ربط CSS والأيقونة -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+</head>
+
+<body class="designOptions-page">
+  <!-- الهيدر -->
+  <header class="site-header">
+    <div class="logo"></div>
+    <nav class="site-nav">
+      <a href="{{ url_for('home_index') }}">Home</a>
+      <a href="#">About</a>
+      <a href="{{ url_for('help_page') }}">Help</a>
+      <a href="{{ url_for('account_page') }}">Account</a>
+    </nav>
+  </header>
+
+  <main id="cart">
+    <!-- المنتج الأول -->
+    <div class="item-card" data-product="Blush">
+      <div class="item-header">
+        <img src="{{ url_for('static', filename='images/blush.jpg') }}" alt="Blush" class="product-img">
+        <div class="menu">
+          <button class="menu-btn">⋮</button>
+          <div class="menu-content">
+            <a href="#" onclick="deleteItem(this)">Delete</a>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+        <h2 class="product-title">Blush</h2>
+        <p>Color: <span>Pink</span></p>
+        <div class="quantity">
+          <button onclick="changeQty(this,-1)">-</button>
+          <span class="qty">1</span>
+          <button onclick="changeQty(this,1)">+</button>
+        </div>
+        <div class="price">7500 ﷼</div>
+      </div>
+      <div class="discount-box">
+        <input type="text" class="discountCode" placeholder="Enter discount code">
+        <button onclick="applyDiscount(this)">→</button>
+      </div>
+      <div class="details"></div>
+      <div class="total">
+        Total: <span class="total-value">7500</span> ﷼
+      </div>
+    </div>
+
+    <!-- المنتج الثاني -->
+    <div class="item-card" data-product="Lipstick">
+      <div class="item-header">
+        <img src="{{ url_for('static', filename='images/lipstick.jpg') }}" alt="Lipstick" class="product-img">
+        <div class="menu">
+          <button class="menu-btn">⋮</button>
+          <div class="menu-content">
+            <a href="#" onclick="deleteItem(this)">Delete</a>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+        <h2 class="product-title">Lipstick</h2>
+        <p>Color: <span>Rose</span></p>
+        <div class="quantity">
+          <button onclick="changeQty(this,-1)">-</button>
+          <span class="qty">1</span>
+          <button onclick="changeQty(this,1)">+</button>
+        </div>
+        <div class="price">5500 ﷼</div>
+      </div>
+      <div class="discount-box">
+        <input type="text" class="discountCode" placeholder="Enter discount code">
+        <button onclick="applyDiscount(this)">→</button>
+      </div>
+      <div class="details"></div>
+      <div class="total">
+        Total: <span class="total-value">5500</span> ﷼
+      </div>
+    </div>
+
+    <!-- زر دفع مشترك -->
+    <button class="checkout" onclick="checkoutAll()">CHECK OUT</button>
+    <p class="note">This price applies to the products alone and does not include shipping, customs, or other applicable
+      fees.</p>
+  </main>
+
+  <!-- نافذة الدفع -->
+  <div id="checkout-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3> الدفع</h3>
+      <div class="order-summary">
+        <p><strong>عدد المنتجات:</strong> <span id="modal-product">—</span></p>
+        <p><strong>المجموع قبل الخصم:</strong> <span id="modal-total">—</span> ﷼</p>
+        <p><strong>المجموع بعد الخصم:</strong> <span id="modal-after-discount">—</span> ﷼</p>
+      </div>
+      <form id="payment-form" onsubmit="submitPayment(event)">
+        <label>اسم حامل البطاقة</label>
+        <input type="text" id="card-name" required placeholder="Full name">
+        <label>رقم البطاقة</label>
+        <input type="text" id="card-number" required placeholder="xxxx xxxx xxxx xxxx" inputmode="numeric"
+          maxlength="19">
+        <div class="row">
+          <div class="col">
+            <label>انتهاء الصلاحية</label>
+            <input type="text" id="exp" required placeholder="MM/YY" maxlength="5">
+          </div>
+          <div class="col">
+            <label>CVV</label>
+            <input type="text" id="cvv" required placeholder="***" maxlength="4" inputmode="numeric">
+          </div>
+        </div>
+        <button class="pay-btn" type="submit">Pay</button>
+      </form>
+      <div id="payment-result" class="payment-result hidden">
+        <p class="success">تم تأكيد الطلب! شكراً لتسوقك — سيتم متابعة الطلب.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ سكربت داخلي (كما طلبتِ) -->
+  <script>
+    let basePrice = 0;
+
+    document.addEventListener("click", function (e) {
+      if (e.target.classList && e.target.classList.contains("menu-btn")) {
+        let menu = e.target.parentElement;
+        menu.classList.toggle("show");
+      } else {
+        document.querySelectorAll(".menu").forEach(m => m.classList.remove("show"));
+      }
+    });
+
+    function changeQty(btn, num) {
+      let card = btn.closest(".item-card");
+      let qtyElem = card.querySelector(".qty");
+      let qty = parseInt(qtyElem.textContent);
+      qty += num;
+      if (qty < 1) qty = 1;
+      qtyElem.textContent = qty;
+      updatePrice(card);
+    }
+
+    function updatePrice(card) {
+      let qty = parseInt(card.querySelector(".qty").textContent);
+      let base = parseInt(card.querySelector(".price").textContent.replace(/[^0-9]/g, ""));
+      let discount = card.dataset.discount ? parseInt(card.dataset.discount) : 0;
+      let total = base - discount;
+      card.querySelector(".total-value").textContent = total * qty;
+    }
+
+    function applyDiscount(btn) {
+      let card = btn.closest(".item-card");
+      let code = card.querySelector(".discountCode").value.trim();
+      if (code !== "") {
+        card.dataset.discount = 50;
+        card.querySelector(".details").innerHTML = `
+          Discount code: <b>${code}</b>
+        `;
+      } else {
+        card.dataset.discount = 0;
+        card.querySelector(".details").innerHTML = "";
+      }
+      updatePrice(card);
+    }
+
+    function checkoutAll() {
+      const cards = document.querySelectorAll(".item-card");
+      let totalBefore = 0;
+      let totalAfter = 0;
+
+      cards.forEach(card => {
+        let qty = parseInt(card.querySelector(".qty").textContent);
+        let price = parseInt(card.querySelector(".price").textContent.replace(/[^0-9]/g, ""));
+        let discount = card.dataset.discount ? parseInt(card.dataset.discount) : 0;
+        totalBefore += price * qty;
+        totalAfter += (price - discount) * qty;
+      });
+
+      document.getElementById("modal-product").textContent = cards.length;
+      document.getElementById("modal-total").textContent = totalBefore;
+      document.getElementById("modal-after-discount").textContent = totalAfter;
+
+      document.getElementById("checkout-modal").classList.remove("hidden");
+      document.getElementById("payment-result").classList.add("hidden");
+      document.getElementById("payment-form").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("checkout-modal").classList.add("hidden");
+    }
+
+    function submitPayment(event) {
+      event.preventDefault();
+      document.getElementById("payment-form").classList.add("hidden");
+      document.getElementById("payment-result").classList.remove("hidden");
+    }
+
+    function deleteItem(link) {
+      let card = link.closest(".item-card");
+      card.remove();
+    }
+  </script>
+</body>
+
+</html>
