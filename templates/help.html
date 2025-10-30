@@ -12,10 +12,10 @@
 <body>
   <header>
     <div class="logo"></div>
-    <nav>
-      <!-- لو تستخدمين Flask عدّلي الروتات على أسماء الفانكشن عندك -->
+    <div class="logo"></div>
+    <nav class="site-nav">
       <a href="{{ url_for('home_index') }}">Home</a>
-      <a href="#">About</a>
+      <a href="{{ url_for('about_page') }}">About</a>
       <a href="{{ url_for('help_page') }}">Help</a>
       <a href="{{ url_for('account_page') }}">Account</a>
     </nav>
@@ -117,5 +117,6 @@
     });
   </script>
 </body>
+
 
 </html>

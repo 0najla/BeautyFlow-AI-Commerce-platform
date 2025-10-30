@@ -13,11 +13,6 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
 
-  <style>
-    .wave path {
-      fill: #f7c9d4;
-    }
-  </style>
 </head>
 
 <body class="index-page">
@@ -26,9 +21,9 @@
     <div class="logo"></div>
     <nav class="site-nav">
       <a href="{{ url_for('home_index') }}">Home</a>
-      <a href="#">About</a>
+      <a href="{{ url_for('about_page') }}">About</a>
       <a href="{{ url_for('help_page') }}">Help</a>
-      <a href="{{ url_for('account_page') }}" id="accountNav">Account</a>
+      <a href="{{ url_for('account_page') }}">Account</a>
     </nav>
   </header>
 
@@ -259,5 +254,6 @@
   </script>
 
 </body>
+
 
 </html>

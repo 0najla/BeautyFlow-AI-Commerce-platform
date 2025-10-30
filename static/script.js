@@ -137,6 +137,70 @@ document.addEventListener("DOMContentLoaded", function () {
       errorMessage.style.display = "block";
     }
   });
+  // server.js
+require('dotenv').config(); // npm i dotenv
+const express = require('express');
+const fetch = require('node-fetch'); // أو استخدم مكتبة العميل الرسمية
+const app = express();
+app.use(express.json());
+
+load_dotenv()
+
+
+api_key = os.getenv("OPENAI_API_KEY")
+print(api_key) 
+const OPENAI_KEY = process.env.OPENAI_API_KEY;
+
+app.post('/ask', async (req, res) => {
+  const prompt = req.body.prompt;
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [{role: 'user', content: prompt}]
+    })
+  });
+  
+  app.listen(3000);
+  const data = await response.json();
+  res.json(data);
 });
+});
+const form = document.getElementById("composer");
+const input = document.getElementById("input");
+const list  = document.getElementById("messages");
+
+// إرسال عند Enter
+input.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter"){
+    e.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+form.addEventListener("submit", (e)=>{
+  e.preventDefault();
+  const text = input.value.trim();
+  if(!text) return;
+
+  // أضيف الرسالة كفقاعة يمين
+  const div = document.createElement("div");
+  div.className = "msg";
+  div.textContent = text;
+  list.appendChild(div);
+
+  // تفريغ الحقل والتمرير لأسفل
+  input.value = "";
+  div.scrollIntoView({behavior:"smooth", block:"end"});
+});
+
+
+
+
+
 
 

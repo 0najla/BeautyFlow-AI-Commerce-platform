@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shipment Details - BeautyFlow</title>
+
+  <!-- Fonts & Styles -->
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+
+</head>
+
+<body>
+  <header>
+    <header class="site-header">
+      <div class="logo"></div>
+      <nav class="site-nav">
+        <a href="{{ url_for('home_index') }}">Home</a>
+        <a href="{{ url_for('about_page') }}">About</a>
+        <a href="{{ url_for('help_page') }}">Help</a>
+        <a href="{{ url_for('account_page') }}">Account</a>
+      </nav>
+    </header>
+  </header>
+
+
+  <main class="container page shipment-page">
+    <h1 class="page-title">Shipment Details</h1>
+
+    <section class="shipment-grid">
+      <!-- تفاصيل الشحنة -->
+      <div class="card shipment-info">
+        <ul class="shipment-list" id="shipmentList"></ul>
+      </div>
+
+      <!-- ملخص الطلب -->
+      <div class="card order-summary">
+        <h3 class="card-title">Order Summary</h3>
+        <div class="product-mini">
+          <div>
+            <div class="p-name">Blush</div>
+            <div class="p-meta">Color: Pink</div>
+          </div>
+        </div>
+
+        <div class="totals">
+          <div class="row"><span>Subtotal:</span><strong id="subtotal">7000</strong></div>
+          <div class="row"><span>Delivery fee:</span><strong id="delivery">250</strong></div>
+          <div class="row grand"><span>Total to pay:</span><strong id="total">7250</strong></div>
+        </div>
+
+        <a class="btn primary block" href="{{ url_for('costSharing_page')}}">Back to site</a>
+      </div>
+    </section>
+  </main>
+  <style>
+    :root {
+      --rose-50: #fff5f7;
+      --rose-100: #ffe5ea;
+      --rose-200: #ffd0da;
+      --rose-300: #ffb5c6;
+      --rose-400: #ff97af;
+      --rose-500: #f17494;
+      --rose-600: #e25b7f;
+      --rose-700: #c2476a;
+      --ink-700: #3b3b4f;
+      --ink-500: #606071;
+      --ink-300: #9a9aaa;
+      --bg: #fffdfd;
+      --radius: 18px;
+      --shadow: 0 8px 24px rgba(230, 86, 120, .15);
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink-700);
+      font-family: "Cairo", "Poppins", system-ui, Arial, Helvetica, sans-serif;
+      line-height: 1.6
+    }
+
+    .container {
+      width: min(1100px, 90%);
+      margin-inline: auto
+    }
+
+    /* Topbar + Wave */
+    .topbar {
+      background: linear-gradient(135deg, var(--rose-100), var(--rose-300));
+      position: relative
+    }
+
+    .nav {
+      padding: 10px 0
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 22px;
+      justify-content: flex-end;
+      margin: 0;
+      padding: 10px 0
+    }
+
+    .nav-links a {
+      color: #7a2942;
+      text-decoration: none;
+      font-weight: 600;
+      opacity: .9
+    }
+
+    .nav-links a.active,
+    .nav-links a:hover {
+      opacity: 1;
+      text-decoration: underline
+    }
+
+    .wave svg {
+      display: block;
+      width: 100%;
+      height: 120px
+    }
+
+    .wave path {
+      fill: var(--rose-200);
+      opacity: .9
+    }
+
+    /* Page */
+    .page {
+      padding: 10px 0 60px
+    }
+
+    .page-title {
+      margin-top: -30px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 28px;
+      color: #7a2942
+    }
+
+    /* Inputs */
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      margin: 14px 0 24px
+    }
+
+    .label {
+      font-weight: 600;
+      color: var(--ink-500)
+    }
+
+    .select,
+    .input {
+      border: 1px solid var(--rose-300);
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      outline: none;
+      min-width: 220px;
+      font-family: inherit
+    }
+
+    .label.sm {
+      font-size: .9rem
+    }
+
+    .mini-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px
+    }
+
+    /* Cards Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px
+    }
+
+    @media (max-width:900px) {
+      .grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 16px
+    }
+
+    .card.tip {
+      background: linear-gradient(180deg, var(--rose-50), #fff)
+    }
+
+    .card-title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: #7a2942;
+      font-weight: 800
+    }
+
+    /* Avatars + Progress */
+    .avatars {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .avatars img,
+    .avatar.placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .1)
+    }
+
+    .avatar.placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--rose-300);
+      color: #fff;
+      font-weight: 700
+    }
+
+    .progress-wrap {
+      margin-top: 8px
+    }
+
+    .progress-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--rose-100);
+      overflow: hidden
+    }
+
+    .progress {
+      height: 100%;
+      background: var(--rose-600)
+    }
+
+    .progress-text {
+      font-size: .9rem;
+      color: var(--ink-500);
+      margin-top: 6px
+    }
+
+    /* Estimates */
+    .estimates {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .estimates li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--rose-50);
+      padding: 10px;
+      border-radius: 12px
+    }
+
+    .estimates li strong {
+      color: #6f2340
+    }
+
+    .estimates li.save {
+      background: var(--rose-100);
+      font-weight: 700
+    }
+
+    /* Buttons */
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s;
+      box-shadow: var(--shadow)
+    }
+
+    .btn.primary {
+      background: var(--rose-600);
+      color: #fff
+    }
+
+    .btn.primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05)
+    }
+
+    .btn.secondary {
+      background: var(--rose-400);
+      color: #fff
+    }
+
+    .btn.outline {
+      background: #fff;
+      color: var(--rose-700);
+      border: 2px solid var(--rose-300)
+    }
+
+    .btn.ghost {
+      background: #fff0;
+      border: 2px dashed var(--rose-300);
+      color: var(--rose-700)
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    .block {
+      width: 100%
+    }
+
+    /* Summary */
+    .summary {
+      margin-top: 26px;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px
+    }
+
+    .summary-title {
+      margin-top: 0;
+      color: #7a2942
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px
+    }
+
+    @media (max-width:900px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    .summary-item {
+      background: var(--rose-50);
+      padding: 12px;
+      border-radius: 12px
+    }
+
+    .summary-item .k {
+      display: block;
+      color: var(--ink-300);
+      font-size: .9rem
+    }
+
+    .summary-item .v {
+      font-weight: 800;
+      color: #6f2340
+    }
+
+    .summary-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px
+    }
+
+    /* Footer */
+    .footer {
+      padding: 24px 0;
+      color: var(--ink-300);
+      text-align: center
+    }
+
+    /* ===== Shipment Details ===== */
+    .shipment-page .shipment-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px
+    }
+
+    @media(max-width:900px) {
+      .shipment-page .shipment-grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .shipment-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .shipment-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--rose-50);
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--rose-200);
+      font-weight: 700;
+      color: #7a2942
+    }
+
+    .shipment-list li .value {
+      color: var(--ink-500);
+      font-weight: 600
+    }
+
+    .product-mini {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px
+    }
+
+    .thumb-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: var(--rose-100);
+      object-fit: contain;
+      box-shadow: var(--shadow)
+    }
+
+    .p-name {
+      font-weight: 800;
+      color: #6f2340
+    }
+
+    .p-meta {
+      font-size: .85rem;
+      color: var(--ink-300)
+    }
+
+    .totals {
+      margin: 14px 0 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .totals .row {
+      display: flex;
+      justify-content: space-between;
+      background: var(--rose-50);
+      padding: 10px 12px;
+      border-radius: 12px
+    }
+
+    .totals .row.grand {
+      background: var(--rose-100);
+      font-weight: 800
+    }
+
+    /* ===== Invoice ===== */
+    .invoice-page .invoice-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 18px
+    }
+
+    @media (max-width:900px) {
+      .invoice-page .invoice-grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .kv {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .kv li {
+      display: flex;
+      justify-content: space-between;
+      background: var(--rose-50);
+      padding: 10px 12px;
+      border-radius: 12px
+    }
+
+    .cost-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .cost-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid var(--rose-200)
+    }
+
+    /* تعديل الموجة والعنوان */
+    .wave svg {
+      height: 80px;
+      /* تقلل ارتفاع الموجة */
+    }
+
+    .page-title {
+      margin-top: 40px;
+      /* تبعد العنوان عن الموجة */
+      text-align: center;
+      font-weight: 800;
+      font-size: 28px;
+      color: #7a2942;
+    }
+  </style>
+  <script>
+    // بيانات الشحنة (نفس اللي بالصورة)
+    const shipmentData = [
+      { label: 'Number of products', value: 'id2323288' },
+      { label: 'Weight', value: '1650 KG' },
+      { label: 'Destination', value: 'Jeddah' },
+      { label: 'Shipment Status', value: 'Preparing' },
+      { label: 'Estimated Delivery', value: '31 May' },
+      { label: 'Tracking Number', value: '#123888888' },
+    ];
+
+    // نجيب العنصر من الصفحة
+    const list = document.getElementById('shipmentList');
+
+    // نضيف البيانات داخل الصفحة
+    shipmentData.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+    <span>${item.label}</span>
+    <span class="value">${item.value}</span>
+  `;
+      list.appendChild(li);
+    });
+
+  </script>
+
+  <footer class="footer">
+    <div class="container"><small>© BeautyFlow 2025</small></div>
+  </footer>

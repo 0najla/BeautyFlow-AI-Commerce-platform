@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow - AI Chat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+
+</head>
+
+<body class="AI-page">
+  <header class="site-header">
+    <div class="logo"></div>
+    <nav class="site-nav">
+      <a href="{{ url_for('home_index') }}">Home</a>
+      <a href="{{ url_for('about_page') }}">About</a>
+      <a href="{{ url_for('help_page') }}">Help</a>
+      <a href="{{ url_for('account_page') }}">Account</a>
+    </nav>
+    </nav>
+  </header>
+
+  <section class="hero--ribbon">
+    <h1>AI-Custom Packaging</h1>
+    <p id="intro-text">
+      Describe it. See it. Approve it.<br />
+      Tell us how your packaging should look, and our AI will create a visual preview.
+    </p>
+  </section>
+
+  <main class="chat-box">
+    <div class="messages" id="chat-messages"></div>
+
+    <!-- لاحظ: id = chat-form -->
+    <form id="chat-form" class="chat-input" autocomplete="off">
+      <input type="text" id="user-input" placeholder="Type start" />
+      <button id="send-btn" type="submit">➤</button>
+    </form>
+  </main>
+  <style>
+    .AI-page .hero--ribbon {
+      text-align: center;
+      padding: 100px 20px;
+      background: url("images/ribbon.svg") no-repeat center;
+      background-size: 100% auto;
+    }
+
+
+    .AI-page .chat-box {
+      max-width: 600px;
+      margin: 0 auto 30px;
+      /* صفر من فوق، 30 من تحت */
+      padding: 20px;
+      position: relative;
+      top: -40px;
+      /* ترفعها فوق 40 بكسل */
+    }
+
+
+    /* الرسائل */
+    .AI-page .messages {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      min-height: 120px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow-y: auto;
+    }
+
+    .AI-page .messages:empty {
+      display: none;
+      /* يخفي الصندوق إذا فاضي */
+    }
+
+    .AI-page .chat-input {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 95%;
+      max-width: 650px;
+      margin: 30px auto;
+      background-color: #ffffff;
+      /* أبيض */
+      border-radius: 25px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+      padding: 5px 5px;
+      /* الطول متناسق وجميل */
+    }
+
+    .AI-page .chat-input input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 17px;
+      color: #333;
+      padding: 12px 10px;
+      /* ارتفاع بسيط ومرتب */
+    }
+
+    .AI-page .chat-input button {
+      border: none;
+      background-color: #f7c9d4;
+      /* وردي جميل */
+      color: white;
+      font-size: 18px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      transition: 0.25s ease;
+    }
+
+    .AI-page .chat-input button:hover {
+      background-color: #f4b9c3;
+      transform: scale(1.05);
+    }
+
+
+
+
+    /* تلوين الرسائل */
+    .msg.user {
+      text-align: right;
+      color: #444;
+      margin: 5px 0;
+    }
+
+    .msg.bot {
+      text-align: left;
+      color: #800040;
+      font-weight: 500;
+      margin: 5px 0;
+    }
+  </style>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+
+</html>
