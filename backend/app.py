@@ -87,6 +87,10 @@ def costSharing_page():
 def invoice_page():
     return render_template("invoice.html")
 
+@app.route("/invoiceShared", methods=["GET"])
+def invoiceShared_page():
+    return render_template("invoiceShared.html")
+
 @app.route("/shipment", methods=["GET"])
 def shipment_page():
     return render_template("shipment.html")

@@ -14,7 +14,7 @@
     <label class="field-label" for="phone">Mobile Number</label>
 
     <!-- 📱 نموذج إدخال الرقم -->
-    <form class="phone-form" action="{{ url_for('send_otp') }}" method="post">
+    <form class="phone-form" action="{{ url_for('send_otp') }}" method="post" onsubmit="return validatePhone()">
       <input type="hidden" name="country" id="countryHidden" value="SA">
       <input type="hidden" name="cc" id="ccHidden" value="+966">
 
@@ -32,30 +32,59 @@
         <div class="sep"></div>
 
         <input id="phone" name="phone" type="tel" inputmode="numeric" placeholder="500000000" required>
-
-        <!-- 🔽 القائمة المنسدلة لاختيار الدولة -->
-        <ul class="country-dropdown" id="countryDropdown" role="listbox">
-          <li data-country="SA" data-cc="+966" data-flag="{{ url_for('static', filename='images/ksa.png') }}"
-            role="option" aria-selected="true">
-            <img src="{{ url_for('static', filename='images/ksa.png') }}" alt=""> Saudi Arabia (+966)
-          </li>
-          <li data-country="CN" data-cc="+86" data-flag="{{ url_for('static', filename='images/china.png') }}"
-            role="option">
-            <img src="{{ url_for('static', filename='images/china.png') }}" alt=""> China (+86)
-          </li>
-        </ul>
       </div>
 
-      <!-- 🌸 زر الإرسال -->
-      <button type="submit" class="btn btn-primary">Send Verification Code</button>
+      <!-- رسالة الخطأ فوق الزر -->
+      <p id="errorMsg" class="fade-message">Enter the number correctly</p>
+
+      <button type="submit" class="send-btn">Send Verification Code</button>
     </form>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <div style="margin-top:12px; color:#fff;">{{ messages[-1] }}</div>
-    {% endif %}
-    {% endwith %}
+
+    <!-- 🔽 القائمة المنسدلة لاختيار الدولة -->
+    <ul class="country-dropdown" id="countryDropdown" role="listbox">
+      <li data-country="SA" data-cc="+966" data-flag="{{ url_for('static', filename='images/ksa.png') }}" role="option"
+        aria-selected="true">
+        <img src="{{ url_for('static', filename='images/ksa.png') }}" alt=""> Saudi Arabia (+966)
+      </li>
+    </ul>
+    </div>
+
+
+
   </main>
+  <style>
+    .fade-message {
+      color: #e25b7f;
+      font-size: 14px;
+      text-align: center;
+      margin: 10px 0 0 0;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .fade-message.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .send-btn {
+      background-color: #f7c9d4;
+      color: #000;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 24px;
+      font-weight: 600;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .send-btn:hover {
+      background-color: #f4a9bd;
+    }
+  </style>
 
   <script>
     // 🌍 القائمة المنسدلة للدول
@@ -97,6 +126,19 @@
         if (!dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove("show");
       });
     });
+    function validatePhone() {
+      const phone = document.getElementById("phone").value.trim();
+      const errorMsg = document.getElementById("errorMsg");
+      const pattern = /^5\d{8}$/; // يبدأ بـ 5 ويتبعه 8 أرقام = 9 أرقام بالضبط
+
+      if (!pattern.test(phone)) {
+        errorMsg.classList.add("show");
+        return false;
+      } else {
+        errorMsg.classList.remove("show");
+        return true;
+      }
+    }
   </script>
 </body>
 

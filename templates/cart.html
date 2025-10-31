@@ -1,420 +1,417 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BeautyFlow - Cart</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BeautyFlow - Cart</title>
 
-  <!--  ربط CSS والأيقونة -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+    <!--  ربط CSS والأيقونة -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
 </head>
 
 <body class="designOptions-page">
-  <!-- الهيدر -->
-  <header class="site-header">
-    <div class="logo"></div>
-    <nav class="site-nav">
-      <a href="{{ url_for('home_index') }}">Home</a>
-      <a href="{{ url_for('about_page') }}">About</a>
-      <a href="{{ url_for('help_page') }}">Help</a>
-      <a href="{{ url_for('account_page') }}">Account</a>
-    </nav>
-  </header>
-  <div class="container">
-    <div class="cart-item">
-        <div class="product-image" >💄</div>
-        <div class="product-details">
-            <div class="product-name">Lipstick</div>
-            <div class="product-color">Color: <span class="color-pink">Pink</span></div>
+    <!-- الهيدر -->
+    <header class="site-header">
+        <div class="logo"></div>
+        <nav class="site-nav">
+            <a href="{{ url_for('home_index') }}">Home</a>
+            <a href="{{ url_for('about_page') }}">About</a>
+            <a href="{{ url_for('help_page') }}">Help</a>
+            <a href="{{ url_for('account_page') }}">Account</a>
+        </nav>
+    </header>
+    <div class="container">
+        <div class="cart-item">
+            <div class="product-image">💄</div>
+            <div class="product-details">
+                <div class="product-name">Lipstick</div>
+                <div class="product-color">Color: <span class="color-pink">Pink</span></div>
+            </div>
+            <div class="quantity-control">
+                <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                <span class="quantity-value" id="quantity">1</span>
+                <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+            </div>
+            <div class="product-price" id="itemPrice">7500 SAR</div>
+            <div class="menu-dots">⋮</div>
         </div>
-        <div class="quantity-control">
-            <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
-            <span class="quantity-value" id="quantity">1</span>
-            <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+
+        <div class="discount-section">
+            <input type="text" class="discount-input" id="discountInput" placeholder="Enter discount code">
+            <button class="apply-btn" onclick="applyDiscount()">→</button>
         </div>
-        <div class="product-price" id="itemPrice">7500 SAR</div>
-        <div class="menu-dots">⋮</div>
+
+        <div id="discountMessage"></div>
+
+        <div class="total-section">
+            <div class="total-label">Total:</div>
+            <div class="total-price" id="totalPrice">7500 SAR</div>
+            <br>
+            <button id="checkout-btn">CHECK OUT</button>
+            <br>
+            <p class="price-note">This price applies to the product price and does not include shipping, customs, or
+                other applicable fees.</p>
+        </div>
+
+
+        <script>
+            document.getElementById('checkout-btn').addEventListener('click', function () {
+                window.location.href = "{{ url_for('costSharing_page') }}";
+            });
+        </script>
     </div>
 
-    <div class="discount-section">
-        <input type="text" class="discount-input" id="discountInput" placeholder="Enter discount code">
-        <button class="apply-btn" onclick="applyDiscount()">→</button>
-    </div>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <div id="discountMessage"></div>
 
-    <div class="total-section">
-        <div class="total-label">Total:</div>
-        <div class="total-price" id="totalPrice">7500 SAR</div>
-        <button id="checkoutBtn" class="checkout-btn">CHECK OUT</button>
-        <p class="price-note">This price applies to the product price and does not include shipping, customs, or other applicable fees.</p>
-    </div>
-    
 
+        .header {
+            background: linear-gradient(135deg, #ffc9e5 0%, #ffe5f0 100%);
+            padding: 18px 28px;
+            border-radius: 0 0 50% 0 / 0 0 70px 0;
+            position: relative;
+            margin-bottom: 35px;
+            box-shadow: 0 4px 20px rgba(255, 182, 222, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cart-icon {
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+
+        .cart-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .heart-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 18px;
+            height: 18px;
+            fill: #ff6b9d;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            color: #7a7a7a;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 22px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #5a5a5a;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #ff6b9d;
+        }
+
+        nav a:last-child {
+            font-style: italic;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-item {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            position: relative;
+        }
+
+        .product-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #ffebf0, #ffe0e9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            box-shadow: 0 4px 10px rgba(255, 107, 157, 0.2);
+            flex-shrink: 0;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .product-color {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .color-pink {
+            color: #ff6b9d;
+            font-weight: 500;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            border-radius: 18px;
+            padding: 5px 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: #ffc9e5;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quantity-btn:hover {
+            background: #ff6b9d;
+            transform: scale(1.1);
+        }
+
+        .quantity-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .menu-dots {
+            position: absolute;
+            top: 13px;
+            right: 13px;
+            font-size: 18px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .discount-section {
+            text-align: center;
+            margin: 22px 0;
+        }
+
+        .discount-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 11px 18px;
+            border: none;
+            border-radius: 22px;
+            background: #ffe5f0;
+            text-align: center;
+            font-size: 13px;
+            color: #999;
+            outline: none;
+            box-shadow: 0 2px 10px rgba(255, 107, 157, 0.1);
+        }
+
+        .discount-input::placeholder {
+            color: #ffb3d1;
+        }
+
+        .apply-btn {
+            width: 38px;
+            height: 38px;
+            border: none;
+            background: #ffc9e5;
+            border-radius: 50%;
+            margin-left: -48px;
+            cursor: pointer;
+            font-size: 17px;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .apply-btn:hover {
+            background: #ff6b9d;
+            transform: scale(1.1);
+        }
+
+        .total-section {
+            text-align: center;
+            margin: 28px 0 15px 0;
+        }
+
+        .total-label {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .total-price {
+            font-size: 26px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 18px;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            max-width: 230px;
+            padding: 11px;
+            background: linear-gradient(135deg, #ffc9e5, #ffb3d1);
+            border: none;
+            border-radius: 24px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            margin-bottom: 11px;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }
+
+        .price-note {
+            font-size: 10.5px;
+            color: #ff6b9d;
+            max-width: 260px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .discount-applied {
+            background: #d4f4dd;
+            color: #2d7a3e;
+            padding: 7px;
+            border-radius: 11px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 13px;
+            }
+
+            nav {
+                gap: 13px;
+            }
+
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .container {
+                padding: 22px 16px;
+            }
+        }
+    </style>
     <script>
-      document.getElementById('checkoutBtn').addEventListener('click', function () {
-        window.location.href = "{{ url_for('costSharing_page') }}";
-      });
+        let quantity = 1;
+        const pricePerUnit = 7500;
+        let discountApplied = false;
+
+        function updatePrice() {
+            const itemPrice = quantity * pricePerUnit;
+            const finalPrice = discountApplied ? itemPrice * 0.9 : itemPrice;
+
+            document.getElementById('quantity').textContent = quantity;
+            document.getElementById('itemPrice').textContent = Math.round(itemPrice) + ' SAR';
+            document.getElementById('totalPrice').textContent = Math.round(finalPrice) + ' SAR';
+        }
+
+        function increaseQuantity() {
+            quantity += 1;
+            updatePrice();
+        }
+
+        function decreaseQuantity() {
+            if (quantity > 1) {
+                quantity -= 1;
+                updatePrice();
+            }
+        }
+
+        function applyDiscount() {
+            const code = document.getElementById('discountInput').value.toUpperCase();
+            const messageDiv = document.getElementById('discountMessage');
+
+            if (code === 'BFS' || code === 'DISCOUNT10') {
+                discountApplied = true;
+                messageDiv.innerHTML = '<div class="discount-applied">✓ Discount code applied successfully! 10% off</div>';
+                updatePrice();
+            } else if (code !== '') {
+                messageDiv.innerHTML = '<div style="background: #ffe5e5; color: #c53030; padding: 10px; border-radius: 15px; margin: 20px 0; text-align: center;">Invalid discount code</div>';
+                setTimeout(() => {
+                    messageDiv.innerHTML = '';
+                }, 3000);
+            }
+
+
+        }
     </script>
-</div>
-
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-
-
-.header {
-    background: linear-gradient(135deg, #ffc9e5 0%, #ffe5f0 100%);
-    padding: 18px 28px;
-    border-radius: 0 0 50% 0 / 0 0 70px 0;
-    position: relative;
-    margin-bottom: 35px;
-    box-shadow: 0 4px 20px rgba(255, 182, 222, 0.3);
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 850px;
-    margin: 0 auto;
-}
-
-.logo-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.cart-icon {
-    width: 40px;
-    height: 40px;
-    position: relative;
-}
-
-.cart-icon svg {
-    width: 100%;
-    height: 100%;
-}
-
-.heart-icon {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 18px;
-    height: 18px;
-    fill: #ff6b9d;
-}
-
-.logo-text {
-    font-size: 22px;
-    color: #7a7a7a;
-    font-weight: 300;
-    letter-spacing: 1px;
-}
-
-nav {
-    display: flex;
-    gap: 22px;
-}
-
-nav a {
-    text-decoration: none;
-    color: #5a5a5a;
-    font-size: 15px;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-nav a:hover {
-    color: #ff6b9d;
-}
-
-nav a:last-child {
-    font-style: italic;
-}
-
-.container {
-    max-width: 520px;
-    margin: 0 auto;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border-radius: 22px;
-    padding: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.cart-item {
-    background: white;
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 22px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    position: relative;
-}
-
-.product-image {
-    width: 70px;
-    height: 70px;
-    border-radius: 11px;
-    background: linear-gradient(135deg, #ffebf0, #ffe0e9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 35px;
-    box-shadow: 0 4px 10px rgba(255, 107, 157, 0.2);
-    flex-shrink: 0;
-}
-
-.product-details {
-    flex: 1;
-}
-
-.product-name {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 3px;
-}
-
-.product-color {
-    font-size: 12px;
-    color: #999;
-}
-
-.color-pink {
-    color: #ff6b9d;
-    font-weight: 500;
-}
-
-.quantity-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #fff;
-    border-radius: 18px;
-    padding: 5px 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-}
-
-.quantity-btn {
-    width: 24px;
-    height: 24px;
-    border: none;
-    background: #ffc9e5;
-    color: #fff;
-    border-radius: 50%;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.quantity-btn:hover {
-    background: #ff6b9d;
-    transform: scale(1.1);
-}
-
-.quantity-value {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    min-width: 32px;
-    text-align: center;
-}
-
-.product-price {
-    font-size: 18px;
-    font-weight: 700;
-    color: #333;
-}
-
-.menu-dots {
-    position: absolute;
-    top: 13px;
-    right: 13px;
-    font-size: 18px;
-    color: #ccc;
-    cursor: pointer;
-}
-
-.discount-section {
-    text-align: center;
-    margin: 22px 0;
-}
-
-.discount-input {
-    width: 100%;
-    max-width: 320px;
-    padding: 11px 18px;
-    border: none;
-    border-radius: 22px;
-    background: #ffe5f0;
-    text-align: center;
-    font-size: 13px;
-    color: #999;
-    outline: none;
-    box-shadow: 0 2px 10px rgba(255, 107, 157, 0.1);
-}
-
-.discount-input::placeholder {
-    color: #ffb3d1;
-}
-
-.apply-btn {
-    width: 38px;
-    height: 38px;
-    border: none;
-    background: #ffc9e5;
-    border-radius: 50%;
-    margin-left: -48px;
-    cursor: pointer;
-    font-size: 17px;
-    color: white;
-    transition: all 0.3s;
-}
-
-.apply-btn:hover {
-    background: #ff6b9d;
-    transform: scale(1.1);
-}
-
-.total-section {
-    text-align: center;
-    margin: 28px 0 15px 0;
-}
-
-.total-label {
-    color: #999;
-    font-size: 13px;
-    margin-bottom: 7px;
-}
-
-.total-price {
-    font-size: 26px;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 18px;
-}
-
-.checkout-btn {
-    width: 100%;
-    max-width: 230px;
-    padding: 11px;
-    background: linear-gradient(135deg, #ffc9e5, #ffb3d1);
-    border: none;
-    border-radius: 24px;
-    color: white;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
-    margin-bottom: 11px;
-}
-
-.checkout-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
-}
-
-.price-note {
-    font-size: 10.5px;
-    color: #ff6b9d;
-    max-width: 260px;
-    margin: 0 auto;
-    line-height: 1.5;
-}
-
-.discount-applied {
-    background: #d4f4dd;
-    color: #2d7a3e;
-    padding: 7px;
-    border-radius: 11px;
-    margin: 15px 0;
-    text-align: center;
-    font-weight: 500;
-    font-size: 13px;
-}
-
-@media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        gap: 13px;
-    }
-
-    nav {
-        gap: 13px;
-    }
-
-    .cart-item {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .container {
-        padding: 22px 16px;
-    }
-}
-
-</style>
-  <script>
-let quantity = 1;
-const pricePerUnit = 7500;
-let discountApplied = false;
-
-function updatePrice() {
-    const itemPrice = quantity * pricePerUnit;
-    const finalPrice = discountApplied ? itemPrice * 0.9 : itemPrice;
-    
-    document.getElementById('quantity').textContent = quantity;
-    document.getElementById('itemPrice').textContent = Math.round(itemPrice) + ' SAR';
-    document.getElementById('totalPrice').textContent = Math.round(finalPrice) + ' SAR';
-}
-
-function increaseQuantity() {
-    quantity += 1;
-    updatePrice();
-}
-
-function decreaseQuantity() {
-    if (quantity > 1) {
-        quantity -= 1;
-        updatePrice();
-    }
-}
-
-function applyDiscount() {
-    const code = document.getElementById('discountInput').value.toUpperCase();
-    const messageDiv = document.getElementById('discountMessage');
-    
-    if (code === 'BFS' || code === 'DISCOUNT10') {
-        discountApplied = true;
-        messageDiv.innerHTML = '<div class="discount-applied">✓ Discount code applied successfully! 10% off</div>';
-        updatePrice();
-    } else if (code !== '') {
-        messageDiv.innerHTML = '<div style="background: #ffe5e5; color: #c53030; padding: 10px; border-radius: 15px; margin: 20px 0; text-align: center;">Invalid discount code</div>';
-        setTimeout(() => {
-            messageDiv.innerHTML = '';
-        }, 3000);
-    }
-}
-
-// Allow enter key to apply discount
-document.getElementById('discountInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        applyDiscount();
-    }
-});
-  </script>
 </body>
 
-</html>  
+</html>

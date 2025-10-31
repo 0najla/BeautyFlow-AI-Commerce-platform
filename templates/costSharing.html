@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
@@ -30,74 +30,50 @@
   <main class="container page">
     <h1 class="page-title">Cost-Sharing Shipping</h1>
 
-    <div class="row">
-      <label for="batchSelect" class="label">الدفعة:</label>
-      <select id="batchSelect" class="select">
-        <option value="may">May Skincare Batch</option>
-        <option value="june">June Makeup Batch</option>
-        <option value="july">July Fragrance Batch</option>
-      </select>
-    </div>
-
     <section class="grid">
-      <div class="card" id="groupCard">
-        <h3 class="card-title">الانضمام للشحن الجماعي</h3>
+      <!-- Join card -->
+      <div class="card">
+        <h3 class="card-title">Join Shared Shipping</h3>
 
         <div class="avatars">
-          <img src="https://i.pravatar.cc/40?img=1" alt="partner">
-          <img src="https://i.pravatar.cc/40?img=2" alt="partner">
-          <img src="https://i.pravatar.cc/40?img=3" alt="partner">
+          <img src="https://i.pravatar.cc/40?img=1" alt="avatar">
+          <img src="https://i.pravatar.cc/40?img=2" alt="avatar">
           <div class="avatar placeholder">+1</div>
         </div>
 
         <div class="progress-wrap">
           <div class="progress-bar">
-            <div class="progress" id="progress" style="width:80%"></div>
+            <div class="progress" id="progress" style="width:100%"></div>
           </div>
-          <div class="progress-text" id="progressText">%80 ممتلئ — نحتاج شريكًا واحدًا</div>
+          <div class="progress-text" id="progressText">100% — ready to ship 🎉</div>
         </div>
 
-        <div class="card-actions">
-          <button class="btn outline" id="leaveBtn">مغادرة الشحن المشترك</button>
-          <button class="btn primary" id="requestMergeBtn">طلب دمج</button>
+        <div class="card-actions three">
+          <!-- NEW: keep them side-by-side and matched -->
+          <a class="btn outline" id="leaveBtn" href="{{ url_for('invoice_page') }}">Leave Group</a>
+          <a class="btn primary" id="requestBtn" href="{{ url_for('invoiceShared_page') }}">Request Merge</a>
+          <a class="btn soft" id="findNewMergeBtn" href="{{ url_for('costSharing_page') }}">Find New Merge</a>
         </div>
       </div>
 
+      <!-- Estimated cost -->
       <div class="card">
-        <h3 class="card-title">Estimated Shipping Cost</h3>
+        <h3 class="card-title">Estimated Cost</h3>
         <ul class="estimates">
-          <li><span>إذا شُحنت منفردًا</span><strong id="soloCost">—</strong></li>
-          <li><span>بعد الدمج</span><strong id="mergedCost">—</strong></li>
-          <li class="save"><span>ستوفّر</span><strong id="youSave">—</strong></li>
+          <li><span>Solo shipping</span> <strong id="soloCost">—</strong></li>
+          <li><span>Shared shipping</span><strong id="sharedCost">—</strong></li>
+          <li class="save"><span>You save</span><strong id="youSave">—</strong></li>
         </ul>
-        <div class="mini-row">
-          <label for="weightInput" class="label sm">وزن شحنتك (كجم)</label>
-          <input id="weightInput" class="input" type="number" min="1" value="75">
-        </div>
+
+        <label for="weightInput" class="label">Package weight (kg)</label>
+        <!-- EN weight with decimals -->
+        <input id="weightInput" class="input" type="number" step="0.1" min="0.1" value="50" placeholder="e.g., 75.5">
       </div>
 
+      <!-- AI tip -->
       <div class="card tip">
-        <h3 class="card-title">AI Optimization Tip</h3>
-        <p id="aiTip">نداء لطيف من الذكاء الاصطناعي ✨</p>
-        <div class="card-actions">
-          <button class="btn ghost" id="newSharedBtn">بدء شحنة مشتركة جديدة</button>
-          <a class="btn secondary" href="{{ url_for('invoice_page')}}">اذهب للفاتورة</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="summary">
-      <h3 class="summary-title">ملخص شحنتك</h3>
-      <div class="summary-grid">
-        <div class="summary-item"><span class="k">الوزن</span><span class="v" id="pkgWeight">—</span></div>
-        <div class="summary-item"><span class="k">الوجهة</span><span class="v">جدة</span></div>
-        <div class="summary-item"><span class="k">شركة النقل</span><span class="v">BeautyFlow</span></div>
-        <div class="summary-item"><span class="k">الإرسال قبل</span><span class="v" id="sendBy">31 May</span></div>
-      </div>
-      <div class="summary-actions"><button class="btn secondary" id="sendNowBtn">إرسال الآن</button></div>
-      <div class="summary-actions">
-
-        <a href="{{ url_for('shipment_page')}}" class="btn primary">تفاصيل الشحنة</a>
+        <h3 class="card-title">AI Suggestion</h3>
+        <p id="aiTip">Let our AI optimize your shipment 💡</p>
       </div>
     </section>
   </main>
@@ -113,27 +89,19 @@
       --rose-700: #c2476a;
       --ink-700: #3b3b4f;
       --ink-500: #606071;
-      --ink-300: #9a9aaa;
-      --bg: #fffdfd;
       --radius: 18px;
       --shadow: 0 8px 24px rgba(230, 86, 120, .15);
     }
 
     * {
-      box-sizing: border-box
-    }
-
-    html,
-    body {
-      height: 100%
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
     }
 
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--ink-700);
-      font-family: "Cairo", "Poppins", system-ui, Arial, Helvetica, sans-serif;
-      line-height: 1.6
+      background: #fffdfd;
+      color: var(--ink-700)
     }
 
     .container {
@@ -141,10 +109,9 @@
       margin-inline: auto
     }
 
-    /* Topbar + Wave */
+    /* header */
     .topbar {
-      background: linear-gradient(135deg, var(--rose-100), var(--rose-300));
-      position: relative
+      background: linear-gradient(135deg, var(--rose-100), var(--rose-300))
     }
 
     .nav {
@@ -154,94 +121,51 @@
     .nav-links {
       list-style: none;
       display: flex;
-      gap: 22px;
+      gap: 18px;
       justify-content: flex-end;
-      margin: 0;
-      padding: 10px 0
+      margin: 0
     }
 
     .nav-links a {
-      color: #7a2942;
       text-decoration: none;
+      color: #7a2942;
       font-weight: 600;
       opacity: .9
     }
 
     .nav-links a.active,
     .nav-links a:hover {
-      opacity: 1;
-      text-decoration: underline
+      opacity: 1
     }
 
     .wave svg {
-      display: block;
       width: 100%;
-      height: 120px
+      height: 100px
     }
 
     .wave path {
-      fill: var(--rose-200);
-      opacity: .9
+      fill: var(--rose-200)
     }
 
-    /* Page */
     .page {
-      padding: 10px 0 60px
+      padding: 20px 0 60px
     }
 
     .page-title {
-      margin-top: -30px;
       text-align: center;
+      color: #7a2942;
       font-weight: 800;
-      font-size: 28px;
-      color: #7a2942
+      margin-bottom: 25px
     }
 
-    /* Inputs */
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      justify-content: center;
-      margin: 14px 0 24px
-    }
-
-    .label {
-      font-weight: 600;
-      color: var(--ink-500)
-    }
-
-    .select,
-    .input {
-      border: 1px solid var(--rose-300);
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #fff;
-      box-shadow: var(--shadow);
-      outline: none;
-      min-width: 220px;
-      font-family: inherit
-    }
-
-    .label.sm {
-      font-size: .9rem
-    }
-
-    .mini-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 12px
-    }
-
-    /* Cards Grid */
+    /* layout */
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 18px
+      gap: 20px
     }
 
-    @media (max-width:900px) {
+    @media(max-width:900px) {
       .grid {
         grid-template-columns: 1fr
       }
@@ -254,18 +178,16 @@
       padding: 18px 16px
     }
 
+    .card-title {
+      margin: 0 0 10px;
+      font-weight: 700;
+      color: #7a2942
+    }
+
     .card.tip {
       background: linear-gradient(180deg, var(--rose-50), #fff)
     }
 
-    .card-title {
-      margin: 0 0 12px;
-      font-size: 18px;
-      color: #7a2942;
-      font-weight: 800
-    }
-
-    /* Avatars + Progress */
     .avatars {
       display: flex;
       gap: 8px;
@@ -291,14 +213,10 @@
       font-weight: 700
     }
 
-    .progress-wrap {
-      margin-top: 8px
-    }
-
     .progress-bar {
       height: 10px;
-      border-radius: 999px;
       background: var(--rose-100);
+      border-radius: 999px;
       overflow: hidden
     }
 
@@ -313,27 +231,21 @@
       margin-top: 6px
     }
 
-    /* Estimates */
     .estimates {
       list-style: none;
-      margin: 0;
       padding: 0;
+      margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 8px
+      gap: 6px
     }
 
     .estimates li {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       background: var(--rose-50);
-      padding: 10px;
+      padding: 8px 10px;
       border-radius: 12px
-    }
-
-    .estimates li strong {
-      color: #6f2340
     }
 
     .estimates li.save {
@@ -341,16 +253,43 @@
       font-weight: 700
     }
 
-    /* Buttons */
+    .label {
+      font-weight: 600;
+      color: var(--ink-500);
+      font-size: .9rem;
+      margin-top: 12px
+    }
+
+    .input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--rose-300);
+      border-radius: 12px
+    }
+
+    /* buttons */
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px
+    }
+
+    .card-actions.three .btn {
+      flex: 1 1 32%
+    }
+
     .btn {
-      appearance: none;
       border: none;
-      border-radius: 14px;
-      padding: 12px 14px;
+      border-radius: 12px;
+      padding: 10px 14px;
       font-weight: 700;
       cursor: pointer;
       transition: .2s;
-      box-shadow: var(--shadow)
+      box-shadow: var(--shadow);
+      text-align: center;
+      text-decoration: none;
+      display: inline-block
     }
 
     .btn.primary {
@@ -363,316 +302,71 @@
       filter: brightness(1.05)
     }
 
-    .btn.secondary {
-      background: var(--rose-400);
-      color: #fff
-    }
-
     .btn.outline {
       background: #fff;
       color: var(--rose-700);
       border: 2px solid var(--rose-300)
     }
 
-    .btn.ghost {
-      background: #fff0;
-      border: 2px dashed var(--rose-300);
-      color: var(--rose-700)
+    /* NEW: soft button for “Find New Merge” */
+    .btn.soft {
+      background: var(--rose-100);
+      color: #7a2942;
+      border: 2px solid var(--rose-200)
     }
 
-    .card-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px
+    .btn.soft:hover {
+      filter: brightness(1.03)
     }
 
     .block {
       width: 100%
     }
 
-    /* Summary */
-    .summary {
-      margin-top: 26px;
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px
-    }
-
-    .summary-title {
-      margin-top: 0;
-      color: #7a2942
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px
-    }
-
-    @media (max-width:900px) {
-      .summary-grid {
-        grid-template-columns: repeat(2, 1fr)
-      }
-    }
-
-    .summary-item {
-      background: var(--rose-50);
-      padding: 12px;
-      border-radius: 12px
-    }
-
-    .summary-item .k {
-      display: block;
-      color: var(--ink-300);
-      font-size: .9rem
-    }
-
-    .summary-item .v {
-      font-weight: 800;
-      color: #6f2340
-    }
-
-    .summary-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 10px
-    }
-
-    /* Footer */
     .footer {
-      padding: 24px 0;
-      color: var(--ink-300);
-      text-align: center
-    }
-
-    /* ===== Shipment Details ===== */
-    .shipment-page .shipment-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px
-    }
-
-    @media(max-width:900px) {
-      .shipment-page .shipment-grid {
-        grid-template-columns: 1fr
-      }
-    }
-
-    .shipment-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px
-    }
-
-    .shipment-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--rose-50);
-      padding: 12px 16px;
-      border-radius: 14px;
-      border: 1px solid var(--rose-200);
-      font-weight: 700;
-      color: #7a2942
-    }
-
-    .shipment-list li .value {
-      color: var(--ink-500);
-      font-weight: 600
-    }
-
-    .product-mini {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px
-    }
-
-    .thumb-img {
-      width: 60px;
-      height: 60px;
-      border-radius: 16px;
-      background: var(--rose-100);
-      object-fit: contain;
-      box-shadow: var(--shadow)
-    }
-
-    .p-name {
-      font-weight: 800;
-      color: #6f2340
-    }
-
-    .p-meta {
-      font-size: .85rem;
-      color: var(--ink-300)
-    }
-
-    .totals {
-      margin: 14px 0 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px
-    }
-
-    .totals .row {
-      display: flex;
-      justify-content: space-between;
-      background: var(--rose-50);
-      padding: 10px 12px;
-      border-radius: 12px
-    }
-
-    .totals .row.grand {
-      background: var(--rose-100);
-      font-weight: 800
-    }
-
-    /* ===== Invoice ===== */
-    .invoice-page .invoice-grid {
-      display: grid;
-      grid-template-columns: 2fr 1.2fr;
-      gap: 18px
-    }
-
-    @media (max-width:900px) {
-      .invoice-page .invoice-grid {
-        grid-template-columns: 1fr
-      }
-    }
-
-    .kv {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px
-    }
-
-    .kv li {
-      display: flex;
-      justify-content: space-between;
-      background: var(--rose-50);
-      padding: 10px 12px;
-      border-radius: 12px
-    }
-
-    .cost-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px
-    }
-
-    .cost-list li {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #fff;
-      border: 1px solid var(--rose-200)
-    }
-
-    /* تعديل الموجة والعنوان */
-    .wave svg {
-      height: 80px;
-      /* تقلل ارتفاع الموجة */
-    }
-
-    .page-title {
-      margin-top: 40px;
-      /* تبعد العنوان عن الموجة */
       text-align: center;
-      font-weight: 800;
-      font-size: 28px;
-      color: #7a2942;
+      padding: 20px;
+      color: #9a9aaa
     }
   </style>
 
-  <footer class="footer">
-    <div class="container"><small>© BeautyFlow 2025</small></div>
-  </footer>
   <script>
+    // Elements
     const weightInput = document.getElementById('weightInput');
     const soloCostEl = document.getElementById('soloCost');
-    const mergedCostEl = document.getElementById('mergedCost');
+    const sharedCostEl = document.getElementById('sharedCost');
     const youSaveEl = document.getElementById('youSave');
-    const pkgWeight = document.getElementById('pkgWeight');
-    const progress = document.getElementById('progress');
-    const progressText = document.getElementById('progressText');
-    const leaveBtn = document.getElementById('leaveBtn');
-    const requestMergeBtn = document.getElementById('requestMergeBtn');
-    const newSharedBtn = document.getElementById('newSharedBtn');
-    const sendNowBtn = document.getElementById('sendNowBtn');
 
-    function recalc() {
-      const w = Math.max(1, Number(weightInput.value) || 1);
-      const solo = Math.round(400 + 8 * w);
-      const merged = Math.round(120 + 4.5 * w);
-      soloCostEl.textContent = solo.toLocaleString('ar-SA') + ' ر.س';
-      mergedCostEl.textContent = merged.toLocaleString('ar-SA') + ' ر.س';
-      youSaveEl.textContent = (solo - merged).toLocaleString('ar-SA') + ' ر.س';
-      pkgWeight.textContent = (w * 22).toLocaleString('ar-SA') + ' كجم';
+    // Update cost numbers (English / SAR)
+    // Update cost numbers (English / SAR)
+    function updateCost() {
+      const w = Math.max(0.1, Number(weightInput.value) || 0.1);
+      const solo = 10 * w + 300;  // sample solo model
+      const shared = 6 * w + 120; // sample shared model
+
+      soloCostEl.textContent = solo.toLocaleString('en-US') + " SAR";
+      sharedCostEl.textContent = shared.toLocaleString('en-US') + " SAR";
+      youSaveEl.textContent = (solo - shared).toLocaleString('en-US') + " SAR";
     }
-    weightInput.addEventListener('input', recalc);
-    recalc();
+    // run when typing
+    weightInput.addEventListener('input', updateCost);
+    updateCost();
 
-    // انضمام/مغادرة
-    let joined = true;
-    leaveBtn.addEventListener('click', () => {
-      joined = !joined;
-      if (!joined) {
-        progress.style.width = '60%';
-        progressText.textContent = '%60 ممتلئ — بانتظار شريكين';
-        leaveBtn.textContent = 'انضمام للشحن المشترك';
-        requestMergeBtn.disabled = true;
-        requestMergeBtn.classList.add('outline');
-      } else {
-        progress.style.width = '80%';
-        progressText.textContent = '%80 ممتلئ — نحتاج شريكًا واحدًا';
-        leaveBtn.textContent = 'مغادرة الشحن المشترك';
-        requestMergeBtn.disabled = false;
-        requestMergeBtn.classList.remove('outline');
-      }
-    });
-
-    // طلب دمج
-    requestMergeBtn.addEventListener('click', () => {
-      progress.style.width = '100%';
-      progressText.textContent = '%100 — المجموعة جاهزة للشحن 🎉';
-    });
-
-    // إنشاء مجموعة جديدة
-    newSharedBtn.addEventListener('click', () => {
-      progress.style.width = '25%';
-      progressText.textContent = '%25 — تم إنشاء مجموعة جديدة، نبحث عن شركاء';
-      joined = true;
-      leaveBtn.textContent = 'مغادرة الشحن المشترك';
-    });
-
-    // إرسال الآن (محاكاة)
-    sendNowBtn.addEventListener('click', () => {
-      alert('جارٍ تجهيز الشحنة وإحالتك إلى الدفع… (محاكاة)');
-    });
-
-    // نصائح AI
+    // Random AI tip
     const tips = [
-      'دمج خلال 48 ساعة قد يخفض التكلفة 10–15%.',
-      'ضغط التغليف يقلل الوزن الحجمي حتى 8%.',
-      'اختيار يوم ثلاثاء/أربعاء يقلل الرسوم المتغيرة.',
-      'دمج الوجهات القريبة يزيد كفاءة التجميع.'
+      "Merging within 24h can save up to 15%.",
+      "Compressing boxes reduces volumetric fees.",
+      "Tuesday shipping often has lower rates.",
+      "Closest destinations merge faster."
     ];
-    document.getElementById('aiTip').textContent = tips[Math.floor(Math.random() * tips.length)];
+
+    const aiTip = document.getElementById('aiTip');
+    if (aiTip) {
+      aiTip.textContent = tips[Math.floor(Math.random() * tips.length)];
+    }
 
   </script>
-</body>
 
+</body>
 
 </html>
