@@ -6,10 +6,12 @@ from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
 from datetime import datetime
 from dotenv import load_dotenv, dotenv_values
-
-
-# OpenAI (SDK الجديد)
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from openai import OpenAI
+
+db = SQLAlchemy()
+migrate = Migrate()
 
 # === Directories ===
 BASE_DIR = Path(__file__).resolve().parent
@@ -19,6 +21,16 @@ STATIC = ROOT / "static"
 
 app = Flask(__name__, template_folder=str(TEMPLATES), static_folder=str(STATIC))
 CORS(app)
+csrf = CSRFProtect(app)
+
+# ========================= DB =========================
+load_dotenv()  # تحميل .env تلقائي
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY" , "change-me-in-production")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+migrate.init_app(app, db)
 
 # CSRF & flash secret
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-me-in-production")
@@ -301,7 +313,16 @@ def chat_api_openai():
     except Exception as e:
         import traceback; traceback.print_exc()
         return jsonify({"ok": False, "reply": f"OpenAI error: {e}"}), 500
+    
+
+
+# ========================= DB =========================
+load_dotenv()  # يقرأ .env
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 # ========================= Dev Server =========================
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5005)
+
