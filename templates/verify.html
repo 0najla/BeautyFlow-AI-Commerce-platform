@@ -17,13 +17,35 @@
 
     <form id="verifyForm" action="{{ url_for('verify_submit') }}" method="post" novalidate>
 
+
       <!-- إذا ما أعفيتِ الراوت من CSRF، ضيفي: -->
       <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
       <div class="phone-input" style="background:#f2f3f5;">
-        <input id="code" name="code" type="text" inputmode="numeric" placeholder="Enter any code"
-          style="letter-spacing:8px; text-align:center; font-weight:700; font-size:20px;">
+        <input id="code" name="code" type="text" inputmode="numeric" placeholder="Enter OTP code"
+          style="letter-spacing:3px; text-align:center; font-weight:500; font-size:20px;">
       </div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+  <div id="errorMessage" style="display:block;">
+    {% for category, message in messages %}
+      {% if category == 'error' %}
+        <p style="
+          color: #eb3838;
+          font-size: 14px;
+          text-align: center;
+          margin-top: 8px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          padding: 6px 10px;
+        ">{{ message }}</p>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+{% endwith %}
+
       <button type="submit" class="btn btn-primary" id="verifyBtn">Verify</button>
+
     </form>
 
     <form action="{{ url_for('resend_otp') }}" method="post" style="margin-top:10px; text-align:center;">
@@ -36,6 +58,7 @@
     {% endif %}
     {% endwith %}
   </main>
+
 
   <script>
     // احذف أي مسافات قبل الإرسال (لو كتبتي 2 2 2 2 2 2)

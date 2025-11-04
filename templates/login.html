@@ -33,25 +33,32 @@
       <p class="brand-sub">Collaborative AI-powered makeup import system</p>
     </div>
 
-    <form id="loginForm" class="login-form">
-      <label>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      </label>
-      <label>
-        <span style="text-align: center;">First Name</span>
-        <input type="text" id="firstName" placeholder="Enter first name">
-      </label>
-      <label>
-        <span style="text-align: center;">Email Address</span>
-        <input type="email" id="email" placeholder="name@example.com">
-      </label>
+  <form id="loginForm" class="login-form" method="POST" action="{{ url_for('login_page') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
+  <label>
+    <span style="text-align: center;">Email Address</span>
+    <input type="email" name="email" id="email" placeholder="name@example.com" required>
+  </label>
 
+  <label>
+    <span style="text-align: center;">Password</span>
+    <input type="password" name="password" id="password" placeholder="Enter your password" required>
+  </label>
 
-      <div id="errorMessage" class="error-message">Please enter your name and email address</div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="errorMessage" class="error-message" style="display:block;">
+      {% for category, message in messages %}
+        {{ message }}
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% endwith %}
 
-      <button type="submit" id="continueBtn" class="btn btn-primary">Continue</button>
-    </form>
+  <button type="submit" id="continueBtn" class="btn btn-primary">Continue</button>
+</form>
+
 
     <p style="color: gray;">___________ or ___________ </p>
 
@@ -72,22 +79,7 @@
       <a style="color: rgb(244, 135, 135); " href="{{ url_for('signup') }}">new account</a>
     </p>
 
-    <script>
-      const form = document.getElementById("loginForm");
-      const firstName = document.getElementById("firstName");
-      const email = document.getElementById("email");
-      const errorMessage = document.getElementById("errorMessage");
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        if (firstName.value.trim() === "" || email.value.trim() === "") {
-          errorMessage.style.display = "block";
-        } else {
-          errorMessage.style.display = "none";
-          window.location.href = "{{ url_for('phone_login') }}";
-        }
-      });
-    </script>
+  
   </main>
 </body>
 

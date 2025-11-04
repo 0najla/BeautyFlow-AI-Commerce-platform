@@ -95,106 +95,68 @@
       </p>
     </main>
   </section>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("signupForm");
+  const fname = document.getElementById("fname");
+  const lname = document.getElementById("lname");
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+  const confirmPassword = document.getElementById("confirm-password");
+  const errorMessage = document.getElementById("error-message");
+  const passwordError = document.getElementById("password-error");
 
-  <!-- سكربت داخل نفس HTML -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const form = document.getElementById("signupForm");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorMessage.style.display = "none";
+    passwordError.style.display = "none";
 
-      const fname = document.getElementById("fname");
-      const lname = document.getElementById("lname");
-      const email = document.getElementById("email");
-      const password = document.getElementById("password");
-      const confirmPassword = document.getElementById("confirm-password");
+    // تحقق بسيط قبل الإرسال
+    if (!fname.value.trim() || !lname.value.trim() || !email.value.trim()) {
+      errorMessage.textContent = "Please fill all required fields.";
+      errorMessage.style.display = "block";
+      return;
+    }
 
-      const errorMessage = document.getElementById("error-message");
-      const passwordError = document.getElementById("password-error");
+    if (password.value.length < 6) {
+      passwordError.style.display = "block";
+      return;
+    }
 
-      // إظهار رسالة طول كلمة المرور أثناء الكتابة
-      password.addEventListener("input", () => {
-        if (password.value && password.value.length < 6) {
-          passwordError.style.display = "block";
-        } else {
-          passwordError.style.display = "none";
-        }
+    if (password.value !== confirmPassword.value) {
+      errorMessage.textContent = "Passwords do not match.";
+      errorMessage.style.display = "block";
+      return;
+    }
+
+    // إرسال البيانات إلى Flask
+    try {
+      const resp = await fetch("{{ url_for('signup') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: fname.value.trim() + "_" + lname.value.trim(),
+          email: email.value.trim(),
+          password: password.value,
+          confirm_password: confirmPassword.value
+        })
       });
 
-      if (!form) return;
+      if (resp.ok) {
+        window.location.href = "{{ url_for('login_page') }}";
+      } else {
+        const data = await resp.json().catch(() => ({}));
+        errorMessage.textContent = data.message || "Signup failed. Try again.";
+        errorMessage.style.display = "block";
+      }
+    } catch (err) {
+      errorMessage.textContent = "Network error. Please try again.";
+      errorMessage.style.display = "block";
+    }
+  });
+});
+</script>
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault(); // نمنع الإرسال حتى نتحقق
-
-        let valid = true;
-        errorMessage.style.display = "none";
-        errorMessage.textContent = "Please fix the errors above.";
-
-        // تنظيف حالات الخطأ الشكلية
-        ["fname-wrap", "lname-wrap", "email-wrap", "password-wrap", "confirm-wrap"].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.classList.remove("field-error");
-        });
-
-        // تحقق الحقول الأساسية
-        if (!fname.value.trim()) { document.getElementById("fname-wrap").classList.add("field-error"); valid = false; }
-        if (!lname.value.trim()) { document.getElementById("lname-wrap").classList.add("field-error"); valid = false; }
-        if (!email.value.trim()) { document.getElementById("email-wrap").classList.add("field-error"); valid = false; }
-
-        // طول كلمة المرور
-        if (password.value.length < 6) {
-          passwordError.style.display = "block";
-          document.getElementById("password-wrap").classList.add("field-error");
-          valid = false;
-        } else {
-          passwordError.style.display = "none";
-        }
-
-        // تطابق كلمة المرور
-        if (password.value !== confirmPassword.value) {
-          errorMessage.textContent = "Passwords do not match!";
-          errorMessage.style.display = "block";
-          document.getElementById("confirm-wrap").classList.add("field-error");
-          valid = false;
-        }
-
-        if (!valid) {
-          if (errorMessage.style.display !== "block") {
-            errorMessage.textContent = "Please fill all required fields.";
-            errorMessage.style.display = "block";
-          }
-          return;
-        }
-
-        // إذا تبين إرسال عادي بدون fetch: احذفي السطر التالي "return" وبدليه بـ form.submit()
-        // return form.submit();
-
-        // إرسال JSON لراوت Flask /signup
-        try {
-          const resp = await fetch("{{ url_for('signup') }}", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              first_name: fname.value.trim(),
-              last_name: lname.value.trim(),
-              email: email.value.trim(),
-              password: password.value
-            })
-          });
-
-          if (resp.ok) {
-            // نجاح → وجهي المستخدم لصفحة تسجيل الدخول
-            window.location.href = "{{ url_for('login_page') }}";
-          } else {
-            const data = await resp.json().catch(() => ({}));
-            errorMessage.textContent = data.message || "Signup failed. Try again.";
-            errorMessage.style.display = "block";
-          }
-        } catch (err) {
-          errorMessage.textContent = "Network error. Please try again.";
-          errorMessage.style.display = "block";
-        }
-      });
-    });
-  </script>
 </body>
 
 </html>

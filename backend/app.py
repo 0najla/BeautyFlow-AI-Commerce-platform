@@ -9,9 +9,28 @@ from dotenv import load_dotenv, dotenv_values
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from openai import OpenAI
+from sqlalchemy import text
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.exc import IntegrityError
+from models import *
+from models import db
+from functools import wraps
+from twilio.rest import Client
+import base64
+import requests
+from models import AIGeneration, AISession, Product
 
-db = SQLAlchemy()
-migrate = Migrate()
+
+def login_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("user_id"):
+            flash("Please login first.", "error")
+            return redirect(url_for("login_page", next=request.path))
+        return view(*args, **kwargs)
+    return wrapped
+
+
 
 # === Directories ===
 BASE_DIR = Path(__file__).resolve().parent
@@ -21,16 +40,9 @@ STATIC = ROOT / "static"
 
 app = Flask(__name__, template_folder=str(TEMPLATES), static_folder=str(STATIC))
 CORS(app)
-csrf = CSRFProtect(app)
 
-# ========================= DB =========================
-load_dotenv()  # تحميل .env تلقائي
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY" , "change-me-in-production")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['SECRET_KEY'] = 'change_this_to_a_strong_secret'  # مهم
 
-db.init_app(app)
-migrate.init_app(app, db)
 
 # CSRF & flash secret
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-me-in-production")
@@ -64,46 +76,134 @@ if not API_KEY:
 
 client = OpenAI(api_key=API_KEY)
 
+
+# ========================= DB =========================
+load_dotenv()  # يقرأ .env
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+migrate= Migrate(app, db)
+with app.app_context():
+      db.create_all()
+
+
+
+@app.route("/dbcheck")
+def dbcheck():
+    try:
+        with db.engine.connect() as conn:
+            version = conn.execute(text("select version()")).scalar()
+        return f"✅ Database Connected Successfully!<br>{version}"
+    except Exception as e:
+        return f"❌ Database Connection Failed:<br>{e}"
+
+
+def ensure_profile_for(account, first_name=None, last_name=None, phone=None):
+    """Create AccountProfile if missing; update basic fields if provided."""
+    from models import AccountProfile  # تأكد أنه مُصدَّر من models/__init__.py
+    prof = AccountProfile.query.filter_by(account_id=account.id).first()
+    created = False
+    if not prof:
+        prof = AccountProfile(account_id=account.id)
+        created = True
+
+    # تحديث اختياري لو فيه بيانات
+    full_name_parts = []
+    if first_name:
+        full_name_parts.append(first_name.strip())
+    if last_name:
+        full_name_parts.append(last_name.strip())
+    if full_name_parts:
+        prof.full_name = " ".join(full_name_parts)
+
+    if phone and hasattr(prof, "phone"):
+        prof.phone = phone
+        pass
+
+    if created:
+        db.session.add(prof)
+    # ملاحظة: لا نعمل commit هنا؛ نخليه على الراؤوت يستدعي commit مرّة وحدة
+    return prof, created
+
+
+
 # =========================
 #         ROUTES
 # =========================
 
-@app.route("/", strict_slashes=False)
+@app.route("/",strict_slashes=False)
 def home():
-    return redirect(url_for("login_page"), code=302)
+    return redirect(url_for("login_page"),code=302)
 
 @csrf.exempt
 @app.route("/login", methods=["GET", "POST"], strict_slashes=False)
 def login_page():
     if request.method == "GET":
         return render_template("login.html")
-    return redirect(url_for("home_index"))
+
+    # نقرأ القيم القادمة من الصفحة
+    email = (request.form.get("email") or "").strip().lower()
+    password = (request.form.get("password") or "").strip()
+
+    # إذا المستخدم ما كتب شيء
+    if not email or not password:
+        flash("Please enter both email and password.", "error")
+        return redirect(url_for("login_page"))
+
+    # نبحث عن الإيميل في قاعدة البيانات
+    user = Account.query.filter_by(email=email).first()
+
+    # إذا المستخدم غير موجود (ما سوا Signup)
+    if not user:
+        flash("You don't have an account, please Sign up first.", "error")
+        return redirect(url_for("login_page"))
+
+    # إذا موجود لكن كلمة المرور خطأ
+    if not check_password_hash(user.password_hash, password):
+        flash("Incorrect password, please try again.", "error")
+        return redirect(url_for("login_page"))
+
+    # نجاح تسجيل الدخول
+    session.clear()
+    session["user_id"] = int(user.id)
+    session["username"] = user.username
+
+    next_page = request.args.get("next") or url_for("phone_login")
+    flash("Logged in successfully ", "success")
+    return redirect(url_for("phone_login"))
+
 
 @app.route("/index", strict_slashes=False)
 def home_index():
     return render_template("index.html")
 
 @app.route("/design-options", strict_slashes=False)
+@login_required
 def design_options():
     return render_template("designOptions.html")
 
 @app.route("/AI", methods=["GET"])
+@login_required
 def ai_page():
     return render_template("AI.html")
 
 @app.route("/costSharing", methods=["GET"])
+@login_required
 def costSharing_page():
     return render_template("costSharing.html")
 
 @app.route("/invoice", methods=["GET"])
+@login_required
 def invoice_page():
     return render_template("invoice.html")
 
 @app.route("/invoiceShared", methods=["GET"])
+@login_required
 def invoiceShared_page():
     return render_template("invoiceShared.html")
 
 @app.route("/shipment", methods=["GET"])
+@login_required
 def shipment_page():
     return render_template("shipment.html")
 
@@ -112,18 +212,22 @@ def about_page():
     return render_template("about.html")
 
 @app.route("/smartPicks", strict_slashes=False)
+@login_required
 def smartPicks_page():
     return render_template("smartPicks.html")
 
 @app.route("/cart", strict_slashes=False)
+@login_required
 def cart_page():
     return render_template("cart.html")
 
 @app.route("/payment", strict_slashes=False)
+@login_required
 def payment_page():
     return render_template("payment.html")
 
 @app.route("/sspay", strict_slashes=False)
+@login_required
 def sspay_page():
     return render_template("sspay.html")
 
@@ -131,6 +235,7 @@ def sspay_page():
 #  Profile routes
 # -------------------------
 @app.route("/account", methods=["GET"], strict_slashes=False)
+@login_required
 def account_page():
     profile = session.get("profile", {
         "firstName": "",
@@ -141,6 +246,7 @@ def account_page():
     return render_template("account.html", profile=profile)
 
 @app.route("/profile/save", methods=["POST"], strict_slashes=False)
+@login_required
 def profile_save():
     csrf_token = (
         request.headers.get("X-CSRFToken")
@@ -198,23 +304,40 @@ def signup():
         return render_template("signup.html")
 
     data = request.get_json(silent=True) or request.form
-    first_name = (data.get("first_name") or "").strip()
-    last_name  = (data.get("last_name") or "").strip()
-    email      = (data.get("email") or "").strip()
-    password   = data.get("password") or ""
-    confirm    = (data.get("confirm_password") or password)
+    username = (data.get("username") or "").strip()
+    email    = (data.get("email") or "").strip().lower()
+    phone    = (data.get("phone") or "").strip() or None
+    password = data.get("password") or ""
+    confirm  = data.get("confirm_password") or password
 
-    if not first_name or not email:
-        msg = "First name and email are required."
-        return (jsonify({"message": msg}), 400) if request.is_json else (render_template("signup.html", error=msg), 400)
+    if not username or not email or not password:
+        flash("Please fill username, email, and password.", "error")
+        return redirect(url_for("signup"))
     if len(password) < 6:
-        msg = "Password must be at least 6 characters."
-        return (jsonify({"message": msg}), 400) if request.is_json else (render_template("signup.html", error=msg), 400)
+        flash("Password must be at least 6 characters.", "error")
+        return redirect(url_for("signup"))
     if password != confirm:
-        msg = "Passwords do not match."
-        return (jsonify({"message": msg}), 400) if request.is_json else (render_template("signup.html", error=msg), 400)
+        flash("Passwords do not match.", "error")
+        return redirect(url_for("signup"))
 
-    return (jsonify({"ok": True}), 200) if request.is_json else redirect(url_for("login_page"))
+    pwd_hash = generate_password_hash(password)
+    user = Account(username=username, email=email, phone_number=phone, password_hash=pwd_hash)
+
+    db.session.add(user)
+    try:
+        db.session.flush()                # يعطي user.id بدون إنهاء المعاملة
+        ensure_profile_for(user, first_name=username)  # ينشئ صف في account_profiles
+        db.session.commit()               # هنا الحفظ الفعلي للجدولين
+        flash("Account created! Please login.", "success")
+        return redirect(url_for("login_page"))
+    except IntegrityError:
+        db.session.rollback()
+        flash("Username or email already exists.", "error")
+        return redirect(url_for("signup"))
+    except Exception as e:
+        db.session.rollback()
+        flash("Unexpected error.", "error")
+        return redirect(url_for("signup"))
 
 @app.route("/help", methods=["GET"], strict_slashes=False)
 def help_page():
@@ -236,25 +359,7 @@ def submit_contact():
 def phone_login():
     return render_template("phone_login.html")
 
-@csrf.exempt
-@app.route("/send_otp", methods=["POST"], strict_slashes=False)
-def send_otp():
-    country = request.form.get("country", "SA")
-    cc = request.form.get("cc", "+966")
-    phone = (request.form.get("phone") or "").strip()
-    if not phone:
-        flash("Enter a valid phone number.")
-        return redirect(url_for("phone_login"))
 
-    session["country"] = country
-    session["cc"] = cc
-    session["phone"] = phone
-    session["phone_full"] = f"{cc}{phone}"
-
-    otp = f"{random.randint(0, 999999):06d}"
-    session["otp"] = otp
-    print("DEBUG OTP ->", otp, "to", session["phone_full"])
-    return redirect(url_for("verify_page"))
 
 @app.get("/verify")
 def verify_page():
@@ -264,23 +369,135 @@ def verify_page():
     masked = phone_full[:-4] + "****"
     return render_template("verify.html", phone_mask=masked)
 
+
+
+client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
+VERIFY_SID = os.getenv("TWILIO_VERIFY_SID")
+USE_TWILIO = os.getenv("USE_TWILIO", "0") == "1"
+
+@csrf.exempt
+@app.post("/send_otp")
+def send_otp():
+    print("[DEBUG] USE_TWILIO:", USE_TWILIO, "VERIFY_SID:", VERIFY_SID)
+    raw_phone = (request.form.get("phone") or "").strip()
+    print("[DEBUG] raw_phone:", raw_phone)
+
+    # طَبّعي رقم السعودية إلى +9665xxxxxxxx
+    digits = re.sub(r"\D+", "", raw_phone)
+    if digits.startswith("966"): digits = digits[3:]
+    if digits.startswith("05") and len(digits) == 10: digits = digits[1:]
+    if digits.startswith("5") and len(digits) == 9:
+        phone_full = f"+966{digits}"
+    else:
+        flash("Phone number format is invalid. Use 05xxxxxxxx.", "error")
+        return redirect(url_for("phone_login"))
+
+    print("[DEBUG] phone_full:", phone_full)
+
+    session["phone_full"] = phone_full
+
+    if not USE_TWILIO:
+        print("[DEV MODE] Would send OTP to:", phone_full)
+        flash("DEV mode: set USE_TWILIO=1 to send real SMS.", "success")
+        return redirect(url_for("verify_page"))
+
+    try:
+        v = client.verify.v2.services(VERIFY_SID).verifications.create(
+            to=phone_full,
+            channel="sms"
+        )
+        print("[DEBUG] Twilio status:", v.status)  # should be 'pending'
+        flash("OTP sent via SMS ", "success")
+        return redirect(url_for("verify_page"))
+    except Exception as e:
+        print("[Twilio ERROR]", repr(e))
+        flash("Failed to send SMS. Check console/logs.", "error")
+        return redirect(url_for("phone_login"))
+    
+
+
 @csrf.exempt
 @app.post("/verify")
 def verify_submit():
+    # لازم يكون المستخدم مسجّل دخول
+    if "user_id" not in session:
+        return redirect(url_for("login_page"))
+
     code = (request.form.get("code") or "").strip()
-    flash("Verified successfully ✅")
+    phone_full = session.get("phone_full")
+
+    if not phone_full:
+        flash("Session expired. Send OTP again.", "error")
+        return redirect(url_for("phone_login"))
+
+    try:
+        if USE_TWILIO:
+            check = client.verify.v2.services(VERIFY_SID).verification_checks.create(
+                to=phone_full, code=code
+            )
+            print("[DEBUG] verify status:", check.status)
+            if check.status != "approved":
+                flash("Incorrect OTP code", "error")
+                return redirect(url_for("verify_page"))
+        else:
+            expected = session.get("otp")
+            if not expected or code != expected:
+                flash("Incorrect OTP code", "error")
+                return redirect(url_for("verify_page"))
+    except Exception as e:
+        print("[Verify ERROR]", repr(e))
+        flash("Verification failed. Try again.", "error")
+        return redirect(url_for("verify_page"))
+
+    # ✅ نجاح التحقق
+    user = Account.query.get(session["user_id"])
+    if user:
+        if user.phone_number != phone_full:
+            user.phone_number = phone_full
+        sec = AccountSecurity.query.filter_by(account_id=user.id).first()
+        if not sec:
+            sec = AccountSecurity(account_id=user.id)
+            db.session.add(sec)
+        sec.is_2fa_enabled = True
+        sec.two_factor_method = "sms"
+        db.session.commit()
+
+    session.pop("phone_full", None)
+    session.pop("otp", None)
+
+    flash("Phone verified ✅", "success")
     return redirect(url_for("home_index"))
+
+
 
 @csrf.exempt
 @app.post("/resend_otp")
 def resend_otp():
-    if not session.get("phone_full"):
+    phone_full = session.get("phone_full")
+    if not phone_full:
         return redirect(url_for("phone_login"))
-    otp = f"{random.randint(0, 999999):06d}"
-    session["otp"] = otp
-    print("DEBUG RESEND ->", otp, "to", session["phone_full"])
-    flash("A new OTP has been sent.")
+
+    try:
+        if USE_TWILIO:
+            client.verify.v2.services(VERIFY_SID).verifications.create(
+                to=phone_full, channel="sms"
+            )
+            flash("A new OTP has been sent.", "success")
+        else:
+            # وضع التطوير: ولّدي كود جديد وخزّنيه
+            otp = f"{random.randint(0, 999999):06d}"
+            session["otp"] = otp
+            print("[DEV RESEND] OTP ->", otp, "to", phone_full)
+            flash("DEV mode: new code printed in console.", "success")
+    except Exception as e:
+        print("[Resend ERROR]", repr(e))
+        flash("Failed to resend code. Try again.", "error")
+
     return redirect(url_for("verify_page"))
+
+
+
+
 
 @app.route("/logout", methods=["GET"], strict_slashes=False, endpoint="logout")
 def logout():
@@ -292,6 +509,7 @@ def logout():
 # =========================
 @csrf.exempt
 @app.route("/chat", methods=["POST"])
+@login_required
 def chat_api_openai():
     data = request.get_json(silent=True) or {}
     user_msg = (data.get("message") or "").strip()
@@ -316,13 +534,67 @@ def chat_api_openai():
     
 
 
-# ========================= DB =========================
-load_dotenv()  # يقرأ .env
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+
+    # =========================
+#  AI Image Generation (Packaging)
+# =========================
+@csrf.exempt
+@app.route("/ai/generate", methods=["POST"])
+@login_required
+def ai_generate_packaging():
+    data = request.get_json(silent=True) or {}
+    prompt = (data.get("prompt") or "").strip()
+
+    if not prompt:
+        return jsonify({"ok": False, "error": "EMPTY_PROMPT", "message": "Please describe the packaging."}), 400
+
+    user_id = session.get("user_id")
+    try:
+        # 1. توليد الصورة
+        result = client.images.generate(
+            model="gpt-image-1",
+            prompt=prompt,
+            size="1024x1024"
+        )
+        image_url = result.data[0].url
+
+        # 2. إنشاء جلسة لو ما فيه وحدة مفتوحة
+        session_obj = AISession.query.filter_by(account_id=user_id, status="OPEN").first()
+        if not session_obj:
+            session_obj = AISession(account_id=user_id)
+            db.session.add(session_obj)
+            db.session.flush()
+
+        # 3. حفظ الصورة في قاعدة البيانات
+        gen = AIGeneration(
+            session_id=session_obj.id,
+            image_url=image_url,
+            prompt_json={"prompt": prompt},
+            meta_json={"model": "gpt-image-1"}
+        )
+        db.session.add(gen)
+        db.session.commit()
+
+        return jsonify({"ok": True, "image_url": image_url}), 200
+
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return jsonify({"ok": False, "error": "OPENAI_ERROR", "message": str(e)}), 500
+
+    
+@app.route("/debug-profiles")
+def debug_profiles():
+    rows = AccountProfile.query.order_by(AccountProfile.id.desc()).all()
+    return jsonify([{"id": int(r.id), "account_id": int(r.account_id), "full_name": r.full_name} for r in rows])
+
+
+
+
 
 # ========================= Dev Server =========================
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5005)
+
+
+
 
