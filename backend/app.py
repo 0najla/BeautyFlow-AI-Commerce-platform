@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from flask_cors import CORS
 from pathlib import Path
-import os, random, re
+import os, random, re ,json
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
 from datetime import datetime
@@ -12,13 +12,16 @@ from openai import OpenAI
 from sqlalchemy import text
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
-from models import *
-from models import db
+from models.all_models import *
+from models.all_models import db
 from functools import wraps
 from twilio.rest import Client
 import base64
 import requests
-from models import AIGeneration, AISession, Product
+from models.all_models import AISession, AIMessage ,AIGeneration
+
+load_dotenv()
+OpenAI_Client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def login_required(view):
@@ -74,7 +77,7 @@ if not API_KEY:
         "OPENAI_API_KEY=sk-xxxx"
     )
 
-client = OpenAI(api_key=API_KEY)
+OpenAI_Client = OpenAI(api_key=API_KEY)
 
 
 # ========================= DB =========================
@@ -125,6 +128,27 @@ def ensure_profile_for(account, first_name=None, last_name=None, phone=None):
     # ملاحظة: لا نعمل commit هنا؛ نخليه على الراؤوت يستدعي commit مرّة وحدة
     return prof, created
 
+def _get_or_open_session(user_id):
+    from all_models import AISession
+    sess = AISession.query.filter_by(account_id=user_id, status="OPEN").order_by(AISession.id.desc()).first()
+    if not sess:
+        sess = AISession(account_id=user_id, status="OPEN", notes=json.dumps({"filled": {}, "pending": []}))
+        db.session.add(sess)
+        db.session.flush()
+    try:
+        state = json.loads(sess.notes) if sess.notes else {"filled": {}, "pending": []}
+    except Exception:
+        state = {"filled": {}, "pending": []}
+    return sess, state
+
+def _save_state(sess, state):
+    sess.notes = json.dumps(state, ensure_ascii=False)
+    db.session.flush()
+
+def _save_msg(sess_id, who, content):
+    from all_models import AIMessage
+    db.session.add(AIMessage(session_id=sess_id, sender=who, content=content))
+    db.session.flush()
 
 
 # =========================
@@ -183,7 +207,7 @@ def design_options():
     return render_template("designOptions.html")
 
 @app.route("/AI", methods=["GET"])
-@login_required
+
 def ai_page():
     return render_template("AI.html")
 
@@ -511,28 +535,136 @@ def logout():
 @app.route("/chat", methods=["POST"])
 @login_required
 def chat_api_openai():
+    from all_models import AISession, AIMessage, AIGeneration
     data = request.get_json(silent=True) or {}
-    user_msg = (data.get("message") or "").strip()
-    if not user_msg:
+    user_text = (data.get("message") or "").strip()
+    reset = bool(data.get("reset"))
+
+    if not user_text:
         return jsonify({"ok": False, "reply": "Message is empty"}), 400
 
-    try:
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant for packaging ideas."},
-                {"role": "user", "content": user_msg}
-            ],
-            max_tokens=200
+    user_id = int(session["user_id"])
+
+    # reset optional
+    if reset:
+        for s in AISession.query.filter_by(account_id=user_id, status="OPEN").all():
+            s.status = "CLOSED"
+        db.session.flush()
+
+    sess, state = _get_or_open_session(user_id)
+    filled, pending = state.get("filled", {}), state.get("pending", [])
+    REQUIRED = ["appearance", "formula_base", "skin_type", "finish", "coverage"]
+
+    # First message: greet and list needed fields
+    if not filled and not pending:
+        pending = REQUIRED.copy()
+        state["pending"] = pending
+        greeting = (
+            "Hi! Tell me the product *appearance* (colors, style, logo/print, packaging details).\n"
+            "We will also need:\n"
+            "• Formula base: POWDER / GEL / CREAM / OIL / WATER\n"
+            "• Skin type: OILY / DRY / NORMAL / COMBINATION / SENSITIVE\n"
+            "• Finish: MATTE / NATURAL / DEWY / GLOWY\n"
+            "• Coverage: SHEER / MEDIUM / FULL\n\n"
+            "Start with the overall appearance ✨"
         )
-        reply = completion.choices[0].message.content
-        return jsonify({"ok": True, "reply": reply}), 200
+        _save_state(sess, state)
+        _save_msg(sess.id, "USER", user_text)
+        _save_msg(sess.id, "AI", greeting)
+        db.session.commit()
+        return jsonify({"ok": True, "reply": greeting, "session_id": int(sess.id)}), 200
 
-    except Exception as e:
-        import traceback; traceback.print_exc()
-        return jsonify({"ok": False, "reply": f"OpenAI error: {e}"}), 500
-    
+    # Save user message
+    _save_msg(sess.id, "USER", user_text)
+    low = user_text.lower()
 
+    # Fill slots
+    if "appearance" in pending and len(user_text.split()) >= 2:
+        filled["appearance"] = user_text; pending.remove("appearance")
+    if "formula_base" in pending:
+        if   "powder" in low: filled["formula_base"] = "POWDER";  pending.remove("formula_base")
+        elif "gel"    in low: filled["formula_base"] = "GEL";     pending.remove("formula_base")
+        elif "cream"  in low: filled["formula_base"] = "CREAM";   pending.remove("formula_base")
+        elif "oil"    in low: filled["formula_base"] = "OIL";     pending.remove("formula_base")
+        elif "water"  in low: filled["formula_base"] = "WATER";   pending.remove("formula_base")
+    if "skin_type" in pending:
+        if   "oily"        in low: filled["skin_type"] = "OILY";        pending.remove("skin_type")
+        elif "dry"         in low: filled["skin_type"] = "DRY";         pending.remove("skin_type")
+        elif "normal"      in low: filled["skin_type"] = "NORMAL";      pending.remove("skin_type")
+        elif "combination" in low: filled["skin_type"] = "COMBINATION"; pending.remove("skin_type")
+        elif "sensitive"   in low: filled["skin_type"] = "SENSITIVE";   pending.remove("skin_type")
+    if "finish" in pending:
+        if   "matte"   in low: filled["finish"] = "MATTE";   pending.remove("finish")
+        elif "natural" in low: filled["finish"] = "NATURAL"; pending.remove("finish")
+        elif "dewy"    in low: filled["finish"] = "DEWY";    pending.remove("finish")
+        elif "glowy"   in low or "glow" in low: filled["finish"] = "GLOWY"; pending.remove("finish")
+    if "coverage" in pending:
+        if   "sheer" in low or "light" in low: filled["coverage"] = "SHEER";  pending.remove("coverage")
+        elif "medium" in low:               filled["coverage"] = "MEDIUM"; pending.remove("coverage")
+        elif "full" in low or "high" in low:filled["coverage"] = "FULL";   pending.remove("coverage")
+
+    state["filled"], state["pending"] = filled, pending
+    _save_state(sess, state)
+
+    # Ask next required field
+    if pending:
+        nxt = pending[0]
+        questions = {
+            "appearance":  "Please describe the outer look (colors, style, logo/print, bottle/jar details).",
+            "formula_base":"Pick one formula base: POWDER / GEL / CREAM / OIL / WATER.",
+            "skin_type":   "Pick skin type: OILY / DRY / NORMAL / COMBINATION / SENSITIVE.",
+            "finish":      "Pick finish: MATTE / NATURAL / DEWY / GLOWY.",
+            "coverage":    "Pick coverage: SHEER / MEDIUM / FULL."
+        }
+        follow_up = f"Got it so far ✅: { {k:v for k,v in filled.items()} }\n\n{questions[nxt]}"
+        _save_msg(sess.id, "AI", follow_up)
+        db.session.commit()
+        return jsonify({"ok": True, "reply": follow_up, "session_id": int(sess.id)}), 200
+
+    # All slots filled → build prompt, generate image, save
+    appearance   = filled["appearance"]
+    formula_base = filled["formula_base"]
+    skin_type    = filled["skin_type"]
+    finish       = filled["finish"]
+    coverage     = filled["coverage"]
+
+    final_desc = (
+        f"Cosmetics product packaging, photorealistic render.\n"
+        f"Appearance: {appearance}\n"
+        f"Formula base: {formula_base}\n"
+        f"Skin type: {skin_type} | Finish: {finish} | Coverage: {coverage}\n"
+        f"Studio product shot, centered, high detail, soft lighting."
+    )
+
+    image_url = None
+    try:
+        result = openai_client.images.generate(model="gpt-image-1", prompt=final_desc, size="1024x1024")
+        image_url = result.data[0].url
+
+        gen = AIGeneration(
+            session_id=sess.id,
+            image_url=image_url,
+            prompt_json={"prompt": final_desc},
+            meta_json={"model": "gpt-image-1"}
+        )
+        db.session.add(gen)
+        db.session.commit()
+
+    except Exception:
+        db.session.rollback()
+        err_reply = "All specs captured ✅ but image generation failed. Please try again."
+        _save_msg(sess.id, "AI", err_reply)
+        return jsonify({"ok": True, "reply": err_reply, "session_id": int(sess.id)}), 200
+
+    success = (
+        "Here is a first preview based on your specs 👇\n\n"
+        f"- Formula: **{formula_base}**  |  Skin: **{skin_type}**\n"
+        f"- Finish: **{finish}**  |  Coverage: **{coverage}**\n\n"
+        "Want to tweak anything (formula/skin/finish/coverage/appearance)?"
+    )
+    _save_msg(sess.id, "AI", success)
+
+    return jsonify({"ok": True, "reply": success, "image_url": image_url, "session_id": int(sess.id)}), 200
 
 
     # =========================
@@ -551,7 +683,7 @@ def ai_generate_packaging():
     user_id = session.get("user_id")
     try:
         # 1. توليد الصورة
-        result = client.images.generate(
+        result = OpenAI_Client.images.generate(
             model="gpt-image-1",
             prompt=prompt,
             size="1024x1024"
