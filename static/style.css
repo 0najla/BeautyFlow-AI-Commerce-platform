@@ -1376,3 +1376,32 @@ button:hover {
 .toast.show {
   opacity: 1;
 }
+
+
+.wizard-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+
+.wizard-btn {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  background: #fbe3f1;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+.wizard-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.wizard-btn.selected {
+  background: #f28bb8;
+  color: #9d1313;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}

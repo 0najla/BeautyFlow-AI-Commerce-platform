@@ -3,7 +3,7 @@ from flask_cors import CORS
 from pathlib import Path
 import os, random, re ,json
 from flask_wtf import CSRFProtect
-from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
+from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError 
 from datetime import datetime
 from dotenv import load_dotenv, dotenv_values
 from flask_sqlalchemy import SQLAlchemy
@@ -24,16 +24,17 @@ load_dotenv()
 OpenAI_Client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def login_required(view):
-    @wraps(view)
-    def wrapped(*args, **kwargs):
-        if not session.get("user_id"):
-            flash("Please login first.", "error")
-            return redirect(url_for("login_page", next=request.path))
-        return view(*args, **kwargs)
-    return wrapped
 
+#def login_required(view):
+  #  @wraps(view)
+  #  def wrapped(*args, **kwargs):
+   #     if not session.get("user_id"):
+    #        flash("Please login first.", "error")
+      #      return redirect(url_for("login_page", next=request.path))
+     #   return view(*args, **kwargs)
+    #return wrapped
 
+ 
 
 # === Directories ===
 BASE_DIR = Path(__file__).resolve().parent
@@ -202,32 +203,36 @@ def home_index():
     return render_template("index.html")
 
 @app.route("/design-options", strict_slashes=False)
-@login_required
+
 def design_options():
     return render_template("designOptions.html")
+
+
 
 @app.route("/AI", methods=["GET"])
 
 def ai_page():
     return render_template("AI.html")
 
+
+
 @app.route("/costSharing", methods=["GET"])
-@login_required
+
 def costSharing_page():
     return render_template("costSharing.html")
 
 @app.route("/invoice", methods=["GET"])
-@login_required
+
 def invoice_page():
     return render_template("invoice.html")
 
 @app.route("/invoiceShared", methods=["GET"])
-@login_required
+
 def invoiceShared_page():
     return render_template("invoiceShared.html")
 
 @app.route("/shipment", methods=["GET"])
-@login_required
+
 def shipment_page():
     return render_template("shipment.html")
 
@@ -236,22 +241,21 @@ def about_page():
     return render_template("about.html")
 
 @app.route("/smartPicks", strict_slashes=False)
-@login_required
+
 def smartPicks_page():
     return render_template("smartPicks.html")
 
-@app.route("/cart", strict_slashes=False)
-@login_required
+
 def cart_page():
     return render_template("cart.html")
 
 @app.route("/payment", strict_slashes=False)
-@login_required
+
 def payment_page():
     return render_template("payment.html")
 
 @app.route("/sspay", strict_slashes=False)
-@login_required
+
 def sspay_page():
     return render_template("sspay.html")
 
@@ -259,7 +263,7 @@ def sspay_page():
 #  Profile routes
 # -------------------------
 @app.route("/account", methods=["GET"], strict_slashes=False)
-@login_required
+
 def account_page():
     profile = session.get("profile", {
         "firstName": "",
@@ -270,7 +274,7 @@ def account_page():
     return render_template("account.html", profile=profile)
 
 @app.route("/profile/save", methods=["POST"], strict_slashes=False)
-@login_required
+
 def profile_save():
     csrf_token = (
         request.headers.get("X-CSRFToken")
@@ -533,185 +537,95 @@ def logout():
 # =========================
 @csrf.exempt
 @app.route("/chat", methods=["POST"])
-@login_required
-def chat_api_openai():
-    from all_models import AISession, AIMessage, AIGeneration
-    data = request.get_json(silent=True) or {}
-    user_text = (data.get("message") or "").strip()
-    reset = bool(data.get("reset"))
-
-    if not user_text:
-        return jsonify({"ok": False, "reply": "Message is empty"}), 400
-
-    user_id = int(session["user_id"])
-
-    # reset optional
-    if reset:
-        for s in AISession.query.filter_by(account_id=user_id, status="OPEN").all():
-            s.status = "CLOSED"
-        db.session.flush()
-
-    sess, state = _get_or_open_session(user_id)
-    filled, pending = state.get("filled", {}), state.get("pending", [])
-    REQUIRED = ["appearance", "formula_base", "skin_type", "finish", "coverage"]
-
-    # First message: greet and list needed fields
-    if not filled and not pending:
-        pending = REQUIRED.copy()
-        state["pending"] = pending
-        greeting = (
-            "Hi! Tell me the product *appearance* (colors, style, logo/print, packaging details).\n"
-            "We will also need:\n"
-            "• Formula base: POWDER / GEL / CREAM / OIL / WATER\n"
-            "• Skin type: OILY / DRY / NORMAL / COMBINATION / SENSITIVE\n"
-            "• Finish: MATTE / NATURAL / DEWY / GLOWY\n"
-            "• Coverage: SHEER / MEDIUM / FULL\n\n"
-            "Start with the overall appearance ✨"
-        )
-        _save_state(sess, state)
-        _save_msg(sess.id, "USER", user_text)
-        _save_msg(sess.id, "AI", greeting)
-        db.session.commit()
-        return jsonify({"ok": True, "reply": greeting, "session_id": int(sess.id)}), 200
-
-    # Save user message
-    _save_msg(sess.id, "USER", user_text)
-    low = user_text.lower()
-
-    # Fill slots
-    if "appearance" in pending and len(user_text.split()) >= 2:
-        filled["appearance"] = user_text; pending.remove("appearance")
-    if "formula_base" in pending:
-        if   "powder" in low: filled["formula_base"] = "POWDER";  pending.remove("formula_base")
-        elif "gel"    in low: filled["formula_base"] = "GEL";     pending.remove("formula_base")
-        elif "cream"  in low: filled["formula_base"] = "CREAM";   pending.remove("formula_base")
-        elif "oil"    in low: filled["formula_base"] = "OIL";     pending.remove("formula_base")
-        elif "water"  in low: filled["formula_base"] = "WATER";   pending.remove("formula_base")
-    if "skin_type" in pending:
-        if   "oily"        in low: filled["skin_type"] = "OILY";        pending.remove("skin_type")
-        elif "dry"         in low: filled["skin_type"] = "DRY";         pending.remove("skin_type")
-        elif "normal"      in low: filled["skin_type"] = "NORMAL";      pending.remove("skin_type")
-        elif "combination" in low: filled["skin_type"] = "COMBINATION"; pending.remove("skin_type")
-        elif "sensitive"   in low: filled["skin_type"] = "SENSITIVE";   pending.remove("skin_type")
-    if "finish" in pending:
-        if   "matte"   in low: filled["finish"] = "MATTE";   pending.remove("finish")
-        elif "natural" in low: filled["finish"] = "NATURAL"; pending.remove("finish")
-        elif "dewy"    in low: filled["finish"] = "DEWY";    pending.remove("finish")
-        elif "glowy"   in low or "glow" in low: filled["finish"] = "GLOWY"; pending.remove("finish")
-    if "coverage" in pending:
-        if   "sheer" in low or "light" in low: filled["coverage"] = "SHEER";  pending.remove("coverage")
-        elif "medium" in low:               filled["coverage"] = "MEDIUM"; pending.remove("coverage")
-        elif "full" in low or "high" in low:filled["coverage"] = "FULL";   pending.remove("coverage")
-
-    state["filled"], state["pending"] = filled, pending
-    _save_state(sess, state)
-
-    # Ask next required field
-    if pending:
-        nxt = pending[0]
-        questions = {
-            "appearance":  "Please describe the outer look (colors, style, logo/print, bottle/jar details).",
-            "formula_base":"Pick one formula base: POWDER / GEL / CREAM / OIL / WATER.",
-            "skin_type":   "Pick skin type: OILY / DRY / NORMAL / COMBINATION / SENSITIVE.",
-            "finish":      "Pick finish: MATTE / NATURAL / DEWY / GLOWY.",
-            "coverage":    "Pick coverage: SHEER / MEDIUM / FULL."
-        }
-        follow_up = f"Got it so far ✅: { {k:v for k,v in filled.items()} }\n\n{questions[nxt]}"
-        _save_msg(sess.id, "AI", follow_up)
-        db.session.commit()
-        return jsonify({"ok": True, "reply": follow_up, "session_id": int(sess.id)}), 200
-
-    # All slots filled → build prompt, generate image, save
-    appearance   = filled["appearance"]
-    formula_base = filled["formula_base"]
-    skin_type    = filled["skin_type"]
-    finish       = filled["finish"]
-    coverage     = filled["coverage"]
-
-    final_desc = (
-        f"Cosmetics product packaging, photorealistic render.\n"
-        f"Appearance: {appearance}\n"
-        f"Formula base: {formula_base}\n"
-        f"Skin type: {skin_type} | Finish: {finish} | Coverage: {coverage}\n"
-        f"Studio product shot, centered, high detail, soft lighting."
-    )
-
-    image_url = None
+def chat_api():
     try:
-        result = openai_client.images.generate(model="gpt-image-1", prompt=final_desc, size="1024x1024")
-        image_url = result.data[0].url
+        data = request.get_json(silent=True) or {}
+        user_text = (data.get("message") or "").strip()
+        if not user_text:
+            return jsonify({"ok": False, "message": "empty_message"}), 400
 
-        gen = AIGeneration(
-            session_id=sess.id,
-            image_url=image_url,
-            prompt_json={"prompt": final_desc},
-            meta_json={"model": "gpt-image-1"}
+        # استخدام عميلك الحالي بالاسم نفسه:
+        chat = OpenAI_Client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+              {"role": "system", "content": 
+             "Hi! I’m here to help you. How can I assist you today?\n\nTo create an accurate and professional description for your beauty product, please send me the following details:\n1. Product type (e.g. lipstick, foundation, mascara, blush…)\n2. Key ingredients or materials, if available\n3. Suitable skin type (dry, oily, combination, sensitive…)\n4. Shade / coverage level / finish (matte, dewy, natural, etc.)\n5. Intended use (everyday, photoshoot, special events, waterproof, etc.)\n6. Any extra details you want the description to highlight (for example: long-lasting, soft glam look, suitable for sensitive skin, luxurious feel, subtle glow, etc.)\n\nI will use your database fields to generate a consistent, marketing-ready description for your brand."},
+
+                {"role": "user", "content": user_text},
+            ],
+            temperature=0.4,
         )
-        db.session.add(gen)
-        db.session.commit()
+        reply = chat.choices[0].message.content
+        return jsonify({"ok": True, "reply": reply}), 200
 
-    except Exception:
-        db.session.rollback()
-        err_reply = "All specs captured ✅ but image generation failed. Please try again."
-        _save_msg(sess.id, "AI", err_reply)
-        return jsonify({"ok": True, "reply": err_reply, "session_id": int(sess.id)}), 200
+    except Exception as e:
+        return jsonify({"ok": False, "message": "server_error", "details": str(e)}), 500
 
-    success = (
-        "Here is a first preview based on your specs 👇\n\n"
-        f"- Formula: **{formula_base}**  |  Skin: **{skin_type}**\n"
-        f"- Finish: **{finish}**  |  Coverage: **{coverage}**\n\n"
-        "Want to tweak anything (formula/skin/finish/coverage/appearance)?"
-    )
-    _save_msg(sess.id, "AI", success)
-
-    return jsonify({"ok": True, "reply": success, "image_url": image_url, "session_id": int(sess.id)}), 200
-
-
-    # =========================
+# =========================
 #  AI Image Generation (Packaging)
 # =========================
 @csrf.exempt
 @app.route("/ai/generate", methods=["POST"])
-@login_required
 def ai_generate_packaging():
     data = request.get_json(silent=True) or {}
-    prompt = (data.get("prompt") or "").strip()
+    prompt_raw = (data.get("prompt") or "").strip()
 
-    if not prompt:
-        return jsonify({"ok": False, "error": "EMPTY_PROMPT", "message": "Please describe the packaging."}), 400
+    if not prompt_raw:
+        return jsonify({
+            "ok": False,
+            "error": "EMPTY_PROMPT",
+            "message": "Please describe the packaging."
+        }), 400
 
     user_id = session.get("user_id")
+
     try:
-        # 1. توليد الصورة
+        # 1) توليد الصورة من OpenAI
         result = OpenAI_Client.images.generate(
-            model="gpt-image-1",
-            prompt=prompt,
+            model="dall-e-2",
+            prompt=prompt_raw,
             size="1024x1024"
         )
         image_url = result.data[0].url
 
-        # 2. إنشاء جلسة لو ما فيه وحدة مفتوحة
-        session_obj = AISession.query.filter_by(account_id=user_id, status="OPEN").first()
-        if not session_obj:
-            session_obj = AISession(account_id=user_id)
-            db.session.add(session_obj)
-            db.session.flush()
+        # 2) نحفظ في قاعدة البيانات فقط لو فيه user_id
+        if user_id:
+            session_obj = AISession.query.filter_by(
+                account_id=user_id,
+                status="OPEN"
+            ).first()
 
-        # 3. حفظ الصورة في قاعدة البيانات
-        gen = AIGeneration(
-            session_id=session_obj.id,
-            image_url=image_url,
-            prompt_json={"prompt": prompt},
-            meta_json={"model": "gpt-image-1"}
-        )
-        db.session.add(gen)
-        db.session.commit()
+            if not session_obj:
+                session_obj = AISession(
+                    account_id=user_id,
+                    status="OPEN"
+                )
+                db.session.add(session_obj)
+                db.session.flush()
 
-        return jsonify({"ok": True, "image_url": image_url}), 200
+            gen = AIGeneration(
+                session_id=session_obj.id,
+                image_url=image_url,
+                prompt_json={"prompt": prompt_raw},
+                meta_json={"model": "gpt-image-1"},
+            )
+            db.session.add(gen)
+            db.session.commit()
+
+        # 3) نرجع رابط الصورة للفرونت دايمًا (سواء لوج إن أو لا)
+        return jsonify({
+            "ok": True,
+            "image_url": image_url
+        }), 200
 
     except Exception as e:
-        import traceback; traceback.print_exc()
-        return jsonify({"ok": False, "error": "OPENAI_ERROR", "message": str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "ok": False,
+            "error": "OPENAI_ERROR",
+            "message": str(e)
+        }), 500
 
     
 @app.route("/debug-profiles")
@@ -725,7 +639,7 @@ def debug_profiles():
 
 # ========================= Dev Server =========================
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5005)
+    app.run(debug=True, host="0.0.0.0", port=5000)
 
 
 
