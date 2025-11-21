@@ -21,6 +21,7 @@ import requests
 from models.all_models import AISession, AIMessage ,AIGeneration
 
 load_dotenv()
+print("DEBUG] OPENAI_API_KEY present:",bool(os.getenv("OPENAI_API_KEY")))
 OpenAI_Client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
@@ -535,61 +536,58 @@ def logout():
 # =========================
 #      OpenAI Chat API
 # =========================
-@csrf.exempt
-@app.route("/chat", methods=["POST"])
-def chat_api():
-    try:
-        data = request.get_json(silent=True) or {}
-        user_text = (data.get("message") or "").strip()
-        if not user_text:
-            return jsonify({"ok": False, "message": "empty_message"}), 400
 
-        # استخدام عميلك الحالي بالاسم نفسه:
-        chat = OpenAI_Client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-              {"role": "system", "content": 
-             "Hi! I’m here to help you. How can I assist you today?\n\nTo create an accurate and professional description for your beauty product, please send me the following details:\n1. Product type (e.g. lipstick, foundation, mascara, blush…)\n2. Key ingredients or materials, if available\n3. Suitable skin type (dry, oily, combination, sensitive…)\n4. Shade / coverage level / finish (matte, dewy, natural, etc.)\n5. Intended use (everyday, photoshoot, special events, waterproof, etc.)\n6. Any extra details you want the description to highlight (for example: long-lasting, soft glam look, suitable for sensitive skin, luxurious feel, subtle glow, etc.)\n\nI will use your database fields to generate a consistent, marketing-ready description for your brand."},
-
-                {"role": "user", "content": user_text},
-            ],
-            temperature=0.4,
-        )
-        reply = chat.choices[0].message.content
-        return jsonify({"ok": True, "reply": reply}), 200
-
-    except Exception as e:
-        return jsonify({"ok": False, "message": "server_error", "details": str(e)}), 500
-
-# =========================
-#  AI Image Generation (Packaging)
-# =========================
 @csrf.exempt
 @app.route("/ai/generate", methods=["POST"])
 def ai_generate_packaging():
-    data = request.get_json(silent=True) or {}
-    prompt_raw = (data.get("prompt") or "").strip()
-
-    if not prompt_raw:
-        return jsonify({
-            "ok": False,
-            "error": "EMPTY_PROMPT",
-            "message": "Please describe the packaging."
-        }), 400
-
-    user_id = session.get("user_id")
-
     try:
-        # 1) توليد الصورة من OpenAI
+        data = request.get_json(silent=True) or {}
+
+        # البرومبت الأساسي
+        prompt_raw = (data.get("prompt") or "").strip()
+
+        # سياق الاستخدام: smartpicks أو ai-chat
+        context = data.get("context")
+
+        # الفايب لو جاء من smartpicks
+        vibe = data.get("vibe")
+
+        print("🔥 PROMPT RECEIVED:", prompt_raw)
+        print("📌 context:", context)
+        print("📌 vibe:", vibe)
+
+        if not prompt_raw:
+            return jsonify({
+                "ok": False,
+                "error": "EMPTY_PROMPT",
+                "message": "Please describe the packaging."
+            }), 400
+
+        user_id = session.get("user_id")
+
+        print("🚀 CALLING OPENAI...")
+
+        # ← مولد الصور الجديد من OpenAI
         result = OpenAI_Client.images.generate(
-            model="dall-e-2",
+            model="gpt-image-1",
             prompt=prompt_raw,
             size="1024x1024"
         )
-        image_url = result.data[0].url
 
-        # 2) نحفظ في قاعدة البيانات فقط لو فيه user_id
+        # ← OpenAI يرجع base64 وليس URL
+        b64_data = result.data[0].b64_json
+        print("🎨 GOT BASE64 IMAGE!")
+
+        # ← نحولها لصيغة data:image...
+        image_url = f"data:image/png;base64,{b64_data}"
+        print("🎉 FINAL IMAGE URL READY!")
+
+        # ==================================================
+        #         🌸 حفظ الصورة في قاعدة البيانات
+        # ==================================================
+
         if user_id:
+            # نبحث عن جلسة مفتوحة للمستخدم
             session_obj = AISession.query.filter_by(
                 account_id=user_id,
                 status="OPEN"
@@ -603,16 +601,24 @@ def ai_generate_packaging():
                 db.session.add(session_obj)
                 db.session.flush()
 
+            # إنشاء سجل جديد للجيل
             gen = AIGeneration(
                 session_id=session_obj.id,
                 image_url=image_url,
                 prompt_json={"prompt": prompt_raw},
-                meta_json={"model": "gpt-image-1"},
+                meta_json={
+                    "model": "gpt-image-1",
+                    "context": context,
+                    "vibe": vibe
+                }
             )
             db.session.add(gen)
             db.session.commit()
 
-        # 3) نرجع رابط الصورة للفرونت دايمًا (سواء لوج إن أو لا)
+            print("💾 IMAGE SAVED IN DATABASE!")
+
+        # ==================================================
+
         return jsonify({
             "ok": True,
             "image_url": image_url
@@ -620,22 +626,14 @@ def ai_generate_packaging():
 
     except Exception as e:
         import traceback
+        print("\n🔥🔥 ERROR 🔥🔥")
         traceback.print_exc()
+
         return jsonify({
             "ok": False,
             "error": "OPENAI_ERROR",
             "message": str(e)
         }), 500
-
-    
-@app.route("/debug-profiles")
-def debug_profiles():
-    rows = AccountProfile.query.order_by(AccountProfile.id.desc()).all()
-    return jsonify([{"id": int(r.id), "account_id": int(r.account_id), "full_name": r.full_name} for r in rows])
-
-
-
-
 
 # ========================= Dev Server =========================
 if __name__ == "__main__":
