@@ -19,11 +19,11 @@ from twilio.rest import Client
 import base64
 import requests
 from models.all_models import AISession, AIMessage ,AIGeneration
+from models.all_models import AIMessage
 
 load_dotenv()
 print("DEBUG] OPENAI_API_KEY present:",bool(os.getenv("OPENAI_API_KEY")))
 OpenAI_Client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 
 #def login_required(view):
@@ -38,49 +38,48 @@ OpenAI_Client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
  
 
 # === Directories ===
-BASE_DIR = Path(__file__).resolve().parent
-ROOT = BASE_DIR.parent
-TEMPLATES = ROOT / "templates"
-STATIC = ROOT / "static"
+BACKEND_ROOT = Path(__file__).resolve().parent      # مجلد backend
+PROJECT_ROOT = BACKEND_ROOT.parent                  # مجلد BeautyFlow
 
-app = Flask(__name__, template_folder=str(TEMPLATES), static_folder=str(STATIC))
+TEMPLATES_DIR = PROJECT_ROOT / "templates"          # templates بره backend
+STATIC_DIR = PROJECT_ROOT / "static"                # static بره backend
+
+app = Flask(
+    __name__,
+    template_folder=str(TEMPLATES_DIR),
+    static_folder=str(STATIC_DIR),
+    static_url_path="/static",
+)
+
+# مفاتيح و CORS و CSRF
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 CORS(app)
-
-app.config['SECRET_KEY'] = 'change_this_to_a_strong_secret'  # مهم
-
-
-# CSRF & flash secret
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-me-in-production")
 csrf = CSRFProtect(app)
-root_env_path = str(ROOT / ".env")
-backend_env_path = str(BASE_DIR / ".env")
 
-loaded1 = load_dotenv(dotenv_path=root_env_path, override=True)
-loaded2 = load_dotenv(dotenv_path=backend_env_path, override=True)
+print("[DEBUG] template folder:", app.template_folder)
+print("[DEBUG] static folder:", app.static_folder)
 
-# Fallback: اقرأ الملف يدويًا لو فشل التحميل
+# ==============================
+#       تحميل .env و OpenAI
+# ==============================
+
+dotenv_path = BACKEND_ROOT / ".env"
+if dotenv_path.exists():
+    load_dotenv(dotenv_path)
+else:
+    load_dotenv()
+
 API_KEY = os.getenv("OPENAI_API_KEY")
-if not API_KEY:
-    env_map = {}
-    if os.path.exists(root_env_path):
-        env_map.update(dotenv_values(root_env_path))
-    if os.path.exists(backend_env_path):
-        env_map.update(dotenv_values(backend_env_path))
-    API_KEY = env_map.get("OPENAI_API_KEY")
-
-# Debug مفيد
-print(f"[DEBUG] .env @ ROOT exists: {os.path.exists(root_env_path)} | loaded: {loaded1}")
-print(f"[DEBUG] .env @ backend exists: {os.path.exists(backend_env_path)} | loaded: {loaded2}")
-print(f"[DEBUG] OPENAI_API_KEY present: {bool(API_KEY)}")
+print("[DEBUG] OPENAI_API_KEY present:", bool(API_KEY))
 
 if not API_KEY:
     raise RuntimeError(
-        "OPENAI_API_KEY not found. Put it in either project/.env or backend/.env as:\n"
+        "OPENAI_API_KEY not found.\n"
+        "Add it to backend/.env like:\n"
         "OPENAI_API_KEY=sk-xxxx"
     )
 
 OpenAI_Client = OpenAI(api_key=API_KEY)
-
 
 # ========================= DB =========================
 load_dotenv()  # يقرأ .env
@@ -92,7 +91,6 @@ with app.app_context():
       db.create_all()
 
 
-
 @app.route("/dbcheck")
 def dbcheck():
     try:
@@ -101,7 +99,6 @@ def dbcheck():
         return f"✅ Database Connected Successfully!<br>{version}"
     except Exception as e:
         return f"❌ Database Connection Failed:<br>{e}"
-
 
 def ensure_profile_for(account, first_name=None, last_name=None, phone=None):
     """Create AccountProfile if missing; update basic fields if provided."""
@@ -131,7 +128,6 @@ def ensure_profile_for(account, first_name=None, last_name=None, phone=None):
     return prof, created
 
 def _get_or_open_session(user_id):
-    from all_models import AISession
     sess = AISession.query.filter_by(account_id=user_id, status="OPEN").order_by(AISession.id.desc()).first()
     if not sess:
         sess = AISession(account_id=user_id, status="OPEN", notes=json.dumps({"filled": {}, "pending": []}))
@@ -148,10 +144,8 @@ def _save_state(sess, state):
     db.session.flush()
 
 def _save_msg(sess_id, who, content):
-    from all_models import AIMessage
     db.session.add(AIMessage(session_id=sess_id, sender=who, content=content))
     db.session.flush()
-
 
 # =========================
 #         ROUTES
@@ -198,7 +192,6 @@ def login_page():
     flash("Logged in successfully ", "success")
     return redirect(url_for("phone_login"))
 
-
 @app.route("/index", strict_slashes=False)
 def home_index():
     return render_template("index.html")
@@ -209,11 +202,10 @@ def design_options():
     return render_template("designOptions.html")
 
 
-
 @app.route("/AI", methods=["GET"])
-
 def ai_page():
-    return render_template("AI.html")
+    # نمرر عدد السلة لنفس الهيدر اللي في SmartPicks
+    return render_template("AI.html", cart_count=get_cart_count())
 
 
 
@@ -240,11 +232,6 @@ def shipment_page():
 @app.route("/about")
 def about_page():
     return render_template("about.html")
-
-@app.route("/smartPicks", strict_slashes=False)
-
-def smartPicks_page():
-    return render_template("smartPicks.html")
 
 
 def cart_page():
@@ -322,6 +309,146 @@ def profile_save():
     else:
         flash("Profile saved ✅", "success")
         return redirect(url_for("account_page"))
+    
+
+   # ========= cart helpers =========
+
+def get_cart():
+    return session.get("cart", {})
+
+def save_cart(cart: dict):
+    session["cart"] = cart
+    session.modified = True
+
+def get_cart_count():
+    cart = get_cart()
+    return sum(item["qty"] for item in cart.values())
+
+# ========= SmartPicks + Cart =========
+
+@app.route("/smartPicks", strict_slashes=False)
+def smartPicks_page():
+    return render_template("smartPicks.html", cart_count=get_cart_count())
+
+@app.route("/cart", strict_slashes=False)
+def cart_page():
+    cart = get_cart()
+    items = list(cart.values())
+    total = sum(item["price"] * item["qty"] for item in items) if items else 0
+    return render_template("cart.html", items=items, total=total)
+
+        # ← أضيفي هذا السطر
+@csrf.exempt
+@app.post("/cart/add")
+def cart_add():
+    data = request.get_json(silent=True) or request.form.to_dict() or {}
+    print("🛒 /cart/add DATA:", data)
+
+    product_id = str(
+        data.get("id")
+        or data.get("product_id")
+        or data.get("productId")
+        or data.get("sku")
+        or ""
+    ).strip()
+
+    name = (data.get("name")
+            or data.get("title")
+            or data.get("product_name")
+            or "").strip()
+
+    raw_price = data.get("price") or data.get("amount") or data.get("sar") or 0
+    try:
+        price = float(raw_price)
+    except (TypeError, ValueError):
+        price = 0.0
+
+    image = (data.get("image")
+             or data.get("image_url")
+             or data.get("img")
+             or "").strip()
+
+    if not product_id:
+        print("🛑 MISSING_ID in /cart/add")
+        return jsonify({"ok": False, "error": "MISSING_ID"}), 400
+
+    cart = get_cart()
+    if product_id in cart:
+        cart[product_id]["qty"] += 1
+    else:
+        cart[product_id] = {
+            "id": product_id,
+            "name": name or "AI Product",
+            "price": price,
+            "image": image,
+            "qty": 1,
+        }
+
+    save_cart(cart)
+    print("✅ CART NOW:", cart)
+    return jsonify({"ok": True, "cart_count": get_cart_count()})
+
+@csrf.exempt
+@app.post("/cart/remove")
+def cart_remove():
+    data = request.get_json(silent=True) or {}
+    product_id = str(data.get("id") or "").strip()
+
+    if not product_id:
+        return jsonify({"ok": False, "error": "MISSING_ID"}), 400
+
+    cart = get_cart()
+    if product_id in cart:
+        del cart[product_id]
+
+    save_cart(cart)
+    return jsonify({
+        "ok": True,
+        "cart_count": get_cart_count(),
+        "cart_total": sum(item["price"] * item["qty"] for item in cart.values())
+    })
+
+@csrf.exempt
+@app.post("/cart/update_qty")
+def cart_update_qty():
+    data = request.get_json(silent=True) or {}
+    product_id = str(data.get("id") or "").strip()
+    action = (data.get("action") or "").strip()  # "inc" أو "dec"
+
+    if not product_id or action not in {"inc", "dec"}:
+        return jsonify({"ok": False, "error": "BAD_REQUEST"}), 400
+
+    cart = get_cart()
+    if product_id not in cart:
+        return jsonify({"ok": False, "error": "NOT_FOUND"}), 404
+
+    item = cart[product_id]
+    if action == "inc":
+        item["qty"] += 1
+    elif action == "dec":
+        item["qty"] -= 1
+        if item["qty"] <= 0:
+            del cart[product_id]
+            save_cart(cart)
+            return jsonify({
+                "ok": True,
+                "removed": True,
+                "cart_count": get_cart_count(),
+                "cart_total": sum(i["price"] * i["qty"] for i in cart.values())
+            })
+
+    save_cart(cart)
+    cart_total = sum(i["price"] * i["qty"] for i in cart.values())
+
+    return jsonify({
+        "ok": True,
+        "removed": False,
+        "item_qty": item["qty"],
+        "cart_count": get_cart_count(),
+        "cart_total": cart_total
+    })
+
+    
 
 # -------------------------
 # Signup / Help / Phone login routes
@@ -389,7 +516,6 @@ def phone_login():
     return render_template("phone_login.html")
 
 
-
 @app.get("/verify")
 def verify_page():
     phone_full = session.get("phone_full")
@@ -397,7 +523,6 @@ def verify_page():
         return redirect(url_for("phone_login"))
     masked = phone_full[:-4] + "****"
     return render_template("verify.html", phone_mask=masked)
-
 
 
 client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
@@ -443,7 +568,6 @@ def send_otp():
         flash("Failed to send SMS. Check console/logs.", "error")
         return redirect(url_for("phone_login"))
     
-
 
 @csrf.exempt
 @app.post("/verify")
@@ -498,7 +622,6 @@ def verify_submit():
     return redirect(url_for("home_index"))
 
 
-
 @csrf.exempt
 @app.post("/resend_otp")
 def resend_otp():
@@ -523,7 +646,6 @@ def resend_otp():
         flash("Failed to resend code. Try again.", "error")
 
     return redirect(url_for("verify_page"))
-
 
 
 
@@ -634,11 +756,16 @@ def ai_generate_packaging():
             "error": "OPENAI_ERROR",
             "message": str(e)
         }), 500
+    
+@app.get("/all_generated_images")
+def all_generated_images():   
+    imgs = AIGeneration.query.filter(AIGeneration.image_url != None).all()
+    return render_template("all_generated_images.html", imgs=imgs)
+
 
 # ========================= Dev Server =========================
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
-
 
 
 
