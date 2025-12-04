@@ -10,6 +10,11 @@ class RoleEnum(enum.Enum):
     USER = "USER"
     SUPPLIER = "SUPPLIER"
 
+class ProductStatusEnum(enum.Enum):
+    DRAFT = "DRAFT"
+    ACTIVE = "ACTIVE"
+    ARCHIVED = "ARCHIVED"
+
 class ProductOriginEnum(enum.Enum):
     AI = "AI"
     CATALOG = "CATALOG"
@@ -85,7 +90,16 @@ class Account(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone_number = db.Column(db.String(30), unique=True)
     password_hash = db.Column(db.Text, nullable=False)
-    role = db.Column(SAEnum(RoleEnum), nullable=False, default=RoleEnum.USER)
+    role = db.Column(
+    SAEnum(
+        RoleEnum,
+        name="roleenum",
+        schema="public"
+    ),
+    nullable=False,
+    default=RoleEnum.USER
+)
+
     is_2fa_enabled = db.Column(db.Boolean, default=False)
     two_factor_method = db.Column(db.String(30))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -119,16 +133,45 @@ class Product(db.Model):
     # لو المنتج مولّد بالذكاء ومخصّص لمستخدم معيّن
     owner_user_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"))
 
-    # تعريفات أساسية
+        # ================= المواصفات الأساسية =================
     name = db.Column(db.String(160), nullable=False)
-    sku = db.Column(db.String(80), unique=True)
+    sku = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.Text)
     image_primary = db.Column(db.Text)
 
-    # المصدر والظهور والحالة
-    origin = db.Column(SAEnum(ProductOriginEnum), nullable=False, default=ProductOriginEnum.CATALOG)
-    visibility = db.Column(SAEnum(ProductVisibilityEnum), nullable=False, default=ProductVisibilityEnum.PUBLIC)
+    # ================= المصدر والظهور =================
+    origin = db.Column(
+        SAEnum(
+            ProductOriginEnum,
+            name="productoriginenum",
+            schema="public"
+        ),
+        nullable=False,
+        default=ProductOriginEnum.CATALOG
+    )
+
+    visibility = db.Column(
+        SAEnum(
+            ProductVisibilityEnum,
+            name="productvisibilityenum",
+            schema="public"
+        ),
+        nullable=False,
+        default=ProductVisibilityEnum.PUBLIC
+    )
+
+    status = db.Column(
+        SAEnum(
+            ProductStatusEnum,
+            name="productstatusenum",
+            schema="public"
+        ),
+        nullable=False,
+        default=ProductStatusEnum.DRAFT
+    )
+
     is_active = db.Column(db.Boolean, default=True)
+
 
     # التسعير (مرن) + نهائي
     price_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)          # legacy/اختياري

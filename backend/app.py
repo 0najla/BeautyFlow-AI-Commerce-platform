@@ -25,24 +25,12 @@ load_dotenv()
 print("DEBUG] OPENAI_API_KEY present:",bool(os.getenv("OPENAI_API_KEY")))
 OpenAI_Client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
-#def login_required(view):
-  #  @wraps(view)
-  #  def wrapped(*args, **kwargs):
-   #     if not session.get("user_id"):
-    #        flash("Please login first.", "error")
-      #      return redirect(url_for("login_page", next=request.path))
-     #   return view(*args, **kwargs)
-    #return wrapped
-
- 
-
 # === Directories ===
-BACKEND_ROOT = Path(__file__).resolve().parent      # مجلد backend
-PROJECT_ROOT = BACKEND_ROOT.parent                  # مجلد BeautyFlow
+BACKEND_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = BACKEND_ROOT.parent
 
-TEMPLATES_DIR = PROJECT_ROOT / "templates"          # templates بره backend
-STATIC_DIR = PROJECT_ROOT / "static"                # static بره backend
+TEMPLATES_DIR = PROJECT_ROOT / "templates"
+STATIC_DIR = PROJECT_ROOT / "static"
 
 app = Flask(
     __name__,
@@ -82,14 +70,19 @@ if not API_KEY:
 OpenAI_Client = OpenAI(api_key=API_KEY)
 
 # ========================= DB =========================
-load_dotenv()  # يقرأ .env
+load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "connect_args": {
+        "options": "-csearch_path=public"
+    }
+}
+
 db.init_app(app)
 migrate= Migrate(app, db)
 with app.app_context():
       db.create_all()
-
 
 @app.route("/dbcheck")
 def dbcheck():
@@ -102,14 +95,13 @@ def dbcheck():
 
 def ensure_profile_for(account, first_name=None, last_name=None, phone=None):
     """Create AccountProfile if missing; update basic fields if provided."""
-    from models import AccountProfile  # تأكد أنه مُصدَّر من models/__init__.py
+    from models import AccountProfile
     prof = AccountProfile.query.filter_by(account_id=account.id).first()
     created = False
     if not prof:
         prof = AccountProfile(account_id=account.id)
         created = True
 
-    # تحديث اختياري لو فيه بيانات
     full_name_parts = []
     if first_name:
         full_name_parts.append(first_name.strip())
@@ -124,28 +116,7 @@ def ensure_profile_for(account, first_name=None, last_name=None, phone=None):
 
     if created:
         db.session.add(prof)
-    # ملاحظة: لا نعمل commit هنا؛ نخليه على الراؤوت يستدعي commit مرّة وحدة
     return prof, created
-
-def _get_or_open_session(user_id):
-    sess = AISession.query.filter_by(account_id=user_id, status="OPEN").order_by(AISession.id.desc()).first()
-    if not sess:
-        sess = AISession(account_id=user_id, status="OPEN", notes=json.dumps({"filled": {}, "pending": []}))
-        db.session.add(sess)
-        db.session.flush()
-    try:
-        state = json.loads(sess.notes) if sess.notes else {"filled": {}, "pending": []}
-    except Exception:
-        state = {"filled": {}, "pending": []}
-    return sess, state
-
-def _save_state(sess, state):
-    sess.notes = json.dumps(state, ensure_ascii=False)
-    db.session.flush()
-
-def _save_msg(sess_id, who, content):
-    db.session.add(AIMessage(session_id=sess_id, sender=who, content=content))
-    db.session.flush()
 
 # =========================
 #         ROUTES
@@ -161,29 +132,23 @@ def login_page():
     if request.method == "GET":
         return render_template("login.html")
 
-    # نقرأ القيم القادمة من الصفحة
     email = (request.form.get("email") or "").strip().lower()
     password = (request.form.get("password") or "").strip()
 
-    # إذا المستخدم ما كتب شيء
     if not email or not password:
         flash("Please enter both email and password.", "error")
         return redirect(url_for("login_page"))
 
-    # نبحث عن الإيميل في قاعدة البيانات
     user = Account.query.filter_by(email=email).first()
 
-    # إذا المستخدم غير موجود (ما سوا Signup)
     if not user:
         flash("You don't have an account, please Sign up first.", "error")
         return redirect(url_for("login_page"))
 
-    # إذا موجود لكن كلمة المرور خطأ
     if not check_password_hash(user.password_hash, password):
         flash("Incorrect password, please try again.", "error")
         return redirect(url_for("login_page"))
 
-    # نجاح تسجيل الدخول
     session.clear()
     session["user_id"] = int(user.id)
     session["username"] = user.username
@@ -197,35 +162,26 @@ def home_index():
     return render_template("index.html")
 
 @app.route("/design-options", strict_slashes=False)
-
 def design_options():
     return render_template("designOptions.html")
 
-
 @app.route("/AI", methods=["GET"])
 def ai_page():
-    # نمرر عدد السلة لنفس الهيدر اللي في SmartPicks
     return render_template("AI.html", cart_count=get_cart_count())
 
-
-
 @app.route("/costSharing", methods=["GET"])
-
 def costSharing_page():
     return render_template("costSharing.html")
 
 @app.route("/invoice", methods=["GET"])
-
 def invoice_page():
     return render_template("invoice.html")
 
 @app.route("/invoiceShared", methods=["GET"])
-
 def invoiceShared_page():
     return render_template("invoiceShared.html")
 
 @app.route("/shipment", methods=["GET"])
-
 def shipment_page():
     return render_template("shipment.html")
 
@@ -233,17 +189,14 @@ def shipment_page():
 def about_page():
     return render_template("about.html")
 
-
 def cart_page():
     return render_template("cart.html")
 
 @app.route("/payment", strict_slashes=False)
-
 def payment_page():
     return render_template("payment.html")
 
 @app.route("/sspay", strict_slashes=False)
-
 def sspay_page():
     return render_template("sspay.html")
 
@@ -251,7 +204,6 @@ def sspay_page():
 #  Profile routes
 # -------------------------
 @app.route("/account", methods=["GET"], strict_slashes=False)
-
 def account_page():
     profile = session.get("profile", {
         "firstName": "",
@@ -262,7 +214,6 @@ def account_page():
     return render_template("account.html", profile=profile)
 
 @app.route("/profile/save", methods=["POST"], strict_slashes=False)
-
 def profile_save():
     csrf_token = (
         request.headers.get("X-CSRFToken")
@@ -310,8 +261,7 @@ def profile_save():
         flash("Profile saved ✅", "success")
         return redirect(url_for("account_page"))
     
-
-   # ========= cart helpers =========
+# ========= cart helpers =========
 
 def get_cart():
     return session.get("cart", {})
@@ -332,12 +282,25 @@ def smartPicks_page():
 
 @app.route("/cart", strict_slashes=False)
 def cart_page():
+    """Display cart page with products loaded from session"""
+    
     cart = get_cart()
     items = list(cart.values())
-    total = sum(item["price"] * item["qty"] for item in items) if items else 0
-    return render_template("cart.html", items=items, total=total)
+    
+    # Calculate totals
+    subtotal = sum(item["price"] * item["qty"] for item in items) if items else 0
+    tax = subtotal * 0.15
+    total = subtotal + tax
+    
+    return render_template("cart.html", 
+                         items=items, 
+                         subtotal=round(subtotal, 1),
+                         tax=round(tax, 1),
+             
+             
+                        total=round(total, 1))
 
-        # ← أضيفي هذا السطر
+
 @csrf.exempt
 @app.post("/cart/add")
 def cart_add():
@@ -367,6 +330,11 @@ def cart_add():
              or data.get("image_url")
              or data.get("img")
              or "").strip()
+
+    if image.startswith("data:image"):
+        print("⚠️ Skipping base64 image to avoid session explosion")
+        image = ""
+
 
     if not product_id:
         print("🛑 MISSING_ID in /cart/add")
@@ -413,7 +381,7 @@ def cart_remove():
 def cart_update_qty():
     data = request.get_json(silent=True) or {}
     product_id = str(data.get("id") or "").strip()
-    action = (data.get("action") or "").strip()  # "inc" أو "dec"
+    action = (data.get("action") or "").strip()
 
     if not product_id or action not in {"inc", "dec"}:
         return jsonify({"ok": False, "error": "BAD_REQUEST"}), 400
@@ -448,8 +416,6 @@ def cart_update_qty():
         "cart_total": cart_total
     })
 
-    
-
 # -------------------------
 # Signup / Help / Phone login routes
 # -------------------------
@@ -481,9 +447,9 @@ def signup():
 
     db.session.add(user)
     try:
-        db.session.flush()                # يعطي user.id بدون إنهاء المعاملة
-        ensure_profile_for(user, first_name=username)  # ينشئ صف في account_profiles
-        db.session.commit()               # هنا الحفظ الفعلي للجدولين
+        db.session.flush()
+        ensure_profile_for(user, first_name=username)
+        db.session.commit()
         flash("Account created! Please login.", "success")
         return redirect(url_for("login_page"))
     except IntegrityError:
@@ -515,7 +481,6 @@ def submit_contact():
 def phone_login():
     return render_template("phone_login.html")
 
-
 @app.get("/verify")
 def verify_page():
     phone_full = session.get("phone_full")
@@ -523,7 +488,6 @@ def verify_page():
         return redirect(url_for("phone_login"))
     masked = phone_full[:-4] + "****"
     return render_template("verify.html", phone_mask=masked)
-
 
 client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
 VERIFY_SID = os.getenv("TWILIO_VERIFY_SID")
@@ -536,7 +500,6 @@ def send_otp():
     raw_phone = (request.form.get("phone") or "").strip()
     print("[DEBUG] raw_phone:", raw_phone)
 
-    # طَبّعي رقم السعودية إلى +9665xxxxxxxx
     digits = re.sub(r"\D+", "", raw_phone)
     if digits.startswith("966"): digits = digits[3:]
     if digits.startswith("05") and len(digits) == 10: digits = digits[1:]
@@ -560,19 +523,17 @@ def send_otp():
             to=phone_full,
             channel="sms"
         )
-        print("[DEBUG] Twilio status:", v.status)  # should be 'pending'
+        print("[DEBUG] Twilio status:", v.status)
         flash("OTP sent via SMS ", "success")
         return redirect(url_for("verify_page"))
     except Exception as e:
         print("[Twilio ERROR]", repr(e))
         flash("Failed to send SMS. Check console/logs.", "error")
         return redirect(url_for("phone_login"))
-    
 
 @csrf.exempt
 @app.post("/verify")
 def verify_submit():
-    # لازم يكون المستخدم مسجّل دخول
     if "user_id" not in session:
         return redirect(url_for("login_page"))
 
@@ -602,7 +563,6 @@ def verify_submit():
         flash("Verification failed. Try again.", "error")
         return redirect(url_for("verify_page"))
 
-    # ✅ نجاح التحقق
     user = Account.query.get(session["user_id"])
     if user:
         if user.phone_number != phone_full:
@@ -621,7 +581,6 @@ def verify_submit():
     flash("Phone verified ✅", "success")
     return redirect(url_for("home_index"))
 
-
 @csrf.exempt
 @app.post("/resend_otp")
 def resend_otp():
@@ -636,7 +595,6 @@ def resend_otp():
             )
             flash("A new OTP has been sent.", "success")
         else:
-            # وضع التطوير: ولّدي كود جديد وخزّنيه
             otp = f"{random.randint(0, 999999):06d}"
             session["otp"] = otp
             print("[DEV RESEND] OTP ->", otp, "to", phone_full)
@@ -647,9 +605,6 @@ def resend_otp():
 
     return redirect(url_for("verify_page"))
 
-
-
-
 @app.route("/logout", methods=["GET"], strict_slashes=False, endpoint="logout")
 def logout():
     session.clear()
@@ -658,114 +613,344 @@ def logout():
 # =========================
 #      OpenAI Chat API
 # =========================
-
 @csrf.exempt
 @app.route("/ai/generate", methods=["POST"])
 def ai_generate_packaging():
     try:
         data = request.get_json(silent=True) or {}
-
-        # البرومبت الأساسي
         prompt_raw = (data.get("prompt") or "").strip()
-
-        # سياق الاستخدام: smartpicks أو ai-chat
-        context = data.get("context")
-
-        # الفايب لو جاء من smartpicks
-        vibe = data.get("vibe")
-
-        print("🔥 PROMPT RECEIVED:", prompt_raw)
-        print("📌 context:", context)
-        print("📌 vibe:", vibe)
-
+        
         if not prompt_raw:
-            return jsonify({
-                "ok": False,
-                "error": "EMPTY_PROMPT",
-                "message": "Please describe the packaging."
-            }), 400
+            return jsonify({"ok": False, "message": "Empty prompt"}), 400
 
         user_id = session.get("user_id")
+        if not user_id:
+            return jsonify({"ok": False, "message": "Please login"}), 401
 
-        print("🚀 CALLING OPENAI...")
+        print("🔥 PROMPT RECEIVED:", prompt_raw)
 
-        # ← مولد الصور الجديد من OpenAI
+        # 1) توليد الصورة من OpenAI
         result = OpenAI_Client.images.generate(
-            model="gpt-image-1",
+            model="dall-e-2",
             prompt=prompt_raw,
-            size="1024x1024"
+            size="1024x1024",
+            response_format="b64_json",
         )
-
-        # ← OpenAI يرجع base64 وليس URL
         b64_data = result.data[0].b64_json
-        print("🎨 GOT BASE64 IMAGE!")
-
-        # ← نحولها لصيغة data:image...
         image_url = f"data:image/png;base64,{b64_data}"
-        print("🎉 FINAL IMAGE URL READY!")
 
-        # ==================================================
-        #         🌸 حفظ الصورة في قاعدة البيانات
-        # ==================================================
+        # 2) إنشاء Product
+        product_name = "Custom AI Product"
+        
+        product = Product(
+            supplier_id=None,
+            owner_user_id=user_id,
+            name=product_name,
+            sku=f"AI-{user_id}-{int(datetime.utcnow().timestamp())}-{random.randint(1000,9999)}",
+            description=prompt_raw,
+            image_primary=image_url,
+            origin=ProductOriginEnum.AI,
+            visibility=ProductVisibilityEnum.PRIVATE,
+            status=ProductStatusEnum.DRAFT,
+            price_sar=120.0,
+            base_price_sar=120.0,
+            complexity_factor=1,
+            category_multiplier=1,
+            discount_percent=0,
+            final_price_sar=120.0,
+            category="AI-CUSTOM",
+            brand="BeautyFlow AI",
+        )
+        product.recalc_price()
+        
+        db.session.add(product)
+        db.session.flush()
 
-        if user_id:
-            # نبحث عن جلسة مفتوحة للمستخدم
-            session_obj = AISession.query.filter_by(
-                account_id=user_id,
-                status="OPEN"
-            ).first()
+        # 3) حفظ في AIGeneration
+        session_obj = AISession.query.filter_by(
+            account_id=user_id,
+            status="OPEN"
+        ).order_by(AISession.id.desc()).first()
+        
+        if not session_obj:
+            session_obj = AISession(account_id=user_id, status="OPEN")
+            db.session.add(session_obj)
+            db.session.flush()
 
-            if not session_obj:
-                session_obj = AISession(
-                    account_id=user_id,
-                    status="OPEN"
-                )
-                db.session.add(session_obj)
-                db.session.flush()
+        gen = AIGeneration(
+            session_id=session_obj.id,
+            product_id=product.id,
+            image_url=image_url,
+            prompt_json={"prompt": prompt_raw},
+            meta_json={
+                "model": "dall-e-2",
+                "context": data.get("context"),
+                "vibe": data.get("vibe")
+            }
+        )
+        db.session.add(gen)
+        db.session.commit()
 
-            # إنشاء سجل جديد للجيل
-            gen = AIGeneration(
-                session_id=session_obj.id,
-                image_url=image_url,
-                prompt_json={"prompt": prompt_raw},
-                meta_json={
-                    "model": "gpt-image-1",
-                    "context": context,
-                    "vibe": vibe
-                }
-            )
-            db.session.add(gen)
-            db.session.commit()
-
-            print("💾 IMAGE SAVED IN DATABASE!")
-
-        # ==================================================
+        print("💾 IMAGE + PRODUCT SAVED IN DATABASE!")
 
         return jsonify({
             "ok": True,
-            "image_url": image_url
+            "image_url": image_url,
+            "product": {
+                "id": product.id,
+                "name": product.name,
+                "price_sar": float(product.final_price_sar or 0),
+                "size": "10g"
+            }
         }), 200
 
     except Exception as e:
+        db.session.rollback()
         import traceback
         print("\n🔥🔥 ERROR 🔥🔥")
         traceback.print_exc()
+        return jsonify({"ok": False, "error": "OPENAI_ERROR", "message": str(e)}), 500
 
+
+# ========== AI History ==========
+@app.route("/ai/history", methods=["GET"])
+def ai_history():
+    """جلب آخر 20 منتج AI للمستخدم"""
+    try:
+        user_id = session.get("user_id")
+        if not user_id:
+            return jsonify({"ok": False, "message": "Not logged in"}), 401
+        
+        # جلب آخر 20 منتج AI
+        products = Product.query.filter_by(
+            owner_user_id=user_id,
+            origin=ProductOriginEnum.AI
+        ).order_by(Product.created_at.desc()).limit(20).all()
+        
+        history = []
+        for product in products:
+            history.append({
+                "id": product.id,
+                "name": product.name,
+                "image_url": product.image_primary,
+                "created_at": product.created_at.isoformat(),
+                "price_sar": float(product.price_sar or 0),
+                "size": "10g"
+            })
+        
+        return jsonify({"ok": True, "history": history})
+    
+    except Exception as e:
+        print(f"❌ Error in ai_history: {e}")
+        return jsonify({"ok": False, "message": str(e)}), 500
+
+# FIXED: Add to Favorites Route
+# ========================================
+
+@csrf.exempt
+@app.route("/ai/favorites/add", methods=["POST"])
+def ai_favorites_add():
+    """Add product to user's favorites/wishlist"""
+    
+    # ✅ 1. التحقق من تسجيل الدخول
+    user_id = session.get("user_id")
+    if not user_id:
         return jsonify({
             "ok": False,
-            "error": "OPENAI_ERROR",
+            "message": "Please login first"
+        }), 401
+    
+    # ✅ 2. الحصول على product_id
+    try:
+        data = request.get_json()
+        product_id = data.get("product_id")
+        
+        if not product_id:
+            return jsonify({
+                "ok": False,
+                "message": "Product ID is required"
+            }), 400
+        
+        print(f"💾 Adding to favorites - User: {user_id}, Product: {product_id}")
+        
+    except Exception as e:
+        print(f"❌ Error parsing request: {e}")
+        return jsonify({
+            "ok": False,
+            "message": "Invalid request"
+        }), 400
+    
+    # ✅ 3. التحقق من وجود المنتج
+    product = Product.query.filter_by(id=product_id).first()
+    if not product:
+        return jsonify({
+            "ok": False,
+            "message": "Product not found"
+        }), 404
+    
+    # ✅ 4. جلب أو إنشاء Wishlist للمستخدم
+    wishlist = Wishlist.query.filter_by(account_id=user_id).first()
+    if not wishlist:
+        wishlist = Wishlist(account_id=user_id)
+        db.session.add(wishlist)
+        db.session.flush()
+        print(f"✅ Created new wishlist for user {user_id}")
+    
+    # ✅ 5. التحقق إذا المنتج موجود مسبقاً
+    existing = WishlistItem.query.filter_by(
+        wishlist_id=wishlist.id,
+        product_id=product_id
+    ).first()
+    
+    if existing:
+        return jsonify({
+            "ok": True,
+            "message": "Already in favorites",
+            "already_exists": True
+        })
+    
+    # ✅ 6. إضافة المنتج للمفضلة
+    try:
+        item = WishlistItem(
+            wishlist_id=wishlist.id,
+            product_id=product_id
+        )
+        db.session.add(item)
+        db.session.commit()
+        
+        print(f"✅ Added product {product_id} to favorites")
+        
+        return jsonify({
+            "ok": True,
+            "message": "Added to favorites successfully"
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Database error: {e}")
+        return jsonify({
+            "ok": False,
+            "message": f"Database error: {str(e)}"
+        }), 500
+
+
+# ========================================
+# Get Favorites Route
+# ========================================
+
+@app.route("/ai/favorites", methods=["GET"])
+def ai_favorites_get():
+    """Get user's favorite products"""
+    
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({
+            "ok": False,
+            "message": "Please login first"
+        }), 401
+    
+    try:
+        # جلب الـ wishlist
+        wishlist = Wishlist.query.filter_by(account_id=user_id).first()
+        
+        if not wishlist:
+            return jsonify({
+                "ok": True,
+                "favorites": []
+            })
+        
+        # جلب المنتجات المفضلة
+        items = WishlistItem.query.filter_by(wishlist_id=wishlist.id).all()
+        
+        favorites = []
+        for item in items:
+            product = Product.query.filter_by(id=item.product_id).first()
+            if product:
+                favorites.append({
+                    "id": product.id,
+                    "name": product.name,
+                    "image_url": product.image_primary,
+                    "price_sar": float(product.price_sar or 0),
+                    "created_at": product.created_at.isoformat() if product.created_at else None
+                })
+        
+        print(f"✅ Retrieved {len(favorites)} favorites for user {user_id}")
+        
+        return jsonify({
+            "ok": True,
+            "favorites": favorites
+        })
+        
+    except Exception as e:
+        print(f"❌ Error loading favorites: {e}")
+        return jsonify({
+            "ok": False,
             "message": str(e)
         }), 500
-    
-@app.get("/all_generated_images")
-def all_generated_images():   
-    imgs = AIGeneration.query.filter(AIGeneration.image_url != None).all()
-    return render_template("all_generated_images.html", imgs=imgs)
 
+
+# ========================================
+# Remove from Favorites Route
+# ========================================
+
+@csrf.exempt
+@app.route("/ai/favorites/remove", methods=["POST"])
+def ai_favorites_remove():
+    """Remove product from favorites"""
+    
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({
+            "ok": False,
+            "message": "Please login first"
+        }), 401
+    
+    try:
+        data = request.get_json()
+        product_id = data.get("product_id")
+        
+        if not product_id:
+            return jsonify({
+                "ok": False,
+                "message": "Product ID is required"
+            }), 400
+        
+        wishlist = Wishlist.query.filter_by(account_id=user_id).first()
+        if not wishlist:
+            return jsonify({
+                "ok": False,
+                "message": "Wishlist not found"
+            }), 404
+        
+        item = WishlistItem.query.filter_by(
+            wishlist_id=wishlist.id,
+            product_id=product_id
+        ).first()
+        
+        if not item:
+            return jsonify({
+                "ok": False,
+                "message": "Item not in favorites"
+            }), 404
+        
+        db.session.delete(item)
+        db.session.commit()
+        
+        print(f"✅ Removed product {product_id} from favorites")
+        
+        return jsonify({
+            "ok": True,
+            "message": "Removed from favorites"
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Error removing favorite: {e}")
+        return jsonify({
+            "ok": False,
+            "message": str(e)
+        }), 500
 
 # ========================= Dev Server =========================
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
-
-
-
