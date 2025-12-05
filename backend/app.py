@@ -169,9 +169,11 @@ def design_options():
 def ai_page():
     return render_template("AI.html", cart_count=get_cart_count())
 
+
 @app.route("/costSharing", methods=["GET"])
 def costSharing_page():
     return render_template("costSharing.html")
+
 
 @app.route("/invoice", methods=["GET"])
 def invoice_page():

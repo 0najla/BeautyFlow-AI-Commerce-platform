@@ -1,4 +1,4 @@
-# models.py
+# models.py - Updated with Cost Sharing Fields
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 from sqlalchemy import Enum as SAEnum, JSON, UniqueConstraint
@@ -20,9 +20,9 @@ class ProductOriginEnum(enum.Enum):
     CATALOG = "CATALOG"
 
 class ProductVisibilityEnum(enum.Enum):
-    PRIVATE = "PRIVATE"     # خاص بمالك المنتج (قبِل الذكاء)
-    SMARTPICK = "SMARTPICK" # يظهر فقط عبر اقتراحات مخصصة
-    PUBLIC = "PUBLIC"       # عام للجميع (إن احتجتِ لاحقًا)
+    PRIVATE = "PRIVATE"
+    SMARTPICK = "SMARTPICK"
+    PUBLIC = "PUBLIC"
 
 class OrderStatusEnum(enum.Enum):
     PENDING = "PENDING"
@@ -81,6 +81,15 @@ class SkinTypeEnum(enum.Enum):
     COMBINATION = "COMBINATION"
     SENSITIVE = "SENSITIVE"
 
+# ✨ NEW: Shipping Group Status Enum
+class ShippingStatusEnum(enum.Enum):
+    WAITING = "WAITING"     # Waiting for 5 members
+    READY = "READY"         # 5 members complete, ready for payment
+    EXPIRED = "EXPIRED"     # Week expired without completion
+    PAID = "PAID"           # Payment completed
+    SHIPPED = "SHIPPED"     # Shipment dispatched
+    CANCELLED = "CANCELLED" # Group cancelled
+
 
 # ===== Core Tables =====
 class Account(db.Model):
@@ -91,18 +100,55 @@ class Account(db.Model):
     phone_number = db.Column(db.String(30), unique=True)
     password_hash = db.Column(db.Text, nullable=False)
     role = db.Column(
-    SAEnum(
-        RoleEnum,
-        name="roleenum",
-        schema="public"
-    ),
-    nullable=False,
-    default=RoleEnum.USER
-)
+        SAEnum(
+            RoleEnum,
+            name="roleenum",
+            schema="public"
+        ),
+        nullable=False,
+        default=RoleEnum.USER
+    )
 
     is_2fa_enabled = db.Column(db.Boolean, default=False)
     two_factor_method = db.Column(db.String(30))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # ============================================================
+    # ✨ NEW: Cost Sharing / Shipping Group Fields
+    # ============================================================
+    # Group identifier (e.g., "taif-202412051230-123")
+    shipping_group_id = db.Column(db.String(50), nullable=True, index=True)
+    
+    # City/Region for shipping
+    shipping_city = db.Column(db.String(50), nullable=True)
+    
+    # When user joined the group
+    shipping_joined_at = db.Column(db.DateTime, nullable=True)
+    
+    # Snapshot of cart at join time (JSON)
+    shipping_cart_snapshot = db.Column(db.Text, nullable=True)
+    
+    # Total weight of products (kg)
+    shipping_weight = db.Column(db.Numeric(10, 3), nullable=True)
+    
+    # Total product cost (SAR)
+    shipping_product_cost = db.Column(db.Numeric(12, 2), nullable=True)
+    
+    # User's share of shipping cost (SAR)
+    shipping_cost = db.Column(db.Numeric(12, 2), nullable=True)
+    
+    # Is this user the group creator?
+    shipping_is_creator = db.Column(db.Boolean, default=False)
+    
+    # When the group expires (created_at + 7 days)
+    shipping_expires_at = db.Column(db.DateTime, nullable=True)
+    
+    # Group status for this user
+    shipping_status = db.Column(db.String(20), nullable=True)  # waiting/ready/expired/paid/shipped
+    
+    # Number of times the group was extended
+    shipping_extended_count = db.Column(db.Integer, default=0)
+    # ============================================================
 
     # relationships
     orders = db.relationship("Order", back_populates="user", lazy="dynamic")
@@ -110,6 +156,30 @@ class Account(db.Model):
 
     def __repr__(self):
         return f"<Account {self.id} {self.username} ({self.role.value})>"
+    
+    # ✨ NEW: Helper methods for shipping groups
+    def is_in_shipping_group(self):
+        """Check if user is currently in an active shipping group"""
+        return self.shipping_group_id is not None and self.shipping_status in ['waiting', 'ready', 'WAITING', 'READY']
+    
+    def clear_shipping_data(self):
+        """Clear all shipping group data for this user"""
+        self.shipping_group_id = None
+        self.shipping_city = None
+        self.shipping_joined_at = None
+        self.shipping_cart_snapshot = None
+        self.shipping_weight = None
+        self.shipping_product_cost = None
+        self.shipping_cost = None
+        self.shipping_is_creator = False
+        self.shipping_expires_at = None
+        self.shipping_status = None
+        self.shipping_extended_count = 0
+    
+    def get_avatar_url(self):
+        """Generate avatar URL based on user ID"""
+        return f"https://i.pravatar.cc/60?img={self.id % 70}"
+
 
 class Supplier(db.Model):
     __tablename__ = "suppliers"
@@ -127,19 +197,14 @@ class Product(db.Model):
     __tablename__ = "products"
     id = db.Column(db.BigInteger, primary_key=True)
 
-    # لو المنتج من مورد كتالوج
     supplier_id = db.Column(db.BigInteger, db.ForeignKey("suppliers.id"))
-
-    # لو المنتج مولّد بالذكاء ومخصّص لمستخدم معيّن
     owner_user_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"))
 
-        # ================= المواصفات الأساسية =================
     name = db.Column(db.String(160), nullable=False)
     sku = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.Text)
     image_primary = db.Column(db.Text)
 
-    # ================= المصدر والظهور =================
     origin = db.Column(
         SAEnum(
             ProductOriginEnum,
@@ -172,14 +237,12 @@ class Product(db.Model):
 
     is_active = db.Column(db.Boolean, default=True)
 
-
-    # التسعير (مرن) + نهائي
-    price_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)          # legacy/اختياري
-    base_price_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)     # الأساس
-    complexity_factor = db.Column(db.Numeric(5, 2), nullable=False, default=1)   # 1.00 = بسيط
-    category_multiplier = db.Column(db.Numeric(5, 2), nullable=False, default=1) # حسب الفئة
-    discount_percent = db.Column(db.Numeric(5, 2), nullable=False, default=0)    # 0–100
-    final_price_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)    # الناتج
+    price_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)
+    base_price_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)
+    complexity_factor = db.Column(db.Numeric(5, 2), nullable=False, default=1)
+    category_multiplier = db.Column(db.Numeric(5, 2), nullable=False, default=1)
+    discount_percent = db.Column(db.Numeric(5, 2), nullable=False, default=0)
+    final_price_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)
 
     stock_qty = db.Column(db.Integer, default=0)
     category = db.Column(db.String(80))
@@ -187,11 +250,9 @@ class Product(db.Model):
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    # علاقات
     supplier = db.relationship("Supplier", back_populates="products")
     images = db.relationship("ProductImage", back_populates="product", lazy="dynamic")
 
-    # دالة مساعدة لإعادة حساب السعر النهائي
     def recalc_price(self):
         self.final_price_sar = round(
             (self.base_price_sar or 0) *
@@ -203,6 +264,10 @@ class Product(db.Model):
 from sqlalchemy import Index
 Index("idx_products_owner_visibility", Product.owner_user_id, Product.visibility)
 Index("idx_products_origin", Product.origin)
+
+# ✨ NEW: Index for shipping group queries
+Index("idx_accounts_shipping_group", Account.shipping_group_id)
+Index("idx_accounts_shipping_city_status", Account.shipping_city, Account.shipping_status)
 
 
 class ProductImage(db.Model):
@@ -225,8 +290,8 @@ class ProductSpec(db.Model):
     finish = db.Column(SAEnum(FinishEnum))
 
     spf = db.Column(db.Integer)
-    pa_rating = db.Column(db.String(10))     # e.g., "PA+++"
-    pao_months = db.Column(db.Integer)       # Period After Opening (months)
+    pa_rating = db.Column(db.String(10))
+    pao_months = db.Column(db.Integer)
 
     is_hypoallergenic  = db.Column(db.Boolean, default=False)
     is_non_comedogenic = db.Column(db.Boolean, default=False)
@@ -235,7 +300,7 @@ class ProductSpec(db.Model):
     is_cruelty_free    = db.Column(db.Boolean, default=False)
 
     net_content_value = db.Column(db.Numeric(8, 2))
-    net_content_unit  = db.Column(db.String(10))   # ml / g
+    net_content_unit  = db.Column(db.String(10))
     made_in = db.Column(db.String(80))
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -259,7 +324,7 @@ class ProductIngredient(db.Model):
     product_id = db.Column(db.BigInteger, db.ForeignKey("products.id"), nullable=False)
     ingredient_name = db.Column(db.String(160), nullable=False)
     percentage = db.Column(db.Numeric(5, 2))
-    role = db.Column(db.String(80))          # humectant / preservative / fragrance ...
+    role = db.Column(db.String(80))
     is_allergen = db.Column(db.Boolean, default=False)
 
 
@@ -268,7 +333,7 @@ class ProductShade(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     product_id = db.Column(db.BigInteger, db.ForeignKey("products.id"), nullable=False)
     shade_name = db.Column(db.String(80), nullable=False)
-    hex_color = db.Column(db.String(7))      # #RRGGBB
+    hex_color = db.Column(db.String(7))
     image_url = db.Column(db.Text)
 
 
@@ -318,8 +383,8 @@ class Payment(db.Model):
     order = db.relationship("Order", back_populates="payments")
 
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
-    invoice_id = db.Column(db.BigInteger, db.ForeignKey("invoices.id"))      # اختياري
-    merge_group_id = db.Column(db.BigInteger, db.ForeignKey("merge_groups.id"))  # للمشترك
+    invoice_id = db.Column(db.BigInteger, db.ForeignKey("invoices.id"))
+    merge_group_id = db.Column(db.BigInteger, db.ForeignKey("merge_groups.id"))
 
 
 class Notification(db.Model):
@@ -339,7 +404,7 @@ class AIEvent(db.Model):
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"))
     order_id = db.Column(db.BigInteger, db.ForeignKey("orders.id"))
     event_type = db.Column(SAEnum(AIEventEnum), nullable=False)
-    payload = db.Column(JSON)  # تفاصيل/توصيات/خطة تغليف...
+    payload = db.Column(JSON)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 # ========== Profiles ==========
@@ -351,8 +416,7 @@ class AccountProfile(db.Model):
     full_name = db.Column(db.String(160))
     avatar_url = db.Column(db.Text)
 
-    # تفضيلات الواجهة
-    locale = db.Column(db.String(10), default="ar-SA")      # ar-SA / en-US
+    locale = db.Column(db.String(10), default="ar-SA")
     timezone = db.Column(db.String(64), default="Asia/Riyadh")
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -364,60 +428,31 @@ class AccountSecurity(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), unique=True, nullable=False)
 
-    # المصادقة الثنائية
     is_2fa_enabled = db.Column(db.Boolean, default=False)
-    two_factor_method = db.Column(db.String(30))  # sms / email / totp
+    two_factor_method = db.Column(db.String(30))
 
-    # تتبع الحماية
     failed_login_attempts = db.Column(db.Integer, default=0)
     last_login_at = db.Column(db.DateTime)
-    last_login_ip = db.Column(db.String(45))      # IPv4/IPv6
+    last_login_ip = db.Column(db.String(45))
     device_fingerprint = db.Column(db.String(120))
-    is_locked = db.Column(db.Boolean, default=False)
-    locked_reason = db.Column(db.String(200))
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-# ========== Addresses ==========
-class Address(db.Model):
-    __tablename__ = "addresses"
-    id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
-
-    kind = db.Column(db.String(20), default="shipping")  # shipping / billing
-
-    full_name = db.Column(db.String(160), nullable=False)
-    phone = db.Column(db.String(30))
-    line1 = db.Column(db.String(180), nullable=False)
-    line2 = db.Column(db.String(180))
-    city  = db.Column(db.String(80), nullable=False)
-    state = db.Column(db.String(80))
-    country = db.Column(db.String(80), nullable=False, default="Saudi Arabia")
-    postal_code = db.Column(db.String(20))
-    is_default = db.Column(db.Boolean, default=False)
-
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-
-from sqlalchemy import Index
-Index("idx_account_profiles_account", AccountProfile.account_id)
-Index("idx_account_security_account", AccountSecurity.account_id)
-Index("idx_addresses_user_kind_default", Address.user_id, Address.kind, Address.is_default)
-
-# ========== AI CHAT AND SMARTPICKS ==========
+# ========== AI Chat ==========
 class AISession(db.Model):
     __tablename__ = "ai_sessions"
     id = db.Column(db.BigInteger, primary_key=True)
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
     started_at = db.Column(db.DateTime, server_default=db.func.now())
-    status = db.Column(db.String(20), default="OPEN")  # OPEN/CLOSED
-    notes = db.Column(db.Text)  # ملاحظات عامّة
+    ended_at = db.Column(db.DateTime)
+    status = db.Column(db.String(20), default="ACTIVE")
 
 class AIMessage(db.Model):
     __tablename__ = "ai_messages"
     id = db.Column(db.BigInteger, primary_key=True)
     session_id = db.Column(db.BigInteger, db.ForeignKey("ai_sessions.id"), nullable=False)
-    sender = db.Column(db.String(10), nullable=False)  # USER / AI
+    role = db.Column(db.String(20), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
@@ -427,8 +462,8 @@ class AIGeneration(db.Model):
     session_id = db.Column(db.BigInteger, db.ForeignKey("ai_sessions.id"), nullable=False)
     product_id = db.Column(db.BigInteger, db.ForeignKey("products.id"))
     image_url = db.Column(db.Text)
-    prompt_json = db.Column(JSON)   # بارامترات التوليد/الوصف
-    meta_json = db.Column(JSON)     # أي ميتاداتا إضافية
+    prompt_json = db.Column(JSON)
+    meta_json = db.Column(JSON)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 
@@ -437,26 +472,26 @@ class SmartPickPool(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     product_id = db.Column(db.BigInteger, db.ForeignKey("products.id"), unique=True, nullable=False)
     added_at = db.Column(db.DateTime, server_default=db.func.now())
-    reason = db.Column(db.String(40))  # REJECTED_BY_OWNER / EDIT_VARIANT / ADMIN_PUSH
+    reason = db.Column(db.String(40))
 
 class SmartPickPersonalization(db.Model):
     __tablename__ = "smartpick_personalization"
     id = db.Column(db.BigInteger, primary_key=True)
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
-    pref_json = db.Column(JSON)  # {skin_types:["OILY"], finishes:["MATTE"], brands:["..."], price_range:[50,150]...}
+    pref_json = db.Column(JSON)
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     __table_args__ = (UniqueConstraint("account_id", name="uq_sp_persona_account"),)
 
 
-# ========== Promo ==========
+# ========== Merge Groups ==========
 
 class MergeGroup(db.Model):
     __tablename__ = "merge_groups"
     id = db.Column(db.BigInteger, primary_key=True)
     title = db.Column(db.String(120))
     created_by = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
-    status = db.Column(db.String(20), default="OPEN")  # OPEN/LOCKED/SHIPPED/CLOSED
+    status = db.Column(db.String(20), default="OPEN")
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 class MergeMember(db.Model):
@@ -465,8 +500,8 @@ class MergeMember(db.Model):
     group_id = db.Column(db.BigInteger, db.ForeignKey("merge_groups.id"), nullable=False)
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
     order_id = db.Column(db.BigInteger, db.ForeignKey("orders.id"))
-    weight_kg = db.Column(db.Numeric(8,3))  # لاحتساب المشاركة وزناً إن أردتِ
-    share_percent = db.Column(db.Numeric(5,2))  # أو نسبة مباشرة
+    weight_kg = db.Column(db.Numeric(8,3))
+    share_percent = db.Column(db.Numeric(5,2))
     joined_at = db.Column(db.DateTime, server_default=db.func.now())
     __table_args__ = (UniqueConstraint("group_id", "account_id", name="uq_merge_member"),)
 
@@ -474,9 +509,9 @@ class ShipmentBatch(db.Model):
     __tablename__ = "shipment_batches"
     id = db.Column(db.BigInteger, primary_key=True)
     group_id = db.Column(db.BigInteger, db.ForeignKey("merge_groups.id"))
-    carrier = db.Column(db.String(80))       # DHL/FedEx/Aramex...
+    carrier = db.Column(db.String(80))
     tracking_no = db.Column(db.String(120))
-    status = db.Column(db.String(20), default="PENDING")  # PENDING/IN_TRANSIT/CLEARED/DELIVERED
+    status = db.Column(db.String(20), default="PENDING")
     depart_at = db.Column(db.DateTime)
     arrive_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -493,7 +528,7 @@ class ShipmentCost(db.Model):
     __tablename__ = "shipment_costs"
     id = db.Column(db.BigInteger, primary_key=True)
     shipment_id = db.Column(db.BigInteger, db.ForeignKey("shipment_batches.id"), nullable=False)
-    kind = db.Column(db.String(30), nullable=False)  # SHIPPING/CUSTOMS/FSA/HANDLING/MERGE/STORAGE/OTHER
+    kind = db.Column(db.String(30), nullable=False)
     amount_sar = db.Column(db.Numeric(12,2), nullable=False, default=0)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
@@ -502,7 +537,7 @@ class ShipmentShare(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     shipment_id = db.Column(db.BigInteger, db.ForeignKey("shipment_batches.id"), nullable=False)
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
-    kind = db.Column(db.String(30), nullable=False)  # SHIPPING/CUSTOMS/...
+    kind = db.Column(db.String(30), nullable=False)
     amount_sar = db.Column(db.Numeric(12,2), nullable=False, default=0)
     __table_args__ = (UniqueConstraint("shipment_id", "account_id", "kind", name="uq_ship_share"),)
 
@@ -513,11 +548,11 @@ class Promo(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     code = db.Column(db.String(40), unique=True, nullable=False)
     title = db.Column(db.String(160))
-    percent_off = db.Column(db.Numeric(5,2))  # مثلاً 10%
-    sar_off = db.Column(db.Numeric(12,2))     # خصم ثابت
+    percent_off = db.Column(db.Numeric(5,2))
+    sar_off = db.Column(db.Numeric(12,2))
     min_order_sar = db.Column(db.Numeric(12,2))
-    max_redemptions = db.Column(db.Integer)   # إجمالي مرات الاستخدام
-    per_user_limit = db.Column(db.Integer)    # لكل مستخدم
+    max_redemptions = db.Column(db.Integer)
+    per_user_limit = db.Column(db.Integer)
     starts_at = db.Column(db.DateTime)
     ends_at = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
@@ -547,7 +582,7 @@ class CartItem(db.Model):
     cart_id = db.Column(db.BigInteger, db.ForeignKey("carts.id"), nullable=False)
     product_id = db.Column(db.BigInteger, db.ForeignKey("products.id"), nullable=False)
     qty = db.Column(db.Integer, nullable=False, default=1)
-    unit_price_sar = db.Column(db.Numeric(12,2), nullable=False, default=0)  # لقطة سعر لحظة الإضافة
+    unit_price_sar = db.Column(db.Numeric(12,2), nullable=False, default=0)
     __table_args__ = (UniqueConstraint("cart_id", "product_id", name="uq_cart_product_once"),)
 
 class Wishlist(db.Model):
@@ -574,12 +609,13 @@ class Review(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     product_id = db.Column(db.BigInteger, db.ForeignKey("products.id"), nullable=False)
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)  # 1..5
+    rating = db.Column(db.Integer, nullable=False)
     title = db.Column(db.String(160))
     content = db.Column(db.Text)
     status = db.Column(SAEnum(ReviewStatusEnum), default=ReviewStatusEnum.PENDING)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     __table_args__ = (UniqueConstraint("product_id", "account_id", name="uq_review_once_per_user"),)
+
 
 # ========== Returns & Refunds ==========
 class ReturnStatusEnum(enum.Enum):
@@ -609,7 +645,7 @@ class Refund(db.Model):
     processed_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-# ========== Warehouses & Inventory ==========
+# ========== Support Tickets ==========
 class TicketStatusEnum(enum.Enum):
     OPEN = "OPEN"
     IN_PROGRESS = "IN_PROGRESS"
@@ -626,7 +662,7 @@ class SupportTicket(db.Model):
     status = db.Column(SAEnum(TicketStatusEnum), default=TicketStatusEnum.OPEN)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-# ========== Support Tickets ==========
+# ========== Warehouses & Inventory ==========
 class Warehouse(db.Model):
     __tablename__ = "warehouses"
     id = db.Column(db.BigInteger, primary_key=True)
@@ -634,9 +670,9 @@ class Warehouse(db.Model):
     location = db.Column(db.String(160))
 
 class InventoryMovementTypeEnum(enum.Enum):
-    INBOUND = "INBOUND"     # استلام
-    OUTBOUND = "OUTBOUND"   # صرف
-    ADJUST = "ADJUST"       # تسوية
+    INBOUND = "INBOUND"
+    OUTBOUND = "OUTBOUND"
+    ADJUST = "ADJUST"
 
 class InventoryMovement(db.Model):
     __tablename__ = "inventory_movements"
@@ -645,7 +681,7 @@ class InventoryMovement(db.Model):
     warehouse_id = db.Column(db.BigInteger, db.ForeignKey("warehouses.id"))
     move_type = db.Column(SAEnum(InventoryMovementTypeEnum), nullable=False)
     qty = db.Column(db.Integer, nullable=False)
-    ref = db.Column(db.String(160))  # مرجع (PO/Order/Shipment...)
+    ref = db.Column(db.String(160))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 # ========== Tax & Fee Rules ==========
@@ -653,18 +689,18 @@ class InventoryMovement(db.Model):
 class TaxRule(db.Model):
     __tablename__ = "tax_rules"
     id = db.Column(db.BigInteger, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)  # VAT_KSA_15
-    rate_percent = db.Column(db.Numeric(5,2), nullable=False)  # 15.00
-    applies_to = db.Column(db.String(40), nullable=False, default="PRODUCT")  # PRODUCT/SHIPPING/ORDER
+    name = db.Column(db.String(80), nullable=False)
+    rate_percent = db.Column(db.Numeric(5,2), nullable=False)
+    applies_to = db.Column(db.String(40), nullable=False, default="PRODUCT")
     is_active = db.Column(db.Boolean, default=True)
 
 class FeeRule(db.Model):
     __tablename__ = "fee_rules"
     id = db.Column(db.BigInteger, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)  # FSA_FEE
-    kind = db.Column(db.String(40), nullable=False)  # FSA/HANDLING/STORAGE/OTHER
-    amount_sar = db.Column(db.Numeric(12,2), default=0)   # مبلغ ثابت
-    percent = db.Column(db.Numeric(5,2))                   # أو نسبة
+    name = db.Column(db.String(80), nullable=False)
+    kind = db.Column(db.String(40), nullable=False)
+    amount_sar = db.Column(db.Numeric(12,2), default=0)
+    percent = db.Column(db.Numeric(5,2))
     applies_to = db.Column(db.String(40), default="ORDER")
     is_active = db.Column(db.Boolean, default=True)
 
@@ -680,7 +716,7 @@ class PriceRule(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     title = db.Column(db.String(160), nullable=False)
     condition = db.Column(SAEnum(PriceRuleConditionEnum), nullable=False)
-    condition_value = db.Column(db.String(160))     # مثال: CATEGORY=Blush
+    condition_value = db.Column(db.String(160))
     percent_off = db.Column(db.Numeric(5,2))
     sar_off = db.Column(db.Numeric(12,2))
     starts_at = db.Column(db.DateTime)
@@ -691,24 +727,24 @@ class PriceRule(db.Model):
 class WebhookEvent(db.Model):
     __tablename__ = "webhook_events"
     id = db.Column(db.BigInteger, primary_key=True)
-    kind = db.Column(db.String(80), nullable=False)   # ORDER_PAID / SHIPMENT_UPDATED ...
+    kind = db.Column(db.String(80), nullable=False)
     payload = db.Column(JSON)
-    status = db.Column(db.String(20), default="PENDING")  # PENDING/SENT/FAILED
+    status = db.Column(db.String(20), default="PENDING")
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 class AuditLog(db.Model):
     __tablename__ = "audit_logs"
     id = db.Column(db.BigInteger, primary_key=True)
     actor_account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"))
-    entity = db.Column(db.String(40))        # products/orders/payments/...
+    entity = db.Column(db.String(40))
     entity_id = db.Column(db.BigInteger)
-    action = db.Column(db.String(40))        # CREATE/UPDATE/DELETE/STATUS_CHANGE
+    action = db.Column(db.String(40))
     before_json = db.Column(JSON)
     after_json = db.Column(JSON)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 
-# ========== Invoive ==========
+# ========== Invoice ==========
 
 class InvoiceTypeEnum(enum.Enum):
     SOLO = "SOLO"
@@ -718,7 +754,6 @@ class Invoice(db.Model):
     __tablename__ = "invoices"
     id = db.Column(db.BigInteger, primary_key=True)
 
-    # سولو: يرتبط بطلب واحد | مشترك: يرتبط بمجموعة دمج
     order_id = db.Column(db.BigInteger, db.ForeignKey("orders.id"))
     merge_group_id = db.Column(db.BigInteger, db.ForeignKey("merge_groups.id"))
 
@@ -732,20 +767,19 @@ class Invoice(db.Model):
     discount_amount = db.Column(db.Numeric(12,2), default=0)
     total_sar    = db.Column(db.Numeric(12,2), default=0)
 
-    payment_status = db.Column(db.String(20), default="UNPAID")  # UNPAID/PAID/REFUNDED
+    payment_status = db.Column(db.String(20), default="UNPAID")
     created_at  = db.Column(db.DateTime, server_default=db.func.now())
 
     
-# ==========  AIFeedback==========
+# ========== AIFeedback ==========
 class AIFeedback(db.Model):
     __tablename__ = "ai_feedback"
     id = db.Column(db.BigInteger, primary_key=True)
     generation_id = db.Column(db.BigInteger, db.ForeignKey("ai_generations.id"), nullable=False)
     account_id = db.Column(db.BigInteger, db.ForeignKey("accounts.id"), nullable=False)
-    feedback_type = db.Column(db.String(20), nullable=False)  # ACCEPT / MODIFY / REJECT
+    feedback_type = db.Column(db.String(20), nullable=False)
     comments = db.Column(db.Text)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-
 
 
 # ========== AIProductHistory ==========
@@ -763,8 +797,7 @@ class AIProductHistory(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 
-
-from sqlalchemy import Index
+# ========== Indexes ==========
 Index("idx_ai_messages_session", AIMessage.session_id)
 Index("idx_ai_generations_session", AIGeneration.session_id)
 Index("idx_sp_pool_product", SmartPickPool.product_id)
@@ -778,7 +811,6 @@ Index("idx_ship_shares_ship_acc", ShipmentShare.shipment_id, ShipmentShare.accou
 Index("idx_promos_code", Promo.code)
 Index("idx_redemption_promo", PromoRedemption.promo_id)
 
-from sqlalchemy import Index
 Index("idx_cart_account", Cart.account_id)
 Index("idx_wishlist_account", Wishlist.account_id)
 Index("idx_review_product", Review.product_id)
