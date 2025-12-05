@@ -285,21 +285,78 @@ def cart_page():
     """Display cart page with products loaded from session"""
     
     cart = get_cart()
-    items = list(cart.values())
+    items = []
+    
+    print(f"📦 Loading cart: {len(cart)} items")
+    
+    # ✅ لكل منتج في السلة، نجيب صورته من Database
+    for product_id, cart_item in cart.items():
+        # جلب المنتج من Database
+        try:
+            product = Product.query.filter_by(id=product_id).first()
+            
+            if product:
+                # ✅ تحقق من وجود صورة
+                image_url = None
+                if product.image_primary:
+                    # لو الصورة Base64، ناخذها كاملة
+                    if product.image_primary.startswith("data:image"):
+                        image_url = product.image_primary
+                        print(f"✅ Loaded Base64 image for {product.name}: {len(image_url)} chars")
+                    else:
+                        # لو URL عادي
+                        image_url = product.image_primary
+                        print(f"✅ Loaded URL image for {product.name}: {image_url[:50]}")
+                else:
+                    print(f"⚠️ No image for {product.name}")
+                
+                item_data = {
+                    "id": product_id,
+                    "name": cart_item.get("name") or product.name,
+                    "price": cart_item.get("price") or float(product.price_sar or 0),
+                    "qty": cart_item.get("qty", 1),
+                    "image": image_url,
+                }
+                print(f"✅ Added {product.name} to cart items")
+            else:
+                # لو المنتج محذوف من DB
+                item_data = {
+                    "id": product_id,
+                    "name": cart_item.get("name", "Product"),
+                    "price": cart_item.get("price", 0),
+                    "qty": cart_item.get("qty", 1),
+                    "image": None,
+                }
+                print(f"⚠️ Product {product_id} not found in DB")
+            
+            items.append(item_data)
+            
+        except Exception as e:
+            print(f"❌ Error loading product {product_id}: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            # حتى لو في خطأ، نضيف المنتج بدون صورة
+            items.append({
+                "id": product_id,
+                "name": cart_item.get("name", "Product"),
+                "price": cart_item.get("price", 0),
+                "qty": cart_item.get("qty", 1),
+                "image": None,
+            })
     
     # Calculate totals
     subtotal = sum(item["price"] * item["qty"] for item in items) if items else 0
     tax = subtotal * 0.15
     total = subtotal + tax
     
+    print(f"📊 Cart: {len(items)} items, Subtotal: {subtotal} SAR")
+    
     return render_template("cart.html", 
                          items=items, 
                          subtotal=round(subtotal, 1),
                          tax=round(tax, 1),
-             
-             
-                        total=round(total, 1))
-
+                         total=round(total, 1))
 
 @csrf.exempt
 @app.post("/cart/add")
@@ -326,15 +383,9 @@ def cart_add():
     except (TypeError, ValueError):
         price = 0.0
 
-    image = (data.get("image")
-             or data.get("image_url")
-             or data.get("img")
-             or "").strip()
-
-    if image.startswith("data:image"):
-        print("⚠️ Skipping base64 image to avoid session explosion")
-        image = ""
-
+    # ✅ بدل ما نحفظ الصورة في Session، نحفظ فقط علامة
+    # الصورة بنجيبها لاحقاً من Database في /cart
+    image_marker = f"DB:{product_id}"  # علامة تقول "اجلب من DB"
 
     if not product_id:
         print("🛑 MISSING_ID in /cart/add")
@@ -343,18 +394,23 @@ def cart_add():
     cart = get_cart()
     if product_id in cart:
         cart[product_id]["qty"] += 1
+        print(f"✅ Increased qty for {product_id}")
     else:
         cart[product_id] = {
             "id": product_id,
             "name": name or "AI Product",
             "price": price,
-            "image": image,
+            "image": image_marker,  # ✅ علامة بدل Base64
             "qty": 1,
         }
+        print(f"✅ Added new item: {product_id}")
 
     save_cart(cart)
-    print("✅ CART NOW:", cart)
+    print(f"✅ CART NOW: {len(cart)} items")
     return jsonify({"ok": True, "cart_count": get_cart_count()})
+
+
+
 
 @csrf.exempt
 @app.post("/cart/remove")
@@ -362,18 +418,28 @@ def cart_remove():
     data = request.get_json(silent=True) or {}
     product_id = str(data.get("id") or "").strip()
 
+    print(f"🗑️ Removing product: {product_id}")
+
     if not product_id:
         return jsonify({"ok": False, "error": "MISSING_ID"}), 400
 
     cart = get_cart()
     if product_id in cart:
         del cart[product_id]
+        print(f"✅ Removed {product_id}")
+    else:
+        print(f"⚠️ Product {product_id} not in cart")
 
     save_cart(cart)
+    
+    # حساب المجموع الجديد
+    cart_subtotal = sum(item["price"] * item["qty"] for item in cart.values())
+    
     return jsonify({
         "ok": True,
         "cart_count": get_cart_count(),
-        "cart_total": sum(item["price"] * item["qty"] for item in cart.values())
+        "cart_subtotal": cart_subtotal,
+        "cart_total": cart_subtotal
     })
 
 @csrf.exempt
@@ -613,6 +679,73 @@ def logout():
 # =========================
 #      OpenAI Chat API
 # =========================
+
+
+def generate_product_name(packaging_desc, product_type, finish):
+    """توليد اسم ذكي من وصف المستخدم"""
+    try:
+        desc = (packaging_desc or "").lower()
+        
+        # نوع المنتج
+        if "lipstick" in desc or "LIPSTICK" in (product_type or ""):
+            type_word = "Lipstick"
+        elif "blush" in desc or "BLUSH" in (product_type or ""):
+            type_word = "Blush"
+        elif "mascara" in desc or "MASCARA" in (product_type or ""):
+            type_word = "Mascara"
+        elif "foundation" in desc or "FOUNDATION" in (product_type or ""):
+            type_word = "Foundation"
+        elif "eyeliner" in desc or "EYELINER" in (product_type or ""):
+            type_word = "Eyeliner"
+        else:
+            type_word = "Product"
+        
+        # لون
+        color = None
+        if "pink" in desc:
+            color = "Pink"
+        elif "red" in desc:
+            color = "Red"
+        elif "gold" in desc:
+            color = "Gold"
+        elif "nude" in desc:
+            color = "Nude"
+        elif "coral" in desc:
+            color = "Coral"
+        
+        # شكل
+        theme = None
+        if "sunflower" in desc:
+            theme = "Sunflower"
+        elif "heart" in desc:
+            theme = "Heart"
+        elif "star" in desc:
+            theme = "Star"
+        elif "rose" in desc:
+            theme = "Rose"
+        elif "cloud" in desc:
+            theme = "Cloud"
+        elif "butterfly" in desc:
+            theme = "Butterfly"
+        elif "flower" in desc:
+            theme = "Flower"
+        
+        # بناء الاسم
+        parts = []
+        if color:
+            parts.append(color)
+        if theme:
+            parts.append(theme)
+        parts.append(type_word)
+        
+        result = " ".join(parts) if len(parts) > 1 else f"Custom {type_word}"
+        print(f"✅ Generated name: {result}")
+        return result
+        
+    except Exception as e:
+        print(f"❌ Error in generate_product_name: {e}")
+        return "Custom Product"
+
 @csrf.exempt
 @app.route("/ai/generate", methods=["POST"])
 def ai_generate_packaging():
@@ -639,13 +772,47 @@ def ai_generate_packaging():
         b64_data = result.data[0].b64_json
         image_url = f"data:image/png;base64,{b64_data}"
 
-        # 2) إنشاء Product
-        product_name = "Custom AI Product"
+        # ✅ 2) استخراج معلومات من الـ prompt للتسمية الذكية
+        # الـ prompt عادة يكون على شكل:
+        # "Professional product photo of a LIPSTICK... Packaging: [وصف المستخدم]"
         
+        # نستخرج نوع المنتج
+        product_type = None
+        if "LIPSTICK" in prompt_raw.upper():
+            product_type = "LIPSTICK"
+        elif "MASCARA" in prompt_raw.upper():
+            product_type = "MASCARA"
+        elif "BLUSH" in prompt_raw.upper():
+            product_type = "BLUSH"
+        elif "FOUNDATION" in prompt_raw.upper():
+            product_type = "FOUNDATION"
+        elif "EYELINER" in prompt_raw.upper():
+            product_type = "EYELINER"
+        
+        # نستخرج الـ finish
+        finish = None
+        if "matte" in prompt_raw.lower():
+            finish = "matte"
+        elif "dewy" in prompt_raw.lower():
+            finish = "dewy"
+        
+        # نستخرج وصف الـ packaging (الجزء المهم)
+        packaging_desc = ""
+        if "Packaging:" in prompt_raw:
+            packaging_desc = prompt_raw.split("Packaging:")[-1].split(".")[0].strip()
+        
+        print(f"📝 Extracted packaging description: {packaging_desc}")
+        
+        # ✅ توليد اسم ذكي
+        product_name = generate_product_name(packaging_desc, product_type, finish)
+        
+        print(f"✅ Generated product name: {product_name}")
+        
+        # 3) إنشاء Product
         product = Product(
             supplier_id=None,
             owner_user_id=user_id,
-            name=product_name,
+            name=product_name,  # ✅ الاسم الذكي من وصف المستخدم
             sku=f"AI-{user_id}-{int(datetime.utcnow().timestamp())}-{random.randint(1000,9999)}",
             description=prompt_raw,
             image_primary=image_url,
@@ -666,7 +833,7 @@ def ai_generate_packaging():
         db.session.add(product)
         db.session.flush()
 
-        # 3) حفظ في AIGeneration
+        # 4) حفظ في AIGeneration
         session_obj = AISession.query.filter_by(
             account_id=user_id,
             status="OPEN"
@@ -681,7 +848,7 @@ def ai_generate_packaging():
             session_id=session_obj.id,
             product_id=product.id,
             image_url=image_url,
-            prompt_json={"prompt": prompt_raw},
+            prompt_json={"prompt": prompt_raw, "packaging_desc": packaging_desc},
             meta_json={
                 "model": "dall-e-2",
                 "context": data.get("context"),
@@ -698,7 +865,7 @@ def ai_generate_packaging():
             "image_url": image_url,
             "product": {
                 "id": product.id,
-                "name": product.name,
+                "name": product.name,  # ✅ الاسم الذكي
                 "price_sar": float(product.final_price_sar or 0),
                 "size": "10g"
             }
@@ -710,7 +877,6 @@ def ai_generate_packaging():
         print("\n🔥🔥 ERROR 🔥🔥")
         traceback.print_exc()
         return jsonify({"ok": False, "error": "OPENAI_ERROR", "message": str(e)}), 500
-
 
 # ========== AI History ==========
 @app.route("/ai/history", methods=["GET"])
