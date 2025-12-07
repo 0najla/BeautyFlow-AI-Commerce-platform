@@ -1146,38 +1146,36 @@ def cost_sharing_load():
     try:
         cart = get_cart()
         
-        if not cart:
-            return jsonify({
-                "ok": False,
-                "cart_empty": True,
-                "message": "Your cart is empty"
-            })
-        
-        # حساب تفاصيل السلة
+        # حساب تفاصيل السلة (حتى لو فارغة)
         items = []
         total_weight = 0
         total_cost = 0
         
-        for product_id, cart_item in cart.items():
-            product = Product.query.filter_by(id=product_id).first()
-            
-            if product:
-                # افتراض وزن 0.1 كجم لكل منتج تجميل
-                weight = 0.1 * cart_item.get("qty", 1)
-                price = float(product.price_sar or cart_item.get("price", 0))
-                qty = cart_item.get("qty", 1)
+        if cart:
+            for product_id, cart_item in cart.items():
+                product = Product.query.filter_by(id=product_id).first()
                 
-                items.append({
-                    "id": product_id,
-                    "name": product.name,
-                    "price": price,
-                    "qty": qty,
-                    "weight": weight,
-                    "subtotal": price * qty
-                })
-                
-                total_weight += weight
-                total_cost += price * qty
+                if product:
+                    # افتراض وزن 0.1 كجم لكل منتج تجميل
+                    weight = 0.1 * cart_item.get("qty", 1)
+                    price = float(product.price_sar or cart_item.get("price", 0))
+                    qty = cart_item.get("qty", 1)
+                    
+                    items.append({
+                        "id": product_id,
+                        "name": product.name,
+                        "price": price,
+                        "qty": qty,
+                        "weight": weight,
+                        "subtotal": price * qty
+                    })
+                    
+                    total_weight += weight
+                    total_cost += price * qty
+        
+        # قيم افتراضية للعرض إذا السلة فارغة
+        if total_weight == 0:
+            total_weight = 0.5  # وزن افتراضي للحساب
         
         # حساب الشحن للرياض كمثال افتراضي
         shipping_solo = calculate_shipping_cost(total_weight, total_cost, "riyadh", 1)
@@ -1189,10 +1187,10 @@ def cost_sharing_load():
         
         return jsonify({
             "ok": True,
-            "cart_empty": False,
+            "cart_empty": len(items) == 0,
             "items": items,
             "summary": {
-                "items_count": sum(i["qty"] for i in items),  # ✅ NEW
+                "items_count": sum(i["qty"] for i in items),
                 "total_items": len(items),
                 "total_qty": sum(i["qty"] for i in items),
                 "total_weight": round(total_weight, 2),
@@ -1205,7 +1203,7 @@ def cost_sharing_load():
             "potential_savings": round(shipping_solo["per_person"] - shipping_shared["per_person"], 2),
             "in_group": in_group,
             "group_id": user.shipping_group_id if in_group else None,
-            "user_status": user.shipping_status if user else None,  # ✅ NEW
+            "user_status": user.shipping_status if user else None,
             "cities": [
                 {"key": k, "name": v["name"], "name_en": v["name_en"]} 
                 for k, v in SUPPORTED_CITIES.items()
@@ -1401,30 +1399,33 @@ def groups_create():
                 "current_group": user.shipping_group_id
             }), 400
         
-        # التحقق من وجود منتجات في السلة
+        # حساب الوزن والتكلفة (مع قيم افتراضية إذا السلة فارغة)
         cart = get_cart()
-        if not cart:
-            return jsonify({"ok": False, "message": "Your cart is empty"}), 400
-        
-        # حساب الوزن والتكلفة
         total_weight = 0
         total_cost = 0
         cart_items = []
         
-        for product_id, cart_item in cart.items():
-            product = Product.query.filter_by(id=product_id).first()
-            if product:
-                weight = 0.1 * cart_item.get("qty", 1)
-                price = float(product.price_sar or cart_item.get("price", 0))
-                qty = cart_item.get("qty", 1)
-                total_weight += weight
-                total_cost += price * qty
-                cart_items.append({
-                    "id": product_id,
-                    "name": product.name,
-                    "price": price,
-                    "qty": qty
-                })
+        if cart:
+            for product_id, cart_item in cart.items():
+                product = Product.query.filter_by(id=product_id).first()
+                if product:
+                    weight = 0.1 * cart_item.get("qty", 1)
+                    price = float(product.price_sar or cart_item.get("price", 0))
+                    qty = cart_item.get("qty", 1)
+                    total_weight += weight
+                    total_cost += price * qty
+                    cart_items.append({
+                        "id": product_id,
+                        "name": product.name,
+                        "price": price,
+                        "qty": qty
+                    })
+        
+        # قيم افتراضية إذا السلة فارغة (للتجربة)
+        if total_weight == 0:
+            total_weight = 0.5
+            total_cost = 100
+            cart_items = [{"id": "demo", "name": "Demo Product", "price": 100, "qty": 1}]
         
         # توليد group_id
         group_id = generate_group_id(city_key)
@@ -1502,11 +1503,6 @@ def groups_join():
         if user.is_in_shipping_group():
             return jsonify({"ok": False, "message": "You are already in a group"}), 400
         
-        # التحقق من السلة
-        cart = get_cart()
-        if not cart:
-            return jsonify({"ok": False, "message": "Your cart is empty"}), 400
-        
         # جلب معلومات المجموعة - ✅ دعم الحالتين
         group_members = Account.query.filter_by(
             shipping_group_id=group_id
@@ -1527,25 +1523,33 @@ def groups_join():
         
         city_key = first_member.shipping_city
         
-        # حساب الوزن والتكلفة
+        # حساب الوزن والتكلفة (مع قيم افتراضية إذا السلة فارغة)
+        cart = get_cart()
         total_weight = 0
         total_cost = 0
         cart_items = []
         
-        for product_id, cart_item in cart.items():
-            product = Product.query.filter_by(id=product_id).first()
-            if product:
-                weight = 0.1 * cart_item.get("qty", 1)
-                price = float(product.price_sar or cart_item.get("price", 0))
-                qty = cart_item.get("qty", 1)
-                total_weight += weight
-                total_cost += price * qty
-                cart_items.append({
-                    "id": product_id,
-                    "name": product.name,
-                    "price": price,
-                    "qty": qty
-                })
+        if cart:
+            for product_id, cart_item in cart.items():
+                product = Product.query.filter_by(id=product_id).first()
+                if product:
+                    weight = 0.1 * cart_item.get("qty", 1)
+                    price = float(product.price_sar or cart_item.get("price", 0))
+                    qty = cart_item.get("qty", 1)
+                    total_weight += weight
+                    total_cost += price * qty
+                    cart_items.append({
+                        "id": product_id,
+                        "name": product.name,
+                        "price": price,
+                        "qty": qty
+                    })
+        
+        # قيم افتراضية إذا السلة فارغة (للتجربة)
+        if total_weight == 0:
+            total_weight = 0.5
+            total_cost = 100
+            cart_items = [{"id": "demo", "name": "Demo Product", "price": 100, "qty": 1}]
         
         # إضافة المستخدم للمجموعة
         user.shipping_group_id = group_id
@@ -2087,6 +2091,62 @@ def cost_sharing_stats():
         
     except Exception as e:
         print(f"❌ Error in cost_sharing_stats: {e}")
+        return jsonify({"ok": False, "message": str(e)}), 500
+
+
+# ========================================
+# API: Mark User as Paid (Cost Sharing)
+# ========================================
+@csrf.exempt
+@app.route("/api/groups/mark-paid", methods=["POST"])
+def mark_user_paid():
+    """تحديث حالة المستخدم إلى مدفوع"""
+    
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"ok": False, "message": "Please login first"}), 401
+    
+    try:
+        data = request.get_json() or {}
+        order_number = data.get("order_number", "")
+        
+        user = Account.query.get(user_id)
+        if not user:
+            return jsonify({"ok": False, "message": "User not found"}), 404
+        
+        # تحديث حالة المستخدم
+        user.shipping_status = "PAID"
+        # user.shipping_paid_at = datetime.utcnow()  # قد لا يكون الحقل موجود
+        
+        db.session.commit()
+        
+        # التحقق إذا كل الأعضاء دفعوا
+        if user.shipping_group_id:
+            group_members = Account.query.filter_by(
+                shipping_group_id=user.shipping_group_id
+            ).all()
+            
+            all_paid = all(m.shipping_status == "PAID" for m in group_members)
+            paid_count = sum(1 for m in group_members if m.shipping_status == "PAID")
+            
+            return jsonify({
+                "ok": True,
+                "message": "Payment recorded successfully",
+                "order_number": order_number,
+                "all_paid": all_paid,
+                "paid_count": paid_count,
+                "total_members": len(group_members)
+            })
+        
+        return jsonify({
+            "ok": True,
+            "message": "Payment recorded successfully",
+            "order_number": order_number
+        })
+        
+    except Exception as e:
+        print(f"❌ Error marking paid: {e}")
+        db.session.rollback()
         return jsonify({"ok": False, "message": str(e)}), 500
 
 
