@@ -114,7 +114,12 @@ class Account(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     # ============================================================
-    # ✨ NEW: Cost Sharing / Shipping Group Fields
+    # ✅ NEW: Cart Data - JSON string to persist cart across sessions
+    # ============================================================
+    cart_data = db.Column(db.Text, nullable=True)
+
+    # ============================================================
+    # ✨ Cost Sharing / Shipping Group Fields
     # ============================================================
     # Group identifier (e.g., "taif-202412051230-123")
     shipping_group_id = db.Column(db.String(50), nullable=True, index=True)
@@ -157,7 +162,7 @@ class Account(db.Model):
     def __repr__(self):
         return f"<Account {self.id} {self.username} ({self.role.value})>"
     
-    # ✨ NEW: Helper methods for shipping groups
+    # ✨ Helper methods for shipping groups
     def is_in_shipping_group(self):
         """Check if user is currently in an active shipping group"""
         return self.shipping_group_id is not None and self.shipping_status in ['waiting', 'ready', 'WAITING', 'READY']
@@ -336,7 +341,7 @@ class ProductShade(db.Model):
     hex_color = db.Column(db.String(7))
     image_url = db.Column(db.Text)
 
-
+ 
 class Order(db.Model):
     __tablename__ = "orders"
     id = db.Column(db.BigInteger, primary_key=True)
@@ -350,6 +355,9 @@ class Order(db.Model):
     merge_service_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)
     total_sar = db.Column(db.Numeric(12, 2), nullable=False, default=0)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+    delivery_city = db.Column(db.String(50), nullable=True)
+    order_type = db.Column(db.String(20), default='solo')  # solo أو shared
+    group_id = db.Column(db.String(100), nullable=True)    # معرف المجموعة للـ Cost Sharing
 
     user = db.relationship("Account", back_populates="orders")
     items = db.relationship("OrderItem", back_populates="order", lazy="dynamic", cascade="all, delete-orphan")
