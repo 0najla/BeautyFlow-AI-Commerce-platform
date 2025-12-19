@@ -1,122 +1,626 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
+<!-- ====================================================================
+     BeautyFlow - Help Center Page
+     ====================================================================
+     Support and assistance page providing FAQs, contact options,
+     and guidance to help users navigate and use the platform effectively.
+
+     Author: BeautyFlow Team
+     Version: 1.0.0
+     ==================================================================== -->
+
+
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Help - BeautyFlow</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help Center - BeautyFlow</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body>
-  <header>
-    <div class="logo"></div>
-    <div class="logo"></div>
-    <nav class="site-nav">
-      <a href="{{ url_for('home_index') }}">Home</a>
-      <a href="{{ url_for('about_page') }}">About</a>
-      <a href="{{ url_for('help_page') }}">Help</a>
-      <a href="{{ url_for('account_page') }}">Account</a>
-    </nav>
+<body class="help-page">
+
+  <!-- ========== HEADER ========== -->
+  <header class="main-header" id="mainHeader">
+    <div class="header-container">
+      <a href="{{ url_for('home_index') }}" class="header-logo">
+        <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow">
+      </a>
+
+      <nav class="header-nav">
+        <a href="{{ url_for('home_index') }}" class="nav-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="{{ url_for('costSharing_page') }}" class="nav-link">
+          <i class="fas fa-users"></i>
+          <span>Cost-Sharing</span>
+        </a>
+        <a href="{{ url_for('design_options') }}" class="nav-link">
+          <i class="fas fa-magic"></i>
+          <span>Design</span>
+        </a>
+        <a href="{{ url_for('about_page') }}" class="nav-link">
+          <i class="fas fa-info-circle"></i>
+          <span>About</span>
+        </a>
+        <a href="{{ url_for('help_page') }}" class="nav-link active">
+          <i class="fas fa-question-circle"></i>
+          <span>Help</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="/cart" class="cart-btn">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge" id="cart-count">0</span>
+        </a>
+        <a href="{{ url_for('account_page') }}" class="account-btn">
+          <i class="fas fa-user"></i>
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="{{ url_for('home_index') }}"><i class="fas fa-home"></i> Home</a>
+       
+      <a href="{{ url_for('design_options') }}"><i class="fas fa-magic"></i> Design</a>
+      <a href="{{ url_for('about_page') }}"><i class="fas fa-info-circle"></i> About</a>
+      <a href="{{ url_for('help_page') }}" class="active"><i class="fas fa-question-circle"></i> Help</a>
+      <a href="/cart"><i class="fas fa-shopping-bag"></i> Cart</a>
+      <a href="{{ url_for('account_page') }}"><i class="fas fa-user"></i> Account</a>
+    </div>
   </header>
 
-  <!-- الحاوية العامة -->
-  <div class="contact-container">
-
-    <!-- قسم Contact Us -->
-    <div class="contact-form">
-      <h2>Contact Us</h2>
-      <p>
-        We are deeply committed to delivering unparalleled service and unwavering support
-        to ensure your experience exceeds expectations.
-      </p>
-
-      <!-- الفورم -->
-      <!-- IMPORTANT: ضفت action و method -->
-      <form id="contactForm" action="{{ url_for('submit_contact') }}" method="POST" novalidate>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      </form>
-
-
-      <!-- الصف الأول: First + Last Name -->
-      <div class="name-row">
-        <div class="input-group">
-          <label for="first_name">First Name <span class="required">*</span></label>
-          <input id="first_name" name="first_name" type="text" placeholder="First Name" required>
-        </div>
-
-        <div class="input-group">
-          <label for="last_name">Last Name <span class="required">*</span></label>
-          <input id="last_name" name="last_name" type="text" placeholder="Last Name" required>
-        </div>
-      </div>
-
-      <!-- البريد -->
-      <div class="input-group">
-        <label for="email">Email <span class="required">*</span></label>
-        <input id="email" name="email" type="email" placeholder="Email" required>
-      </div>
-
-      <!-- الوصف / الرسالة -->
-      <div class="input-group">
-        <label for="message">Description <span class="required">*</span></label>
-        <textarea id="message" name="message" placeholder="Message" rows="4" required></textarea>
-      </div>
-
-      <!-- زر الإرسال -->
-      <button type="submit">Submit</button>
-      </form>
+  <!-- ========== HERO SECTION ========== -->
+  <section class="help-hero">
+    <div class="help-hero-bg">
+      <div class="hero-shape shape-1"></div>
+      <div class="hero-shape shape-2"></div>
+      <div class="hero-shape shape-3"></div>
     </div>
+    <div class="help-hero-content">
+      <h1>How can we help you ?</h1>
+      <p>Find answers to your questions or contact our support team</p>
+  </section>
+  <br>
+  <br>
+  <br>
+  <br>
 
-    <!-- قسم معلومات التواصل -->
-    <div class="contact-info">
-      <div class="info-box">
-        <h3>📞 Contact</h3>
-        <p>Talk to us and see how we can work <br>1800-14-52</p>
+  <!-- ========== QUICK HELP CARDS ========== -->
+  <section class="quick-help">
+    <div class="quick-help-grid">
+      <div class="quick-card">
+        <div class="quick-icon">
+          <i class="fas fa-rocket"></i>
+        </div>
+        <h3>Getting Started</h3>
+        <p>Learn how to create your first custom product design</p>
+        <a href="#faq" class="quick-link">Learn more <i class="fas fa-arrow-right"></i></a>
       </div>
 
-      <div class="info-box">
-        <h3>✉️ Email</h3>
-        <p>We’re usually replying within 24 hours <br>support@beautyflow.com</p>
+      <div class="quick-card">
+        <div class="quick-icon">
+          <i class="fas fa-truck"></i>
+        </div>
+        <h3>Shipping & Delivery</h3>
+        <p>Track your orders and learn about delivery options</p>
+        <a href="#faq" class="quick-link">Learn more <i class="fas fa-arrow-right"></i></a>
       </div>
 
-      <div class="info-box">
-        <h3>⏰ Working Hours</h3>
-        <p>Mon To Sat - 10 am To 10 pm <br>Sunday - 11 am To 5 pm</p>
+      <div class="quick-card">
+        <div class="quick-icon">
+          <i class="fas fa-credit-card"></i>
+        </div>
+        <h3>Payments & Billing</h3>
+        <p>Information about payment methods and invoices</p>
+        <a href="#faq" class="quick-link">Learn more <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="quick-card">
+        <div class="quick-icon">
+          <i class="fas fa-undo"></i>
+        </div>
+        <h3>Returns & Refunds</h3>
+        <p>Our return policy and how to request a refund</p>
+        <a href="#faq" class="quick-link">Learn more <i class="fas fa-arrow-right"></i></a>
       </div>
     </div>
-  </div>
+  </section>
 
+  <!-- ========== FAQ SECTION ========== -->
+  <section class="faq-section" id="faq">
+    <div class="faq-container">
+      <div class="section-header">
+
+        <h2>Frequently Asked Questions</h2>
+        <p>Quick answers to common questions</p>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>What is BeautyFlow?</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>BeautyFlow is an AI-powered collaborative import platform designed specifically for beauty businesses in
+              Saudi Arabia. We help small businesses create custom product packaging, access AI-generated
+              recommendations, and share shipping costs through our collaborative import system</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>How does the AI Custom Packaging work?</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Our AI Custom Packaging feature uses advanced AI (DALL-E) to generate unique packaging designs based on
+              your preferences. Simply answer a few questions about your product type, style preferences, and describe
+              your vision - our AI will create professional packaging designs for you!</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>What is collaborative shipping?</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Collaborative shipping allows multiple businesses from the same region to share shipping containers,
+              significantly reducing import costs. Groups of 5 users can join together, and once the group is complete,
+              shipping begins within one week.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Is BeautyFlow SFDA compliant?</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! All products imported through BeautyFlow are fully compliant with Saudi Food and Drug Authority
+              (SFDA) regulations. We handle all necessary documentation and ensure your products meet local
+              requirements.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>What payment methods do you accept?</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>We accept all major credit cards (Visa, Mastercard, STCpay), Apple Pay, and local payment
+              options. All transactions are secured with industry-standard encryption.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>How long does shipping take? </span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Shipping times vary based on your location within Saudi Arabia. Standard delivery takes 3-7 business days
+              after the shipping group is complete. Express shipping options are available for faster delivery.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- ========== CONTACT SECTION ========== -->
+  <section class="bf-contact-section">
+    <div class="bf-contact-container">
+  
+      <div class="bf-header">
+        <h2>Get in Touch</h2>
+        <p>We're here to help and answer any questions</p>
+      </div>
+  
+      <div class="bf-layout">
+        
+        <!-- LEFT FORM -->
+        <div class="bf-form-column">
+          <div class="bf-form-card">
+            <h3><i class="fas fa-paper-plane"></i> Send us a Message</h3>
+  
+            <form>
+  
+              <div class="bf-row">
+                <div class="bf-group">
+                  <label>First Name *</label>
+                  <input type="text" placeholder="John">
+                </div>
+                <div class="bf-group">
+                  <label>Last Name *</label>
+                  <input type="text" placeholder="Doe">
+                </div>
+              </div>
+  
+              <div class="bf-group">
+                <label>Email Address *</label>
+                <input type="email" placeholder="john@example.com">
+              </div>
+  
+              <div class="bf-group">
+                <label>Subject</label>
+                <select>
+                  <option>Select a topic</option>
+                  <option>General Inquiry</option>
+                  <option>Order Support</option>
+                  <option>Technical Issue</option>
+                  <option>Billing Question</option>
+                  <option>Partnership</option>
+                </select>
+              </div>
+  
+              <div class="bf-group">
+                <label>Message *</label>
+                <textarea placeholder="How can we help you?"></textarea>
+              </div>
+  
+              <button class="bf-submit-btn"><i class="fas fa-paper-plane"></i> Send Message</button>
+            </form>
+  
+          </div>
+        </div>
+  
+        <!-- RIGHT CARDS -->
+        <div class="bf-info-column">
+  
+          <div class="bf-info-card">
+            <div class="bf-icon"><i class="fas fa-phone-alt"></i></div>
+            <div class="bf-text">
+              <h4>Phone</h4>
+              <p>Talk to our support team</p>
+              <span>+966 XX XXX XXXX</span>
+            </div>
+          </div>
+  
+          <div class="bf-info-card">
+            <div class="bf-icon"><i class="fas fa-envelope"></i></div>
+            <div class="bf-text">
+              <h4>Email</h4>
+              <p>We reply within 24 hours</p>
+              <span> <a href="mailto:beautyflow.team@gmail.com">beautyflow.team@gmail.com</a></span>
+            </div>
+          </div>
+  
+          <div class="bf-info-card">
+            <div class="bf-icon"><i class="fas fa-clock"></i></div>
+            <div class="bf-text">
+              <h4>Working Hours</h4>
+              <p>Mon–Sat: 10am–10pm</p>
+              <span>Sunday: 11am–5pm</span>
+            </div>
+          </div>
+  
+          <div class="bf-info-card">
+            <div class="bf-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="bf-text">
+              <h4>Location</h4>
+              <p>Al-Baha, Saudi Arabia</p>
+              <span>BeautyFlow</span>
+            </div>
+          </div>
+  
+        </div>
+  
+      </div>
+  
+    </div>
+  </section>
+  
+
+
+  <!-- ========== FOOTER ========== -->
+   <!-- FOOTER -->
+   <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow" class="footer-logo">
+          <p>AI-powered collaborative import platform for beauty businesses in Saudi Arabia.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <a href="{{ url_for('home_index') }}">Home</a>
+          <a href="{{ url_for('design_options') }}">Design Options</a>
+          <a href="{{ url_for('about_page') }}">About Us</a>
+          <a href="{{ url_for('help_page') }}">Help Center</a>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Services</h4>
+          <a href="/AI">AI Custom Design</a>
+          <a href="/smartPicks">SmartPicks</a>
+          <a href="/cart">Shopping Cart</a>
+        </div>
+        
+        <div class="footer-contact">
+          <h4>Contact Us</h4>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:beautyflow.team@gmail.com">beautyflow.team@gmail.com</a></p>
+          <p><i class="fas fa-phone"></i> +966 XX XXX XXXX</p>
+          <p><i class="fas fa-map-marker-alt"></i> Al-Baha, Saudi Arabia</p>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 BeautyFlow. All rights reserved.</p>
+        <p>Made with <i class="fas fa-heart"></i> by BeautyFlow Team</p>
+      </div>
+    </div>
+  </footer>
+
+  <style>
+      .main-footer {
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+      color: #1a1a2e;
+      padding: 60px 0 30px;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-logo {
+      height: 40px;
+      margin-bottom: 16px;
+    }
+
+    .footer-brand p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+
+    .footer-social a {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e84a7f;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(232, 74, 127, 0.15);
+    }
+
+    .footer-social a:hover {
+      background: #e84a7f;
+      color: white;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.3);
+    }
+
+    .footer-links h4,
+    .footer-contact h4 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #1a1a2e;
+      font-weight: 700;
+    }
+
+    .footer-links a {
+      display: block;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 12px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #e84a7f;
+      transform: translateX(5px);
+    }
+
+    .footer-contact p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-contact i {
+      color: #e84a7f;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(232, 74, 127, 0.2);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .footer-bottom i {
+      color: #e84a7f;
+    }
+  </style>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+
+
+
+  <!-- ========== SCRIPTS ========== -->
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
   <script>
-    // تحقق بسيط ثم إرسال للفورم (POST للـ action)
-    const form = document.getElementById("contactForm");
-
-    form.addEventListener("submit", function (event) {
-      event.preventDefault(); // نتحقق أولاً بدون تحديث الصفحة
-
-      const firstName = document.getElementById("first_name").value.trim();
-      const lastName = document.getElementById("last_name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const message = document.getElementById("message").value.trim();
-
-      if (!firstName || !lastName || !email || !message) {
-        alert("الرجاء تعبئة جميع الحقول المطلوبة.");
-        return;
-      }
-
-      // Regex أبسط ومعقول
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-      if (!emailPattern.test(email)) {
-        alert("الرجاء إدخال بريد إلكتروني صالح.");
-        return;
-      }
-
-      // لو كل شيء تمام، نرسل الفورم للباك-إند
-      form.submit();
+    document.addEventListener("DOMContentLoaded", function () {
+      const header = document.getElementById("mainHeader");
+      let lastScrollY = window.pageYOffset;
+      const SCROLL_DELTA = 5; 
+  
+      window.addEventListener("scroll", function () {
+        const currentY = window.pageYOffset;
+  
+        
+        if (currentY <= 0) {
+          header.classList.remove("hide");
+          header.classList.remove("scrolled");
+          lastScrollY = 0;
+          return;
+        }
+  
+  
+        if (Math.abs(currentY - lastScrollY) < SCROLL_DELTA) return;
+  
+    
+        if (currentY > lastScrollY) {
+          header.classList.add("hide");
+        } else {
+         
+          header.classList.remove("hide");
+        }
+  
+      
+        if (currentY > 20) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+  
+        lastScrollY = currentY;
+      });
     });
-  </script>
-</body>
+    // Mobile Menu
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuBtn.classList.toggle('active');
+        mobileMenu.classList.toggle('open');
+      });
+    }
 
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('mainHeader');
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    // FAQ Accordion
+    document.querySelectorAll('.faq-question').forEach(button => {
+      button.addEventListener('click', () => {
+        const item = button.parentElement;
+        const isActive = item.classList.contains('active');
+
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+
+        if (!isActive) {
+          item.classList.add('active');
+        }
+      });
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('helpSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('.faq-item').forEach(item => {
+          const text = item.textContent.toLowerCase();
+          item.style.display = text.includes(query) ? 'block' : 'none';
+        });
+      });
+    }
+
+    // Contact Form Validation
+    const form = document.getElementById('contactForm');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const firstName = document.getElementById('first_name').value.trim();
+        const lastName = document.getElementById('last_name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
+
+        if (!firstName || !lastName || !email || !message) {
+          showToast('Please fill all required fields');
+          return;
+        }
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+        if (!emailPattern.test(email)) {
+          showToast('Please enter a valid email address');
+          return;
+        }
+
+        form.submit();
+      });
+    }
+
+    // Toast
+    function showToast(message, duration = 3000) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    // Load cart count
+    fetch('/cart/count')
+      .then(res => res.json())
+      .then(data => {
+        const badge = document.getElementById('cart-count');
+        if (badge && data.count) {
+          badge.textContent = data.count;
+        }
+      })
+      .catch(() => { });
+  </script>
+
+  <!-- 🤖 AI Bot -->
+  {% include 'aiBot.html' %}
+</body>
 
 </html>

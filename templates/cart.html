@@ -1,417 +1,906 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BeautyFlow - Cart</title>
+  <!-- ====================================================================
+       BeautyFlow - Cart Page
+       ====================================================================
+       Review cart items, update quantities, view shipping & tax,
+       and proceed to checkout with cost-sharing option.
 
-    <!--  ربط CSS والأيقونة -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+      Author: BeautyFlow Team
+      Version: 1.0.0
+       ==================================================================== -->
+
+ 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml"
+   href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
+  <title>Your Cart - BeautyFlow</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body class="designOptions-page">
-    <!-- الهيدر -->
-    <header class="site-header">
-        <div class="logo"></div>
-        <nav class="site-nav">
-            <a href="{{ url_for('home_index') }}">Home</a>
-            <a href="{{ url_for('about_page') }}">About</a>
-            <a href="{{ url_for('help_page') }}">Help</a>
-            <a href="{{ url_for('account_page') }}">Account</a>
-        </nav>
-    </header>
-    <div class="container">
-        <div class="cart-item">
-            <div class="product-image">💄</div>
-            <div class="product-details">
-                <div class="product-name">Lipstick</div>
-                <div class="product-color">Color: <span class="color-pink">Pink</span></div>
-            </div>
-            <div class="quantity-control">
-                <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
-                <span class="quantity-value" id="quantity">1</span>
-                <button class="quantity-btn" onclick="increaseQuantity()">+</button>
-            </div>
-            <div class="product-price" id="itemPrice">7500 SAR</div>
-            <div class="menu-dots">⋮</div>
-        </div>
+<body class="cart-page">
 
-        <div class="discount-section">
-            <input type="text" class="discount-input" id="discountInput" placeholder="Enter discount code">
-            <button class="apply-btn" onclick="applyDiscount()">→</button>
-        </div>
+  <!-- ===============================================================
+       HEADER
+       - Logo
+       - Desktop Navigation
+       - Header Actions (Cart / Account / Mobile Toggle)
+       - Mobile Menu
+  ================================================================ -->
+  <header class="main-header" id="mainHeader">
+    <div class="header-container">
 
-        <div id="discountMessage"></div>
+      <!-- Logo -->
+      <a href="{{ url_for('home_index') }}" class="header-logo">
+        <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow">
+      </a>
 
-        <div class="total-section">
-            <div class="total-label">Total:</div>
-            <div class="total-price" id="totalPrice">7500 SAR</div>
-            <br>
-            <button id="checkout-btn">CHECK OUT</button>
-            <br>
-            <p class="price-note">This price applies to the product price and does not include shipping, customs, or
-                other applicable fees.</p>
-        </div>
+      <!-- Desktop Navigation -->
+      <nav class="header-nav">
+        <a href="{{ url_for('home_index') }}" class="nav-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="{{ url_for('costSharing_page') }}" class="nav-link">
+          <i class="fas fa-users"></i>
+          <span>Cost-Sharing</span>
+        </a>
+        <a href="{{ url_for('design_options') }}" class="nav-link">
+          <i class="fas fa-magic"></i>
+          <span>Design</span>
+        </a>
+        <a href="{{ url_for('about_page') }}" class="nav-link">
+          <i class="fas fa-info-circle"></i>
+          <span>About</span>
+        </a>
+        <a href="{{ url_for('help_page') }}" class="nav-link">
+          <i class="fas fa-question-circle"></i>
+          <span>Help</span>
+        </a>
+      </nav>
 
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <!-- Cart -->
+        <a href="/cart" class="cart-btn active">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge" id="cart-count">{{ items|length if items else 0 }}</span>
+        </a>
 
-        <script>
-            document.getElementById('checkout-btn').addEventListener('click', function () {
-                window.location.href = "{{ url_for('costSharing_page') }}";
-            });
-        </script>
+        <!-- Account -->
+        <a href="{{ url_for('account_page') }}" class="account-btn">
+          <i class="fas fa-user"></i>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
     </div>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="{{ url_for('home_index') }}"><i class="fas fa-home"></i> Home</a>
+      <a href="{{ url_for('design_options') }}"><i class="fas fa-magic"></i> Design</a>
+      <a href="{{ url_for('about_page') }}"><i class="fas fa-info-circle"></i> About</a>
+      <a href="{{ url_for('help_page') }}"><i class="fas fa-question-circle"></i> Help</a>
+      <a href="/cart" class="active"><i class="fas fa-shopping-bag"></i> Cart</a>
+      <a href="{{ url_for('account_page') }}"><i class="fas fa-user"></i> Account</a>
+    </div>
+  </header>
+
+
+  <!-- ===============================================================
+       HERO SECTION
+       - Decorative background shapes
+       - Page title + subtitle
+  ================================================================ -->
+  <section class="cart-hero">
+    <div class="cart-hero-bg">
+      <div class="hero-shape shape-1"></div>
+      <div class="hero-shape shape-2"></div>
+      <div class="hero-shape shape-3"></div>
+    </div>
+
+    <div class="cart-hero-content">
+      <h1><i class="fas fa-shopping-bag"></i> Your Cart</h1>
+      <p>Review your items and proceed to checkout</p>
+    </div>
+  </section>
+
+  <!-- Spacer (kept as-is) -->
+  <br><br><br><br>
+
+
+  <!-- ===============================================================
+       MAIN CONTENT
+       - Empty cart state OR cart layout
+  ================================================================ -->
+  <main class="cart-main">
+    <div class="cart-container">
+
+      {% if not items or items|length == 0 %}
+
+      <!-- ===================== EMPTY CART ===================== -->
+      <div class="empty-cart-box">
+        <div class="empty-cart-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <h2>Your cart is empty</h2>
+        <p>Add some beautiful products to get started!</p>
+        <a href="{{ url_for('ai_page') }}" class="btn-start-designing">
+          <i class="fas fa-magic"></i> Start Designing
+        </a>
+      </div>
+
+      {% else %}
+
+      <!-- ===================== CART LAYOUT ==================== -->
+      <div class="cart-layout">
+
+        <!-- ===================== LEFT: CART ITEMS ============== -->
+        <div class="cart-items-section">
+          <div class="section-title">
+            <h2>Cart Items</h2>
+            <span class="item-count-badge">{{ items|length }} item{{ 's' if items|length > 1 else '' }}</span>
+          </div>
+
+          {% for item in items %}
+          <div class="cart-item" data-id="{{ item.id }}">
+
+            <!-- Product Image -->
+            <div class="cart-product-image" onclick="openImageModal('{{ item.image }}', '{{ item.name }}')">
+              {% if item.image and item.image|length > 100 %}
+              <img src="{{ item.image }}" alt="{{ item.name }}" loading="lazy"
+                onerror="this.onerror=null; this.src='/static/images/BF_Slogo.png';">
+              <div class="image-overlay">
+                <i class="fas fa-search-plus"></i>
+              </div>
+              {% else %}
+              <img src="{{ url_for('static', filename='images/BF_Slogo.png') }}" alt="BeautyFlow Logo">
+              {% endif %}
+            </div>
+
+            <!-- Product Info -->
+            <div class="cart-info">
+              <h3 class="cart-name">{{ item.name }}</h3>
+
+              {% if item.specs %}
+              <div class="cart-specs">
+                {% for spec in item.specs.split(' • ') %}
+                <span class="spec-badge">{{ spec }}</span>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              {% if item.product_type %}
+              <div class="product-meta">
+                <span class="meta-item">
+                  <i class="fas fa-tag"></i> {{ item.product_type }}
+                </span>
+                {% if item.finish %}
+                <span class="meta-item">
+                  <i class="fas fa-star"></i> {{ item.finish }}
+                </span>
+                {% endif %}
+              </div>
+              {% endif %}
+
+              <div class="cart-price-mobile">
+                <span class="price-value">{{ item.price }} SAR</span>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="cart-controls">
+              <button class="delete-btn" data-id="{{ item.id }}" title="Remove">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+
+              <div class="qty-control">
+                <button class="qty-btn qty-minus" data-id="{{ item.id }}">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span class="qty-text" data-id="{{ item.id }}">{{ item.qty }}</span>
+                <button class="qty-btn qty-plus" data-id="{{ item.id }}">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+
+              <div class="cart-prices">
+                <div class="unit-price">
+                  <span class="label">Price:</span>
+                  <span class="price-value">{{ item.price }} SAR</span>
+                </div>
+                <div class="item-total">
+                  <span class="label">Total:</span>
+                  <span class="total-value">{{ (item.price * item.qty)|round(1) }} SAR</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          {% endfor %}
+
+        </div>
+
+        <!-- ===================== RIGHT: ORDER SUMMARY ============ -->
+        <div class="cart-summary-section">
+          <div class="cart-summary-card">
+            <h3><i class="fas fa-receipt"></i> Order Summary</h3>
+
+            <div class="summary-rows">
+              <div class="summary-row">
+                <span>Total Items</span>
+                <span class="summary-value" id="totalItems">{{ total_qty|default(items|sum(attribute='qty')) }} items</span>
+              </div>
+
+              <div class="summary-row">
+                <span>Product Cost</span>
+                <span class="summary-value" id="subtotalPrice">{{ subtotal|default(total) }} SAR</span>
+              </div>
+
+              <!-- Shipping Details -->
+              <div class="shipping-details-section">
+                <div class="shipping-header">
+                  <i class="fas fa-truck"></i>
+                  <span>Shipping Details</span>
+                </div>
+
+                <div class="shipping-breakdown">
+                  <div class="breakdown-row">
+                    <span>Shipping Fee</span>
+                    <span class="breakdown-value" id="shippingFee">0 SAR</span>
+                  </div>
+                  <div class="breakdown-row">
+                    <span>Custom Duties (5%)</span>
+                    <span class="breakdown-value" id="customDuties">0 SAR</span>
+                  </div>
+                  <div class="breakdown-row">
+                    <span>SFDA Fee</span>
+                    <span class="breakdown-value" id="sfdaFee">20 SAR</span>
+                  </div>
+                  <div class="breakdown-row">
+                    <span>Handling</span>
+                    <span class="breakdown-value" id="handlingFee">0 SAR</span>
+                  </div>
+                  <div class="breakdown-total">
+                    <span>Total Shipping</span>
+                    <span class="breakdown-value shipping-cost" id="shippingPrice">0 SAR</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="summary-row">
+                <span>Tax (15%)</span>
+                <span class="summary-value" id="taxPrice">0 SAR</span>
+              </div>
+            </div>
+
+            <!-- Cost-Sharing -->
+            <div class="cost-sharing-box">
+              <div class="sharing-header">
+                <i class="fas fa-users"></i>
+                <span>Cost-Sharing Option</span>
+              </div>
+
+              <div class="sharing-comparison">
+                <div class="compare-row">
+                  <span>Shipping Fee (Solo)</span>
+                  <span class="solo-price" id="shippingFeeSolo">0 SAR</span>
+                </div>
+                <div class="compare-row highlight">
+                  <span>Shipping Fee (Shared ÷5)</span>
+                  <span class="shared-price" id="shippingFeeShared">0 SAR</span>
+                </div>
+                <div class="savings-row">
+                  <span>💰 You Save</span>
+                  <span class="savings-amount" id="shippingSavings">0 SAR</span>
+                </div>
+              </div>
+
+              <p class="sharing-note">
+                <i class="fas fa-info-circle"></i>
+                Only shipping fee is shared. Other fees are per order.
+              </p>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-total">
+              <span>Total</span>
+              <span class="total-price" id="totalPrice">0 SAR</span>
+            </div>
+
+            <button class="checkout-btn" onclick="goCheckout()">
+              <i class="fas fa-lock"></i>
+              <span>Proceed to Checkout</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <div class="secure-badge">
+              <i class="fas fa-shield-alt"></i>
+              <span>Secure checkout powered by SSL</span>
+            </div>
+
+            <div class="payment-methods">
+              <span>We accept:</span>
+              <div class="payment-icons">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-amex"></i>
+                <i class="fab fa-apple-pay"></i>
+              </div>
+            </div>
+          </div>
+
+          <a href="{{ url_for('ai_page') }}" class="continue-shopping">
+            <i class="fas fa-arrow-left"></i>
+            <span>Continue Shopping</span>
+          </a>
+        </div>
+
+      </div>
+
+      {% endif %}
+
+    </div>
+  </main>
+
+
+  <!-- ===============================================================
+       FOOTER
+  ================================================================ -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow" class="footer-logo">
+          <p>AI-powered collaborative import platform for beauty businesses in Saudi Arabia.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <a href="{{ url_for('home_index') }}">Home</a>
+          <a href="{{ url_for('design_options') }}">Design Options</a>
+          <a href="{{ url_for('about_page') }}">About Us</a>
+          <a href="{{ url_for('help_page') }}">Help Center</a>
+        </div>
+
+        <div class="footer-links">
+          <h4>Services</h4>
+          <a href="/AI">AI Custom Design</a>
+          <a href="/smartPicks">SmartPicks</a>
+          <a href="/cart">Shopping Cart</a>
+        </div>
+
+        <div class="footer-contact">
+          <h4>Contact Us</h4>
+          <p>
+            <i class="fas fa-envelope"></i>
+            <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+              data-cfemail="6d0f080c1819140b01021a4319080c002d0a000c0401430e0200">[email&#160;protected]</a>
+          </p>
+          <p><i class="fas fa-phone"></i> +966 XX XXX XXXX</p>
+          <p><i class="fas fa-map-marker-alt"></i> Al-Baha, Saudi Arabia</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2025 BeautyFlow. All rights reserved.</p>
+        <p>Made with <i class="fas fa-heart"></i> by BeautyFlow Team</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ===============================================================
+       INTERNAL STYLES
+  ================================================================ -->
+  <style>
+    /* Footer Styles */
+    .main-footer { background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%); color: #1a1a2e; padding: 60px 0 30px; }
+    .footer-container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-logo { height: 40px; margin-bottom: 16px; }
+    .footer-brand p { font-size: 14px; color: #6b7280; line-height: 1.6; margin-bottom: 20px; }
+    .footer-social { display: flex; gap: 12px; }
+    .footer-social a { width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #e84a7f; transition: all 0.3s; box-shadow: 0 4px 15px rgba(232, 74, 127, 0.15); text-decoration: none; }
+    .footer-social a:hover { background: #e84a7f; color: white; transform: translateY(-4px); }
+    .footer-links h4, .footer-contact h4 { font-size: 16px; margin-bottom: 20px; color: #1a1a2e; font-weight: 700; }
+    .footer-links a { display: block; color: #6b7280; text-decoration: none; margin-bottom: 12px; font-size: 14px; transition: all 0.3s; }
+    .footer-links a:hover { color: #e84a7f; transform: translateX(5px); }
+    .footer-contact p { font-size: 14px; color: #6b7280; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .footer-contact i { color: #e84a7f; }
+    .footer-bottom { border-top: 1px solid rgba(232, 74, 127, 0.2); padding-top: 30px; display: flex; justify-content: space-between; font-size: 13px; color: #6b7280; }
+    .footer-bottom i { color: #e84a7f; }
+
+    /* Shipping Details Section */
+    .shipping-details-section { background: linear-gradient(135deg, #fff5f7 0%, #ffe8ed 100%); border-radius: 12px; padding: 16px; margin: 12px 0; }
+    .shipping-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed rgba(232, 74, 127, 0.3); }
+    .shipping-header i { color: #e84a7f; font-size: 18px; }
+    .shipping-header span { font-weight: 600; color: #333; font-size: 14px; }
+    .shipping-breakdown { display: flex; flex-direction: column; gap: 8px; }
+    .breakdown-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #666; }
+    .breakdown-value { font-weight: 500; color: #444; }
+    .breakdown-total { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(232, 74, 127, 0.2); font-size: 14px; font-weight: 600; }
+    .breakdown-total span:first-child { color: #333; }
+    .breakdown-total .shipping-cost { color: #e84a7f !important; font-size: 15px; }
+
+    /* Cost-Sharing Box */
+    .cost-sharing-box { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 12px; padding: 16px; margin: 16px 0; border: 1px solid rgba(67, 160, 71, 0.2); }
+    .sharing-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed rgba(67, 160, 71, 0.3); }
+    .sharing-header i { color: #43a047; font-size: 18px; }
+    .sharing-header span { font-weight: 600; color: #2e7d32; font-size: 14px; }
+    .sharing-comparison { display: flex; flex-direction: column; gap: 8px; }
+    .compare-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #555; }
+    .compare-row.highlight { background: rgba(255, 255, 255, 0.6); padding: 8px 10px; border-radius: 8px; margin: 4px 0; }
+    .solo-price { text-decoration: line-through; color: #999; }
+    .shared-price { color: #2e7d32; font-weight: 600; }
+    .savings-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(67, 160, 71, 0.2); }
+    .savings-row span:first-child { font-weight: 600; color: #2e7d32; font-size: 14px; }
+    .savings-amount { font-weight: 700; color: #1b5e20; font-size: 16px; }
+    .sharing-note { margin-top: 12px; font-size: 11px; color: #666; display: flex; align-items: center; gap: 6px; }
+    .sharing-note i { color: #43a047; }
+
+    /* Summary Row */
+    .summary-rows { display: flex; flex-direction: column; gap: 12px; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #666; padding: 4px 0; }
+    .summary-value { font-weight: 600; color: #333; }
+
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .footer-grid { grid-template-columns: 1fr; text-align: center; } .footer-social { justify-content: center; } .footer-contact p { justify-content: center; } .footer-bottom { flex-direction: column; align-items: center; gap: 10px; } .shipping-details-section { padding: 12px; } .breakdown-row { font-size: 12px; } }
+  </style>
+
+
+  <!-- ===============================================================
+       IMAGE MODAL
+  ================================================================ -->
+  <div id="imageModal" class="image-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeImageModal()">
+        <i class="fas fa-times"></i>
+      </button>
+      <img id="modalImage" src="" alt="">
+      <div class="modal-caption" id="modalCaption"></div>
+    </div>
+  </div>
+
+
+  <!-- ===============================================================
+       TOAST
+  ================================================================ -->
+  <div id="toast" class="toast"></div>
+
+
+  <!-- ===============================================================
+       SCRIPTS
+  ================================================================ -->
+  <!-- Cloudflare Email Decode -->
+  <script data-cfasync="false"
+    src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+
+  <!-- Page Script -->
+  <script>
+    // ===================== Shipping Cost Constants =====================
+    const SHIPPING_BASE = 50;
+    const SHIPPING_PER_ITEM = 5;
+    const CUSTOMS_RATE = 0.05;
+    const SFDA_FEE = 20;
+    const HANDLING_PER_ITEM = 8;
+    const TAX_RATE = 0.15;
+
+    // ===================== Header Scroll Behavior =====================
+    document.addEventListener("DOMContentLoaded", function () {
+      const header = document.getElementById("mainHeader");
+      let lastScrollY = window.pageYOffset;
+      const SCROLL_DELTA = 5;
+
+      window.addEventListener("scroll", function () {
+        const currentY = window.pageYOffset;
+
+        if (currentY <= 0) {
+          header.classList.remove("hide");
+          header.classList.remove("scrolled");
+          lastScrollY = 0;
+          return;
         }
 
+        if (Math.abs(currentY - lastScrollY) < SCROLL_DELTA) return;
 
-
-        .header {
-            background: linear-gradient(135deg, #ffc9e5 0%, #ffe5f0 100%);
-            padding: 18px 28px;
-            border-radius: 0 0 50% 0 / 0 0 70px 0;
-            position: relative;
-            margin-bottom: 35px;
-            box-shadow: 0 4px 20px rgba(255, 182, 222, 0.3);
+        if (currentY > lastScrollY) {
+          header.classList.add("hide");
+        } else {
+          header.classList.remove("hide");
         }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 850px;
-            margin: 0 auto;
+        if (currentY > 20) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
         }
 
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        lastScrollY = currentY;
+      });
 
-        .cart-icon {
-            width: 40px;
-            height: 40px;
-            position: relative;
-        }
+      // Initialize summary on page load
+      initializeSummary();
+    });
 
-        .cart-icon svg {
-            width: 100%;
-            height: 100%;
-        }
+    // ===================== Mobile Menu =====================
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
 
-        .heart-icon {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 18px;
-            height: 18px;
-            fill: #ff6b9d;
-        }
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuBtn.classList.toggle('active');
+        mobileMenu.classList.toggle('open');
+      });
+    }
 
-        .logo-text {
-            font-size: 22px;
-            color: #7a7a7a;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
+    // ===================== Save Cart Products to sessionStorage =====================
+    function saveCartProductsToStorage() {
+      const products = [];
 
-        nav {
-            display: flex;
-            gap: 22px;
-        }
+      document.querySelectorAll('.cart-item').forEach(item => {
+        const id = item.dataset.id || '';
+        const name = item.querySelector('.cart-name')?.textContent || 'Product';
+        const price = parseFloat(item.querySelector('.price-value')?.textContent) || 0;
+        const qty = parseInt(item.querySelector('.qty-text')?.textContent) || 1;
 
-        nav a {
-            text-decoration: none;
-            color: #5a5a5a;
-            font-size: 15px;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
+        // Don't save base64 images (avoid QuotaExceededError)
+        products.push({ id, name, price, qty, image: '' });
+      });
 
-        nav a:hover {
-            color: #ff6b9d;
-        }
+      try {
+        sessionStorage.setItem('beautyflow_cart_products', JSON.stringify(products));
+        console.log('✅ Cart products saved:', products);
+      } catch (e) {
+        console.error('Storage quota exceeded, clearing old data:', e);
+        sessionStorage.clear();
+        sessionStorage.setItem('beautyflow_cart_products', JSON.stringify(products));
+      }
+    }
 
-        nav a:last-child {
-            font-style: italic;
-        }
+    // ===================== Initialize Summary =====================
+    function initializeSummary() {
+      // Save products first
+      saveCartProductsToStorage();
 
-        .container {
-            max-width: 520px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 22px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
+      // Total items
+      let totalItems = 0;
+      document.querySelectorAll('.qty-text').forEach(el => {
+        totalItems += parseInt(el.textContent) || 0;
+      });
 
-        .cart-item {
-            background: white;
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 22px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            position: relative;
-        }
+      // Subtotal (product cost)
+      const subtotalEl = document.getElementById('subtotalPrice');
+      const subtotal = parseFloat(subtotalEl?.textContent) || 0;
 
-        .product-image {
-            width: 70px;
-            height: 70px;
-            border-radius: 11px;
-            background: linear-gradient(135deg, #ffebf0, #ffe0e9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 35px;
-            box-shadow: 0 4px 10px rgba(255, 107, 157, 0.2);
-            flex-shrink: 0;
-        }
+      // Shipping details
+      const shippingDetails = calculateShippingDetails(totalItems, subtotal);
 
-        .product-details {
-            flex: 1;
-        }
+      // Tax on (products + shipping)
+      const tax = (subtotal + shippingDetails.total) * TAX_RATE;
 
-        .product-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 3px;
-        }
+      // Grand total
+      const grandTotal = subtotal + shippingDetails.total + tax;
 
-        .product-color {
-            font-size: 12px;
-            color: #999;
-        }
+      // Update UI
+      updateSummaryDisplay({
+        totalItems: totalItems,
+        subtotal: subtotal,
+        shippingFee: shippingDetails.shippingFee,
+        customDuties: shippingDetails.customDuties,
+        sfdaFee: shippingDetails.sfdaFee,
+        handlingFee: shippingDetails.handlingFee,
+        totalShipping: shippingDetails.total,
+        tax: tax,
+        grandTotal: grandTotal
+      });
+    }
 
-        .color-pink {
-            color: #ff6b9d;
-            font-weight: 500;
-        }
+    // ===================== Calculate Shipping Details =====================
+    function calculateShippingDetails(totalItems, productCost) {
+      if (totalItems === 0) {
+        return { shippingFee: 0, customDuties: 0, sfdaFee: 0, handlingFee: 0, total: 0 };
+      }
 
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #fff;
-            border-radius: 18px;
-            padding: 5px 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
+      const shippingFee = SHIPPING_BASE + (totalItems * SHIPPING_PER_ITEM);
+      const customDuties = Math.round(productCost * CUSTOMS_RATE);
+      const sfdaFee = SFDA_FEE;
+      const handlingFee = totalItems * HANDLING_PER_ITEM;
+      const total = shippingFee + customDuties + sfdaFee + handlingFee;
 
-        .quantity-btn {
-            width: 24px;
-            height: 24px;
-            border: none;
-            background: #ffc9e5;
-            color: #fff;
-            border-radius: 50%;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+      return { shippingFee, customDuties, sfdaFee, handlingFee, total };
+    }
 
-        .quantity-btn:hover {
-            background: #ff6b9d;
-            transform: scale(1.1);
-        }
+    // ===================== Update Summary Display =====================
+    function updateSummaryDisplay(data) {
+      const totalItemsEl = document.getElementById('totalItems');
+      if (totalItemsEl) totalItemsEl.textContent = data.totalItems + ' items';
 
-        .quantity-value {
-            font-size: 15px;
-            font-weight: 600;
-            color: #333;
-            min-width: 32px;
-            text-align: center;
-        }
+      const subtotalEl = document.getElementById('subtotalPrice');
+      if (subtotalEl) subtotalEl.textContent = data.subtotal.toFixed(0) + ' SAR';
 
-        .product-price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #333;
-        }
+      const shippingFeeEl = document.getElementById('shippingFee');
+      if (shippingFeeEl) shippingFeeEl.textContent = data.shippingFee.toFixed(0) + ' SAR';
 
-        .menu-dots {
-            position: absolute;
-            top: 13px;
-            right: 13px;
-            font-size: 18px;
-            color: #ccc;
-            cursor: pointer;
-        }
+      const customDutiesEl = document.getElementById('customDuties');
+      if (customDutiesEl) customDutiesEl.textContent = data.customDuties.toFixed(0) + ' SAR';
 
-        .discount-section {
-            text-align: center;
-            margin: 22px 0;
-        }
+      const sfdaFeeEl = document.getElementById('sfdaFee');
+      if (sfdaFeeEl) sfdaFeeEl.textContent = data.sfdaFee.toFixed(0) + ' SAR';
 
-        .discount-input {
-            width: 100%;
-            max-width: 320px;
-            padding: 11px 18px;
-            border: none;
-            border-radius: 22px;
-            background: #ffe5f0;
-            text-align: center;
-            font-size: 13px;
-            color: #999;
-            outline: none;
-            box-shadow: 0 2px 10px rgba(255, 107, 157, 0.1);
-        }
+      const handlingFeeEl = document.getElementById('handlingFee');
+      if (handlingFeeEl) handlingFeeEl.textContent = data.handlingFee.toFixed(0) + ' SAR';
 
-        .discount-input::placeholder {
-            color: #ffb3d1;
-        }
+      const shippingPriceEl = document.getElementById('shippingPrice');
+      if (shippingPriceEl) shippingPriceEl.textContent = data.totalShipping.toFixed(0) + ' SAR';
 
-        .apply-btn {
-            width: 38px;
-            height: 38px;
-            border: none;
-            background: #ffc9e5;
-            border-radius: 50%;
-            margin-left: -48px;
-            cursor: pointer;
-            font-size: 17px;
-            color: white;
-            transition: all 0.3s;
-        }
+      const taxEl = document.getElementById('taxPrice');
+      if (taxEl) taxEl.textContent = data.tax.toFixed(0) + ' SAR';
 
-        .apply-btn:hover {
-            background: #ff6b9d;
-            transform: scale(1.1);
-        }
+      const totalEl = document.getElementById('totalPrice');
+      if (totalEl) totalEl.textContent = data.grandTotal.toFixed(0) + ' SAR';
 
-        .total-section {
-            text-align: center;
-            margin: 28px 0 15px 0;
-        }
+      // Cost-Sharing Comparison
+      const shippingFeeSolo = data.shippingFee;
+      const shippingFeeShared = Math.round(data.shippingFee / 5);
+      const shippingSavings = shippingFeeSolo - shippingFeeShared;
 
-        .total-label {
-            color: #999;
-            font-size: 13px;
-            margin-bottom: 7px;
-        }
+      const soloEl = document.getElementById('shippingFeeSolo');
+      if (soloEl) soloEl.textContent = shippingFeeSolo.toFixed(0) + ' SAR';
 
-        .total-price {
-            font-size: 26px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 18px;
-        }
+      const sharedEl = document.getElementById('shippingFeeShared');
+      if (sharedEl) sharedEl.textContent = shippingFeeShared.toFixed(0) + ' SAR';
 
-        .checkout-btn {
-            width: 100%;
-            max-width: 230px;
-            padding: 11px;
-            background: linear-gradient(135deg, #ffc9e5, #ffb3d1);
-            border: none;
-            border-radius: 24px;
-            color: white;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
-            margin-bottom: 11px;
-        }
+      const savingsEl = document.getElementById('shippingSavings');
+      if (savingsEl) savingsEl.textContent = shippingSavings.toFixed(0) + ' SAR';
+    }
 
-        .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
-        }
+    // ===================== Modal Functions =====================
+    let currentModalImage = "";
+    let currentModalName = "";
 
-        .price-note {
-            font-size: 10.5px;
-            color: #ff6b9d;
-            max-width: 260px;
-            margin: 0 auto;
-            line-height: 1.5;
-        }
+    function openImageModal(imageUrl, productName) {
+      const modal = document.getElementById("imageModal");
+      const modalImage = document.getElementById("modalImage");
+      const modalCaption = document.getElementById("modalCaption");
 
-        .discount-applied {
-            background: #d4f4dd;
-            color: #2d7a3e;
-            padding: 7px;
-            border-radius: 11px;
-            margin: 15px 0;
-            text-align: center;
-            font-weight: 500;
-            font-size: 13px;
-        }
+      currentModalImage = imageUrl;
+      currentModalName = productName;
 
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 13px;
+      modalImage.src = imageUrl;
+      modalCaption.textContent = productName;
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeImageModal() {
+      document.getElementById("imageModal").classList.remove("active");
+      document.body.style.overflow = "";
+    }
+
+    document.getElementById("imageModal")?.addEventListener("click", (e) => {
+      if (e.target.id === "imageModal") closeImageModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeImageModal();
+    });
+
+    // ===================== Checkout =====================
+    function goCheckout() {
+      saveCartProductsToStorage();
+      window.location.href = "/costSharing";
+    }
+
+    // ===================== Delete Item =====================
+    document.addEventListener("click", async (e) => {
+      const del = e.target.closest(".delete-btn");
+      if (!del) return;
+
+      const id = del.dataset.id;
+      const itemEl = del.closest(".cart-item");
+
+      if (!confirm("Remove this item from cart?")) return;
+
+      itemEl.style.opacity = "0.5";
+      itemEl.style.pointerEvents = "none";
+
+      try {
+        const res = await fetch("/cart/remove", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: id })
+        });
+
+        const data = await res.json();
+
+        if (data.ok) {
+          itemEl.style.transform = "translateX(100%)";
+          setTimeout(() => {
+            itemEl.remove();
+            recalculateSummary();
+            updateCartCount(data.cart_count);
+            updateItemCountBadge(document.querySelectorAll('.cart-item').length);
+            showToast("✓ Item removed");
+
+            if (data.cart_count === 0) {
+              setTimeout(() => location.reload(), 500);
             }
-
-            nav {
-                gap: 13px;
-            }
-
-            .cart-item {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .container {
-                padding: 22px 16px;
-            }
+          }, 300);
+        } else {
+          itemEl.style.opacity = "1";
+          itemEl.style.pointerEvents = "auto";
+          showToast("✗ Failed to remove");
         }
-    </style>
-    <script>
-        let quantity = 1;
-        const pricePerUnit = 7500;
-        let discountApplied = false;
+      } catch (err) {
+        itemEl.style.opacity = "1";
+        itemEl.style.pointerEvents = "auto";
+        showToast("✗ Network error");
+      }
+    });
 
-        function updatePrice() {
-            const itemPrice = quantity * pricePerUnit;
-            const finalPrice = discountApplied ? itemPrice * 0.9 : itemPrice;
+    // ===================== Quantity Update =====================
+    document.addEventListener("click", async (e) => {
+      const plus = e.target.closest(".qty-plus");
+      const minus = e.target.closest(".qty-minus");
+      if (!plus && !minus) return;
 
-            document.getElementById('quantity').textContent = quantity;
-            document.getElementById('itemPrice').textContent = Math.round(itemPrice) + ' SAR';
-            document.getElementById('totalPrice').textContent = Math.round(finalPrice) + ' SAR';
-        }
+      const id = (plus || minus).dataset.id;
+      const action = plus ? "inc" : "dec";
+      const qtyText = document.querySelector(`.qty-text[data-id="${id}"]`);
+      const itemEl = (plus || minus).closest(".cart-item");
 
-        function increaseQuantity() {
-            quantity += 1;
-            updatePrice();
-        }
+      try {
+        const res = await fetch("/cart/update_qty", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, action })
+        });
 
-        function decreaseQuantity() {
-            if (quantity > 1) {
-                quantity -= 1;
-                updatePrice();
-            }
+        const data = await res.json();
+
+        if (!data.ok) {
+          showToast("✗ Failed to update");
+          return;
         }
 
-        function applyDiscount() {
-            const code = document.getElementById('discountInput').value.toUpperCase();
-            const messageDiv = document.getElementById('discountMessage');
-
-            if (code === 'BFS' || code === 'DISCOUNT10') {
-                discountApplied = true;
-                messageDiv.innerHTML = '<div class="discount-applied">✓ Discount code applied successfully! 10% off</div>';
-                updatePrice();
-            } else if (code !== '') {
-                messageDiv.innerHTML = '<div style="background: #ffe5e5; color: #c53030; padding: 10px; border-radius: 15px; margin: 20px 0; text-align: center;">Invalid discount code</div>';
-                setTimeout(() => {
-                    messageDiv.innerHTML = '';
-                }, 3000);
+        if (data.removed) {
+          itemEl.style.transform = "translateX(100%)";
+          itemEl.style.opacity = "0";
+          setTimeout(() => {
+            itemEl.remove();
+            recalculateSummary();
+            updateCartCount(data.cart_count);
+            updateItemCountBadge(document.querySelectorAll('.cart-item').length);
+            showToast("✓ Item removed");
+            if (data.cart_count === 0) {
+              setTimeout(() => location.reload(), 500);
             }
+          }, 300);
+        } else {
+          qtyText.textContent = data.item_qty;
 
+          const itemTotal = itemEl.querySelector(".total-value");
+          if (itemTotal) {
+            const price = parseFloat(itemEl.querySelector(".price-value").textContent);
+            itemTotal.textContent = (price * data.item_qty).toFixed(1) + " SAR";
+          }
 
+          recalculateSummary();
+
+          qtyText.style.transform = "scale(1.3)";
+          setTimeout(() => qtyText.style.transform = "scale(1)", 200);
         }
-    </script>
+      } catch (err) {
+        showToast("✗ Network error");
+      }
+    });
+
+    // ===================== Recalculate Summary =====================
+    function recalculateSummary() {
+      let totalItems = 0;
+      let subtotal = 0;
+
+      document.querySelectorAll('.cart-item').forEach(item => {
+        const qty = parseInt(item.querySelector('.qty-text')?.textContent) || 0;
+        const price = parseFloat(item.querySelector('.price-value')?.textContent) || 0;
+        totalItems += qty;
+        subtotal += price * qty;
+      });
+
+      const shippingDetails = calculateShippingDetails(totalItems, subtotal);
+      const tax = (subtotal + shippingDetails.total) * TAX_RATE;
+      const grandTotal = subtotal + shippingDetails.total + tax;
+
+      updateSummaryDisplay({
+        totalItems: totalItems,
+        subtotal: subtotal,
+        shippingFee: shippingDetails.shippingFee,
+        customDuties: shippingDetails.customDuties,
+        sfdaFee: shippingDetails.sfdaFee,
+        handlingFee: shippingDetails.handlingFee,
+        totalShipping: shippingDetails.total,
+        tax: tax,
+        grandTotal: grandTotal
+      });
+
+      saveCartProductsToStorage();
+    }
+
+    // ===================== Update Item Count Badge =====================
+    function updateItemCountBadge(count) {
+      const el = document.querySelector(".item-count-badge");
+      if (el) el.textContent = `${count} item${count !== 1 ? 's' : ''}`;
+    }
+
+    // ===================== Update Cart Count =====================
+    function updateCartCount(count) {
+      const badge = document.getElementById("cart-count");
+      if (badge) badge.textContent = count || 0;
+    }
+
+    // ===================== Toast =====================
+    function showToast(message, duration = 3000) {
+      const existing = document.querySelector(".toast-notification");
+      if (existing) existing.remove();
+
+      const toast = document.createElement("div");
+      toast.className = "toast-notification";
+      toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 8px 30px rgba(232, 74, 127, 0.4);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      `;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(100px)";
+        setTimeout(() => toast.remove(), 300);
+      }, duration);
+    }
+  </script>
+
+
+  <!-- ===============================================================
+       AI BOT COMPONENT
+  ================================================================ -->
+  {% include 'aiBot.html' %}
+
 </body>
-
 </html>

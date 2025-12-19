@@ -1,145 +1,1225 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <title>Phone Login</title>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+    <!-- ====================================================================
+     BeautyFlow - Home Page
+     ====================================================================
+     Platform landing page with key features and main navigation access.
+
+     Author: BeautyFlow Team
+     Version: 1.0.0
+     ==================================================================== -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BeautyFlow - Phone Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           BeautyFlow Phone Login - Soft Pink Aesthetic
+           ═══════════════════════════════════════════════════════════════ */
+        
+        :root {
+            --pink-primary: #ff8fab;
+            --pink-light: #ffc2d1;
+            --pink-dark: #fb6f92;
+            --pink-deep: #e75480;
+            --cream: #fff5f7;
+            --cream-dark: #ffe5ec;
+            --charcoal: #4a4a4a;
+            --charcoal-light: #6b6b6b;
+            --blush: #ffecf1;
+            --pearl: #fffbfc;
+            --pink-shimmer: linear-gradient(135deg, #ffc2d1 0%, #ffb3c6 50%, #ff8fab 100%);
+            --glass-bg: rgba(255, 182, 193, 0.1);
+            --glass-border: rgba(255, 182, 193, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 50%, #ffb3c6 100%);
+            position: relative;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           Animated Background
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #ff8fab 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #ffc2d1 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #ffb3c6 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.95); }
+            75% { transform: translate(40px, 40px) scale(1.05); }
+        }
+
+        /* Sparkle particles */
+        .sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: sparkle 3s ease-in-out infinite;
+            box-shadow: 0 0 6px rgba(255, 143, 171, 0.5);
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           Main Container
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .phone-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .phone-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            min-height: 550px;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 
+                0 50px 100px rgba(0, 0, 0, 0.15),
+                0 0 0 1px var(--glass-border),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            animation: cardAppear 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        @keyframes cardAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           Left Panel - Branding
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .brand-panel {
+            flex: 1;
+            background: linear-gradient(160deg, #ff8fab 0%, #fb6f92 100%);
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 50px;
+            animation: slideIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logo-mark {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f7 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--pink-dark);
+            box-shadow: 
+                0 8px 32px rgba(251, 111, 146, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-mark::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 40%,
+                rgba(255, 255, 255, 0.6) 50%,
+                transparent 60%
+            );
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .logo-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 2px;
+        }
+
+        .brand-headline {
+            animation: slideIn 0.8s ease-out 0.4s both;
+        }
+
+        .brand-headline h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            font-weight: 600;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .brand-headline h1 span {
+            color: #fff5f7;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .brand-headline p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.8;
+            max-width: 350px;
+        }
+
+        /* Security Features */
+        .security-features {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 40px;
+            animation: slideIn 0.8s ease-out 0.6s both;
+        }
+
+        .security-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .security-item:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateX(8px);
+        }
+
+        .security-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f7 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .security-text {
+            flex: 1;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .brand-footer {
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out 0.8s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .brand-footer p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           Right Panel - Phone Form
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .form-panel {
+            flex: 1;
+            background: var(--cream);
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .form-panel::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, var(--blush) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(40px);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideUp 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phone-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 12px 30px rgba(255, 143, 171, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 12px 30px rgba(255, 143, 171, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 16px 40px rgba(255, 143, 171, 0.5); }
+        }
+
+        .phone-icon-wrapper svg {
+            width: 36px;
+            height: 36px;
+            color: white;
+        }
+
+        .form-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: var(--charcoal-light);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .phone-form {
+            animation: slideUp 0.8s ease-out 0.5s both;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--charcoal-light);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Phone Input Container */
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+            background: var(--pearl);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 6px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 2px 8px rgba(255, 143, 171, 0.08),
+                inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .phone-input-container:hover {
+            background: white;
+            box-shadow: 
+                0 4px 16px rgba(255, 143, 171, 0.12),
+                inset 0 0 0 rgba(0, 0, 0, 0);
+        }
+
+        .phone-input-container:focus-within {
+            background: white;
+            border-color: var(--pink-primary);
+            box-shadow: 
+                0 8px 24px rgba(255, 143, 171, 0.18),
+                0 0 0 4px rgba(255, 143, 171, 0.12);
+        }
+
+        /* Country Selector */
+        .country-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .country-selector:hover {
+            background: rgba(255, 143, 171, 0.1);
+        }
+
+        .country-flag {
+            width: 28px;
+            height: 20px;
+            border-radius: 4px;
+            object-fit: cover;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .country-code-display {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+
+        .country-caret {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--charcoal-light);
+            transition: transform 0.3s ease;
+        }
+
+        .country-selector[aria-expanded="true"] .country-caret {
+            transform: rotate(180deg);
+        }
+
+        .dial-code {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--charcoal);
+            padding: 0 8px;
+        }
+
+        .separator {
+            width: 1px;
+            height: 28px;
+            background: var(--pink-light);
+            margin: 0 4px;
+        }
+
+        .phone-number-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--charcoal);
+            padding: 12px;
+            outline: none;
+            letter-spacing: 1px;
+        }
+
+        .phone-number-input::placeholder {
+            color: #bbb;
+            font-weight: 400;
+        }
+
+        /* Country Dropdown */
+        .country-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 143, 171, 0.1);
+            list-style: none;
+            padding: 8px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .country-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .country-dropdown li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            color: var(--charcoal);
+        }
+
+        .country-dropdown li:hover {
+            background: var(--blush);
+        }
+
+        .country-dropdown li[aria-selected="true"] {
+            background: linear-gradient(135deg, rgba(255, 143, 171, 0.15) 0%, rgba(251, 111, 146, 0.1) 100%);
+            color: var(--pink-dark);
+            font-weight: 600;
+        }
+
+        .country-dropdown li img {
+            width: 24px;
+            height: 18px;
+            border-radius: 3px;
+            object-fit: cover;
+        }
+
+        /* Error Message */
+        .error-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 1px solid #f87171;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 16px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .error-message.show {
+            opacity: 1;
+            transform: translateY(0);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            20%, 60% { transform: translateX(-6px) translateY(0); }
+            40%, 80% { transform: translateX(6px) translateY(0); }
+        }
+
+        .error-message::before {
+            content: '⚠️';
+            font-size: 16px;
+        }
+
+        /* Submit Button */
+        .btn-send {
+            width: 100%;
+            position: relative;
+            padding: 18px 32px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: white;
+            background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-dark) 100%);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 8px 24px rgba(255, 143, 171, 0.4),
+                0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 24px;
+        }
+
+        .btn-send::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--pink-dark) 0%, var(--pink-deep) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .btn-send:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 32px rgba(255, 143, 171, 0.5),
+                0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-send:hover::before {
+            opacity: 1;
+        }
+
+        .btn-send:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-send span {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-send .btn-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-send:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
+        /* Ripple effect */
+        .btn-send .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Loading State */
+        .btn-send.loading {
+            pointer-events: none;
+        }
+
+        .btn-send.loading span {
+            opacity: 0;
+        }
+
+        .btn-send .spinner {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            opacity: 0;
+        }
+
+        .btn-send.loading .spinner {
+            opacity: 1;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Back Link */
+        .back-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 28px;
+            font-size: 14px;
+            color: var(--charcoal-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            animation: slideUp 0.8s ease-out 0.7s both;
+        }
+
+        .back-link:hover {
+            color: var(--pink-primary);
+        }
+
+        .back-link svg {
+            transition: transform 0.3s ease;
+        }
+
+        .back-link:hover svg {
+            transform: translateX(-4px);
+        }
+
+        /* Phone Input Wrapper for Dropdown Positioning */
+        .phone-input-wrapper {
+            position: relative;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           Responsive Design
+           ═══════════════════════════════════════════════════════════════ */
+        
+        @media (max-width: 900px) {
+            .phone-wrapper {
+                flex-direction: column;
+                max-width: 500px;
+                min-height: auto;
+            }
+
+            .brand-panel {
+                padding: 40px 30px;
+                min-height: auto;
+            }
+
+            .brand-headline h1 {
+                font-size: 32px;
+            }
+
+            .security-features {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 40px 30px;
+            }
+
+            .form-header h2 {
+                font-size: 26px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .phone-container {
+                padding: 16px;
+            }
+
+            .phone-wrapper {
+                border-radius: 24px;
+            }
+
+            .brand-panel {
+                padding: 30px 24px;
+            }
+
+            .logo-mark {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+            }
+
+            .logo-text {
+                font-size: 22px;
+            }
+
+            .brand-headline h1 {
+                font-size: 26px;
+            }
+
+            .form-panel {
+                padding: 30px 24px;
+            }
+
+            .form-header h2 {
+                font-size: 24px;
+            }
+
+            .phone-icon-wrapper {
+                width: 70px;
+                height: 70px;
+            }
+
+            .phone-input-container {
+                flex-wrap: wrap;
+            }
+
+            .country-selector {
+                padding: 8px 10px;
+            }
+
+            .phone-number-input {
+                font-size: 15px;
+                padding: 10px;
+            }
+
+            .btn-send {
+                padding: 16px 24px;
+            }
+        }
+
+        /* Flash Messages */
+        .flash-message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .flash-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .flash-success {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+    </style>
 </head>
-
-<body class="login-page phone-page">
-  <main class="login-card phone-card" style="max-width:560px">
-    <h1 class="title">Enter Phone Number</h1>
-    <label class="field-label" for="phone">Mobile Number</label>
-
-    <!-- 📱 نموذج إدخال الرقم -->
-    <form class="phone-form" action="{{ url_for('send_otp') }}" method="post" onsubmit="return validatePhone()">
-      <input type="hidden" name="country" id="countryHidden" value="SA">
-      <input type="hidden" name="cc" id="ccHidden" value="+966">
-
-      <div class="phone-input" id="phoneInput">
-        <div class="flag">
-          <img id="flagImg" src="{{ url_for('static', filename='images/ksa.png') }}" alt="Saudi flag">
-        </div>
-
-        <button type="button" class="country" id="countryBtn" aria-haspopup="listbox" aria-expanded="false">
-          <span id="countryCode">SA</span>
-          <span class="caret"></span>
-        </button>
-
-        <div class="cc" id="ccText">+966</div>
-        <div class="sep"></div>
-
-        <input id="phone" name="phone" type="tel" inputmode="numeric" placeholder="500000000" required>
-      </div>
-
-      <!-- رسالة الخطأ فوق الزر -->
-      <p id="errorMsg" class="fade-message">Enter the number correctly</p>
-
-      <button type="submit" class="send-btn">Send Verification Code</button>
-    </form>
-
-
-    <!-- 🔽 القائمة المنسدلة لاختيار الدولة -->
-    <ul class="country-dropdown" id="countryDropdown" role="listbox">
-      <li data-country="SA" data-cc="+966" data-flag="{{ url_for('static', filename='images/ksa.png') }}" role="option"
-        aria-selected="true">
-        <img src="{{ url_for('static', filename='images/ksa.png') }}" alt=""> Saudi Arabia (+966)
-      </li>
-    </ul>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+        <div class="sparkles" id="sparkles"></div>
     </div>
 
+    <div class="phone-container">
+        <div class="phone-wrapper">
+            <!-- Left Panel - Branding -->
+            <div class="brand-panel">
+                <div class="brand-content">
+                    <div class="brand-logo">
+                        <div class="logo-mark">BF</div>
+                        <div class="logo-text">BeautyFlow</div>
+                    </div>
+                    
+                    <div class="brand-headline">
+                        <h1>Secure Your<br><span>Account</span></h1>
+                        <p>We'll send you a verification code to confirm your identity and keep your account safe</p>
+                    </div>
 
+                    <div class="security-features">
+                        <div class="security-item">
+                            <div class="security-icon">🔒</div>
+                            <div class="security-text">End-to-end encrypted</div>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-icon">⚡</div>
+                            <div class="security-text">Code arrives in seconds</div>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-icon">✅</div>
+                            <div class="security-text">One-time verification</div>
+                        </div>
+                    </div>
+                </div>
 
-  </main>
-  <style>
-    .fade-message {
-      color: #e25b7f;
-      font-size: 14px;
-      text-align: center;
-      margin: 10px 0 0 0;
-      display: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
+                <div class="brand-footer">
+                    <p>© 2025 BeautyFlow • BeautyFlow Project</p>
+                </div>
+            </div>
 
-    .fade-message.show {
-      display: block;
-      opacity: 1;
-    }
+            <!-- Right Panel - Phone Form -->
+            <div class="form-panel">
+                <div class="form-header">
+                    <div class="phone-icon-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                    </div>
+                    <h2>Enter Phone Number</h2>
+                    <p>We'll send you a 6-digit verification code via SMS</p>
+                </div>
 
-    .send-btn {
-      background-color: #f7c9d4;
-      color: #000;
-      border: none;
-      border-radius: 25px;
-      padding: 12px 24px;
-      font-weight: 600;
-      margin-top: 15px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+                <form class="phone-form" id="phoneForm" action="{{ url_for('send_otp') }}" method="post">
+                    <input type="hidden" name="country" id="countryHidden" value="SA">
+                    <input type="hidden" name="cc" id="ccHidden" value="+966">
 
-    .send-btn:hover {
-      background-color: #f4a9bd;
-    }
-  </style>
+                    <label class="input-label">Mobile Number</label>
+                    
+                    <div class="phone-input-wrapper">
+                        <div class="phone-input-container" id="phoneInputContainer">
+                            <!-- Country Selector -->
+                            <button type="button" class="country-selector" id="countryBtn" aria-haspopup="listbox" aria-expanded="false">
+                                <img class="country-flag" id="flagImg" src="{{ url_for('static', filename='images/ksa.png') }}" alt="Saudi Arabia">
+                                <span class="country-code-display" id="countryCode">SA</span>
+                                <span class="country-caret"></span>
+                            </button>
 
-  <script>
-    // 🌍 القائمة المنسدلة للدول
-    document.addEventListener("DOMContentLoaded", function () {
-      const btn = document.getElementById("countryBtn");
-      const dd = document.getElementById("countryDropdown");
-      const flagImg = document.getElementById("flagImg");
-      const ccText = document.getElementById("ccText");
-      const codeEl = document.getElementById("countryCode");
-      const hiddenCountry = document.getElementById("countryHidden");
-      const hiddenCc = document.getElementById("ccHidden");
+                            <span class="dial-code" id="dialCode">+966</span>
+                            <div class="separator"></div>
 
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        dd.classList.toggle("show");
-        btn.setAttribute("aria-expanded", dd.classList.contains("show") ? "true" : "false");
-      });
+                            <input 
+                                type="tel" 
+                                class="phone-number-input" 
+                                id="phone" 
+                                name="phone" 
+                                inputmode="numeric" 
+                                placeholder="5X XXX XXXX" 
+                                required
+                                maxlength="9"
+                                autocomplete="tel-national"
+                            >
+                        </div>
 
-      dd.querySelectorAll("li").forEach(li => {
-        li.addEventListener("click", () => {
-          const country = li.dataset.country;
-          const cc = li.dataset.cc;
-          const flag = li.dataset.flag;
+                        <!-- Country Dropdown -->
+                        <ul class="country-dropdown" id="countryDropdown" role="listbox">
+                            <li data-country="SA" data-cc="+966" data-flag="{{ url_for('static', filename='images/ksa.png') }}" role="option" aria-selected="true">
+                                <img src="{{ url_for('static', filename='images/ksa.png') }}" alt="Saudi Arabia">
+                                Saudi Arabia (+966)
+                            </li>
+                        </ul>
+                    </div>
 
-          flagImg.src = flag;
-          ccText.textContent = cc;
-          codeEl.textContent = country;
-          hiddenCountry.value = country;
-          hiddenCc.value = cc;
+                    <!-- Error Message -->
+                    <div class="error-message" id="errorMsg">
+                        Please enter a valid Saudi phone number
+                    </div>
 
-          dd.querySelectorAll("li").forEach(x => x.removeAttribute("aria-selected"));
-          li.setAttribute("aria-selected", "true");
-          dd.classList.remove("show");
-          btn.setAttribute("aria-expanded", "false");
+                    <!-- Flask Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="flash-message flash-{{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-send" id="sendBtn">
+                        <span>
+                            Send Verification Code
+                            <svg class="btn-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </span>
+                        <div class="spinner"></div>
+                    </button>
+                </form>
+
+                <a href="{{ url_for('login_page') }}" class="back-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Back to Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // Sparkle Particles Generator
+        // ═══════════════════════════════════════════════════════════════
+        
+        function createSparkles() {
+            const container = document.getElementById('sparkles');
+            if (!container) return;
+            
+            const sparkleCount = 50;
+            
+            for (let i = 0; i < sparkleCount; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.animationDelay = Math.random() * 3 + 's';
+                sparkle.style.animationDuration = (2 + Math.random() * 2) + 's';
+                container.appendChild(sparkle);
+            }
+        }
+
+        createSparkles();
+
+        // ═══════════════════════════════════════════════════════════════
+        // DOM Elements
+        // ═══════════════════════════════════════════════════════════════
+        
+        const form = document.getElementById('phoneForm');
+        const phoneInput = document.getElementById('phone');
+        const sendBtn = document.getElementById('sendBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const countryBtn = document.getElementById('countryBtn');
+        const countryDropdown = document.getElementById('countryDropdown');
+        const flagImg = document.getElementById('flagImg');
+        const dialCode = document.getElementById('dialCode');
+        const countryCode = document.getElementById('countryCode');
+        const hiddenCountry = document.getElementById('countryHidden');
+        const hiddenCc = document.getElementById('ccHidden');
+
+        // ═══════════════════════════════════════════════════════════════
+        // Country Dropdown
+        // ═══════════════════════════════════════════════════════════════
+        
+        countryBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = countryDropdown.classList.contains('show');
+            countryDropdown.classList.toggle('show');
+            this.setAttribute('aria-expanded', !isOpen);
         });
-      });
 
-      document.addEventListener("click", (e) => {
-        if (!dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove("show");
-      });
-    });
-    function validatePhone() {
-      const phone = document.getElementById("phone").value.trim();
-      const errorMsg = document.getElementById("errorMsg");
-      const pattern = /^5\d{8}$/; // يبدأ بـ 5 ويتبعه 8 أرقام = 9 أرقام بالضبط
+        countryDropdown.querySelectorAll('li').forEach(li => {
+            li.addEventListener('click', function() {
+                const country = this.dataset.country;
+                const cc = this.dataset.cc;
+                const flag = this.dataset.flag;
 
-      if (!pattern.test(phone)) {
-        errorMsg.classList.add("show");
-        return false;
-      } else {
-        errorMsg.classList.remove("show");
-        return true;
-      }
-    }
-  </script>
+                flagImg.src = flag;
+                dialCode.textContent = cc;
+                countryCode.textContent = country;
+                hiddenCountry.value = country;
+                hiddenCc.value = cc;
+
+                countryDropdown.querySelectorAll('li').forEach(x => x.removeAttribute('aria-selected'));
+                this.setAttribute('aria-selected', 'true');
+                countryDropdown.classList.remove('show');
+                countryBtn.setAttribute('aria-expanded', 'false');
+                
+                phoneInput.focus();
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!countryDropdown.contains(e.target) && !countryBtn.contains(e.target)) {
+                countryDropdown.classList.remove('show');
+                countryBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // Phone Input Formatting
+        // ═══════════════════════════════════════════════════════════════
+        
+        phoneInput.addEventListener('input', function(e) {
+            // Only allow numbers
+            let value = this.value.replace(/\D/g, '');
+            
+            // Limit to 9 digits
+            if (value.length > 9) {
+                value = value.slice(0, 9);
+            }
+            
+            this.value = value;
+            
+            // Hide error when typing
+            if (errorMsg.classList.contains('show')) {
+                errorMsg.classList.remove('show');
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // Form Validation
+        // ═══════════════════════════════════════════════════════════════
+        
+        function validatePhone() {
+            const phone = phoneInput.value.trim();
+            // Saudi phone: starts with 5, followed by 8 digits = 9 digits total
+            const pattern = /^5\d{8}$/;
+            return pattern.test(phone);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // Button Ripple Effect
+        // ═══════════════════════════════════════════════════════════════
+        
+        sendBtn.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // Form Submission
+        // ═══════════════════════════════════════════════════════════════
+        
+        form.addEventListener('submit', function(e) {
+            if (!validatePhone()) {
+                e.preventDefault();
+                errorMsg.classList.add('show');
+                phoneInput.focus();
+                return false;
+            }
+            
+            // Show loading state
+            sendBtn.classList.add('loading');
+            errorMsg.classList.remove('show');
+            return true;
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // Auto-focus on Phone Input
+        // ═══════════════════════════════════════════════════════════════
+        
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (phoneInput) phoneInput.focus();
+            }, 1200);
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // Keyboard Shortcuts
+        // ═══════════════════════════════════════════════════════════════
+        
+        document.addEventListener('keydown', function(e) {
+            // Close dropdown on Escape
+            if (e.key === 'Escape' && countryDropdown.classList.contains('show')) {
+                countryDropdown.classList.remove('show');
+                countryBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    </script>
 </body>
-
 </html>

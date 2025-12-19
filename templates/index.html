@@ -1,35 +1,566 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
+ <!-- ====================================================================
+     BeautyFlow - Home Page
+     ====================================================================
+     Landing page showcasing the platform’s key features, how it works,
+     and quick access to Design Options, Cost-Sharing, and support pages.
+
+     Author: BeautyFlow Team
+     Version: 1.0.0
+     ==================================================================== -->
+`
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BeautyFlow - Home</title>
-
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body class="index-page">
-  <header class="site-header">
-    <div class="logo"></div>
-    <nav class="site-nav">
-      <a href="{{ url_for('home_index') }}">Home</a>
-      <a href="{{ url_for('about_page') }}">About</a>
-      <a href="{{ url_for('help_page') }}">Help</a>
-      <a href="{{ url_for('account_page') }}">Account</a>
-    </nav>
-    </nav>
+  
+  <!-- HEADER -->
+  <header class="main-header" id="mainHeader">
+    <div class="header-container">
+      <a href="{{ url_for('home_index') }}" class="header-logo">
+        <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow">
+      </a>
+      
+      <nav class="header-nav">
+        <a href="{{ url_for('home_index') }}" class="nav-link active">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+         <a href="{{ url_for('costSharing_page') }}" class="nav-link">
+          <i class="fas fa-users"></i>
+          <span>Cost-Sharing</span>
+        </a>
+        <a href="{{ url_for('design_options') }}" class="nav-link">
+          <i class="fas fa-magic"></i>
+          <span>Design</span>
+        </a>
+        <a href="{{ url_for('about_page') }}" class="nav-link">
+          <i class="fas fa-info-circle"></i>
+          <span>About</span>
+        </a>
+        <a href="{{ url_for('help_page') }}" class="nav-link">
+          <i class="fas fa-question-circle"></i>
+          <span>Help</span>
+        </a>
+      </nav>
+      
+      <div class="header-actions">
+        <a href="/cart" class="cart-btn">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge" id="cart-count">0</span>
+        </a>
+        <a href="{{ url_for('account_page') }}" class="account-btn">
+          <i class="fas fa-user"></i>
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="{{ url_for('home_index') }}"><i class="fas fa-home"></i> Home</a>
+      <a href="{{ url_for('design_options') }}"><i class="fas fa-magic"></i> Design</a>
+      <a href="{{ url_for('about_page') }}"><i class="fas fa-info-circle"></i> About</a>
+      <a href="{{ url_for('help_page') }}"><i class="fas fa-question-circle"></i> Help</a>
+      <a href="/cart"><i class="fas fa-shopping-bag"></i> Cart</a>
+      <a href="{{ url_for('account_page') }}"><i class="fas fa-user"></i> Account</a>
+    </div>
   </header>
 
-
-  <!-- المحتوى -->
-  <section class="hero">
-    <h1>Welcome to Beauty Flow</h1>
-    <p>Streamlining collaborative imports and smart packaging for small beauty businesses</p>
-    <!-- زر ينقلك لصفحة design Options -->
-    <a class="btn" href="{{ url_for('design_options') }}">Start Now</a>
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <div class="hero-bg">
+      <div class="gradient-sphere sphere-1"></div>
+      <div class="gradient-sphere sphere-2"></div>
+      <div class="gradient-sphere sphere-3"></div>
+    </div>
+    
+    <div class="floating-elements">
+      <div class="float-item float-1">💄</div>
+      <div class="float-item float-2">💋</div>
+      <div class="float-item float-3">✨</div>
+      <div class="float-item float-4">🌸</div>
+      <div class="float-item float-5">💅</div>
+      <div class="float-item float-6">🎀</div>
+    </div>
+    
+    <div class="hero-content">
+      <div class="hero-badge animate-fade-down">
+        <i class="fas fa-sparkles"></i>
+        <span>AI-Powered Beauty Platform</span>
+      </div>
+      
+      <h1 class="hero-title animate-fade-up">
+        <span class="title-line">Welcome to</span>
+        <span class="title-main">Beauty<span class="highlight">Flow</span></span>
+      </h1>
+      
+      <p class="hero-subtitle animate-fade-up delay-1">
+        Streamlining collaborative imports and smart packaging 
+        <br>for small beauty businesses in Saudi Arabia
+      </p>
+      
+      <div class="hero-buttons animate-fade-up delay-2">
+        <a href="{{ url_for('design_options') }}" class="btn-primary">
+          <i class="fas fa-rocket"></i>
+          <span>Start Now</span>
+        </a>
+        <a href="{{ url_for('about_page') }}" class="btn-secondary">
+          <i class="fas fa-play-circle"></i>
+          <span>Learn More</span>
+        </a>
+      </div>
+      
+      <div class="hero-stats animate-fade-up delay-3">
+        <div class="stat-item">
+          <span class="stat-number" data-count="500">0</span>
+          <span class="stat-label">Active Users</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number" data-count="1200">0</span>
+          <span class="stat-label">Products Created</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number" data-count="20">0</span>
+          <span class="stat-label">Saudi Cities</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="scroll-indicator">
+      <div class="mouse">
+        <div class="wheel"></div>
+      </div>
+      <span>Scroll to explore</span>
+    </div>
   </section>
-</body>
 
+  <!-- FEATURES SECTION -->
+  <section class="features-section" id="features">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Why Choose Us</span>
+        <h2 class="section-title">Powerful Features</h2>
+        <p class="section-desc">Everything you need to grow your beauty business</p>
+      </div>
+      <style>
+        .section-title {
+          text-align: center;
+          width: 100%;
+          display: block;
+        }
+        </style>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-robot"></i>
+          </div>
+          <h3>AI Custom Packaging</h3>
+          <p>Design unique packaging with our AI-powered tool. Just describe your vision and watch it come to life</p>
+          <a href="{{ url_for('design_options') }}" class="feature-link">
+            Try Now <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon icon-pink">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <h3>SmartPicks</h3>
+          <p>Get AI-generated product recommendations based on your preferred style and vibe</p>
+          <a href="{{ url_for('design_options') }}" class="feature-link">
+            Explore <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon icon-gold">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3>Collaborative Shipping</h3>
+          <p>Join shipping groups with others in your city to reduce import costs by up to 70%</p>
+          <a href="{{ url_for('design_options') }}" class="feature-link">
+            Join Group <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon icon-purple">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3>SFDA Compliant</h3>
+          <p>All products meet Saudi Food & Drug Authority regulations. Import with confidence</p>
+          <a href="{{ url_for('about_page') }}" class="feature-link">
+            Learn More <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-it-works-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Simple Process</span>
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-desc">Get started in just 4 easy steps</p>
+      </div>
+      <style>
+        .section-title {
+          text-align: center;
+          width: 100%;
+          display: block;
+        }
+        </style>
+      
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-icon">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <h3>Create Account</h3>
+          <p>Sign up for free and set up your business profile</p>
+        </div>
+        
+        <div class="step-connector">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-icon">
+            <i class="fas fa-palette"></i>
+          </div>
+          <h3>Design Products</h3>
+          <p>Use AI to create custom packaging designs</p>
+        </div>
+        
+        <div class="step-connector">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-icon">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <h3>Join Group</h3>
+          <p>Connect with others in your city for shared shipping</p>
+        </div>
+        
+        <div class="step-connector">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-icon">
+            <i class="fas fa-truck"></i>
+          </div>
+          <h3>Receive Products</h3>
+          <p>Get your products delivered to your doorstep</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <section class="cta-section">
+    <div class="cta-bg">
+      <div class="cta-shape shape-1"></div>
+      <div class="cta-shape shape-2"></div>
+    </div>
+    <div class="cta-content">
+      <h2>Ready to Transform Your Beauty Business?</h2>
+      <p>Join hundreds of entrepreneurs already using BeautyFlow</p>
+      <div class="cta-buttons">
+        <a href="/signup" class="btn-cta-primary">
+          <i class="fas fa-rocket"></i>
+          Get Started Free
+        </a>
+        <a href="{{ url_for('help_page') }}" class="btn-cta-secondary">
+          <i class="fas fa-headset"></i>
+          Contact Support
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow" class="footer-logo">
+          <p>AI-powered collaborative import platform for beauty businesses in Saudi Arabia</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <a href="{{ url_for('home_index') }}">Home</a>
+          <a href="{{ url_for('design_options') }}">Design Options</a>
+          <a href="{{ url_for('about_page') }}">About Us</a>
+          <a href="{{ url_for('help_page') }}">Help Center</a>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Services</h4>
+          <a href="/AI">AI Custom Design</a>
+          <a href="/smartPicks">SmartPicks</a>
+          <a href="/cart">Shopping Cart</a>
+        </div>
+        
+        <div class="footer-contact">
+          <h4>Contact Us</h4>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:beautyflow.team@gmail.com">beautyflow.team@gmail.com</a></p>
+          <p><i class="fas fa-phone"></i> +966 XX XXX XXXX</p>
+          <p><i class="fas fa-map-marker-alt"></i> Al-Baha, Saudi Arabia</p>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 BeautyFlow. All rights reserved.</p>
+        <p>Made with <i class="fas fa-heart"></i> by BeautyFlow Team</p>
+      </div>
+    </div>
+  </footer>
+
+  <style>
+      .main-footer {
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+      color: #1a1a2e;
+      padding: 60px 0 30px;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-logo {
+      height: 40px;
+      margin-bottom: 16px;
+    }
+
+    .footer-brand p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+
+    .footer-social a {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e84a7f;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(232, 74, 127, 0.15);
+    }
+
+    .footer-social a:hover {
+      background: #e84a7f;
+      color: white;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.3);
+    }
+
+    .footer-links h4,
+    .footer-contact h4 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #1a1a2e;
+      font-weight: 700;
+    }
+
+    .footer-links a {
+      display: block;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 12px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #e84a7f;
+      transform: translateX(5px);
+    }
+
+    .footer-contact p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-contact i {
+      color: #e84a7f;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(232, 74, 127, 0.2);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .footer-bottom i {
+      color: #e84a7f;
+    }
+  </style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const header = document.getElementById("mainHeader");
+    let lastScrollY = window.pageYOffset;
+    const SCROLL_DELTA = 5; 
+
+    window.addEventListener("scroll", function () {
+      const currentY = window.pageYOffset;
+
+      if (currentY <= 0) {
+        header.classList.remove("hide");
+        header.classList.remove("scrolled");
+        lastScrollY = 0;
+        return;
+      }
+
+      if (Math.abs(currentY - lastScrollY) < SCROLL_DELTA) return;
+
+      
+      if (currentY > lastScrollY) {
+        header.classList.add("hide");
+      } else {
+     
+        header.classList.remove("hide");
+      }
+
+   
+      if (currentY > 20) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+
+      lastScrollY = currentY;
+    });
+  });
+    // Header Scroll Effect
+    const header = document.getElementById('mainHeader');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuBtn.classList.toggle('active');
+        mobileMenu.classList.toggle('open');
+      });
+    }
+
+    // Animate Stats Counter
+    const animateCounters = () => {
+      const counters = document.querySelectorAll('.stat-number');
+      counters.forEach(counter => {
+        const target = parseInt(counter.dataset.count);
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+          current += step;
+          if (current < target) {
+            counter.textContent = Math.floor(current) + '+';
+            requestAnimationFrame(updateCounter);
+          } else {
+            counter.textContent = target + '+';
+          }
+        };
+        updateCounter();
+      });
+    };
+
+    // Intersection Observer
+    const observerOptions = { threshold: 0.2 };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          if (entry.target.classList.contains('hero-stats')) {
+            animateCounters();
+          }
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.feature-card, .step-card, .hero-stats').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Update cart count
+    fetch('/cart/count')
+      .then(res => res.json())
+      .then(data => {
+        const badge = document.getElementById('cart-count');
+        if (badge && data.count !== undefined) {
+          badge.textContent = data.count;
+          if (data.count === 0) badge.classList.add('hidden');
+        }
+      })
+      .catch(() => {});
+  </script>
+  <!-- 🤖 AI Bot -->
+  {% include 'aiBot.html' %}
+</body>
 </html>

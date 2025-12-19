@@ -1,372 +1,1224 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
+
+  <!-- ====================================================================
+     BeautyFlow - Cost-Sharing Shipping Page
+     ====================================================================
+     Collaborative shipping feature that allows users to join or create
+     groups, share shipping costs, and reduce import expenses.
+
+     Author: BeautyFlow Team
+     Version: 1.0.0
+     ==================================================================== -->
+
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BeautyFlow — Cost-Sharing Shipping</title>
-
-  <!-- Fonts & Styles -->
-
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
-
+  <title>Cost-Sharing Shipping - BeautyFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root{--primary:#e84a7f;--primary-light:#f7c9d4;--primary-dark:#c73866;--secondary:#ffd4e0;--success:#28a745;--warning:#ffc107;--danger:#dc3545;--rose-50:#fff5f7;--rose-100:#ffe5ea;--rose-200:#ffd0da;--rose-300:#ffb5c6;--rose-400:#ff97af;--rose-500:#ff4f8a;--rose-600:#e25b7f;--ink-700:#3b3b4f;--ink-500:#606071;--ink-300:#9a9aaa;--text-dark:#2d1f2d;--text-medium:#5a4a5a;--text-light:#8a7a8a;--bg-light:#fff9fb;--card:#fff;--stroke:#f3e0e6;--shadow-sm:0 2px 8px rgba(232,74,127,0.08);--shadow-md:0 8px 24px rgba(232,74,127,0.12);--transition-fast:0.2s ease;--transition-normal:0.3s ease;--radius-sm:8px;--radius-md:16px;--radius:12px}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}body{font-family:'Poppins',sans-serif;background:var(--bg-light);color:var(--text-dark);line-height:1.6;min-height:100vh}.hidden{display:none!important}.main-header{position:fixed;top:0;left:0;right:0;z-index:1000;padding:16px 0;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(232,74,127,0.1);transition:all var(--transition-normal)}.main-header.scrolled{box-shadow:var(--shadow-md);padding:12px 0}.main-header.hide{transform:translateY(-100%)}.header-container{max-width:1400px;margin:0 auto;padding:0 40px;display:flex;align-items:center;justify-content:space-between}.header-logo img{height:45px}.header-nav{display:flex;align-items:center;gap:8px}.nav-link{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;font-weight:600;font-size:15px;color:var(--text-medium);text-decoration:none;transition:all var(--transition-fast)}.nav-link:hover,.nav-link.active{color:var(--primary);background:var(--secondary)}.header-actions{display:flex;align-items:center;gap:12px}.cart-btn,.account-btn{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:white;border:2px solid var(--secondary);color:var(--text-medium);font-size:18px;transition:all var(--transition-fast);text-decoration:none}.cart-btn:hover,.account-btn:hover{background:var(--secondary);color:var(--primary)}.cart-badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;background:var(--primary);color:white;font-size:11px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center}.mobile-menu-btn{display:none;flex-direction:column;justify-content:center;width:44px;height:44px;background:transparent;border:none;cursor:pointer;gap:5px}.mobile-menu-btn span{display:block;width:24px;height:2px;background:var(--text-dark);border-radius:2px}.mobile-menu{display:none;position:absolute;top:100%;left:0;right:0;background:white;padding:16px 24px;box-shadow:var(--shadow-md)}.mobile-menu.open{display:block}.mobile-menu a{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--radius);font-weight:600;color:var(--text-dark);text-decoration:none}.cs-container{max-width:1100px;margin:0 auto;padding:100px 16px 16px}.hero-section{text-align:center;margin-bottom:20px}.cs-title{font-size:28px;color:var(--ink-700);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px}.cs-title i{color:var(--rose-500)}.cs-subtitle{color:var(--ink-500);font-size:16px;margin-bottom:20px}.how-it-works{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;background:white;padding:16px 24px;border-radius:var(--radius);box-shadow:0 2px 10px rgba(0,0,0,0.05)}.step{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}.step-number{position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:var(--rose-500);color:white;border-radius:50%;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center}.step-icon{width:50px;height:50px;background:linear-gradient(135deg,var(--rose-100),var(--rose-200));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--rose-500)}.step span{font-size:12px;color:var(--ink-500);font-weight:500}.step-arrow{color:var(--rose-300);font-size:14px}.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.stat-card{background:white;border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:white}.savings-icon{background:linear-gradient(135deg,#4caf50,#8bc34a)}.members-icon{background:linear-gradient(135deg,#2196f3,#03a9f4)}.shipping-icon{background:linear-gradient(135deg,#ff4f8a,#ff7eb3)}.time-icon{background:linear-gradient(135deg,#ff9800,#ffc107)}.stat-info{display:flex;flex-direction:column}.stat-value{font-size:18px;font-weight:700;color:var(--ink-700)}.stat-label{font-size:11px;color:var(--ink-300)}.cart-summary-bar{background:white;border-radius:var(--radius);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}.cart-info{display:flex;align-items:center;gap:10px;font-size:14px}.cart-info i{color:var(--rose-500)}.cart-info .separator{color:var(--ink-300)}.sfda-badge{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;color:#2e7d32}.city-section{background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}.city-section h3{margin:0 0 12px;font-size:14px;color:var(--ink-700);display:flex;align-items:center;gap:8px}.city-section h3 i{color:var(--rose-500)}.city-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}.city-btn{padding:10px 6px;border:2px solid #f0f0f0;border-radius:8px;background:white;cursor:pointer;transition:all 0.2s ease;font-size:11px;font-weight:600;color:var(--ink-500);text-align:center}.city-btn:hover{border-color:var(--rose-300);background:var(--rose-50)}.city-btn.selected{border-color:var(--rose-500);background:linear-gradient(135deg,#ff4f8a,#ff7eb3);color:white;box-shadow:0 4px 12px rgba(255,79,138,0.3)}.state-container{animation:fadeIn 0.3s ease;padding:10px 0}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}.main-content{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:start}.right-panel{position:sticky;top:100px}.cs-card{background:white;border-radius:var(--radius);box-shadow:0 2px 10px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:16px}.card-header{padding:12px 16px;background:linear-gradient(135deg,var(--rose-50),#fff);border-bottom:1px solid var(--rose-100);display:flex;justify-content:space-between;align-items:center}.card-header h3{margin:0;font-size:14px;font-weight:600;color:var(--ink-700);display:flex;align-items:center;gap:8px}.card-header h3 i{color:var(--rose-500)}.card-body{padding:20px}.groups-list{max-height:250px;overflow-y:auto}.empty-hint{text-align:center;padding:30px 20px;color:var(--ink-300);display:flex;flex-direction:column;align-items:center;gap:10px}.empty-hint i{font-size:24px;color:var(--rose-300)}.group-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:8px;transition:all 0.2s}.group-item:hover{border-color:var(--rose-200);background:var(--rose-50)}.group-item-info{display:flex;flex-direction:column;gap:4px}.group-item-main{display:flex;align-items:center;gap:12px;font-size:13px}.group-item-main i{color:var(--rose-400)}.group-item-savings{font-size:11px;color:var(--success);font-weight:600}.btn-join{background:linear-gradient(135deg,var(--rose-500),var(--rose-400));color:white;border:none;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s}.btn-join:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(255,79,138,0.3)}.action-buttons{display:flex;gap:12px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;text-decoration:none}.btn-primary{background:linear-gradient(135deg,var(--rose-500),var(--rose-400));color:white}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(255,79,138,0.4)}.btn-outline{background:white;color:var(--ink-700);border:2px solid #e0e0e0}.btn-outline:hover{border-color:var(--rose-300);background:var(--rose-50)}.btn-large{flex:1;padding:14px 24px}.btn-icon-sm{width:32px;height:32px;border-radius:8px;border:1px solid #e0e0e0;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center}.btn-icon-sm.spinning i{animation:spin 1s linear infinite}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}.comparison-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}.comparison-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;background:#f8f8f8}.comparison-row.highlight{background:linear-gradient(135deg,#e8f5e9,#c8e6c9)}.comparison-row.savings{background:linear-gradient(135deg,#fff3e0,#ffe0b2)}.comparison-label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-500)}.comparison-value{font-size:16px;font-weight:700;color:var(--ink-700)}.comparison-row.highlight .comparison-value{color:var(--success)}.comparison-row.savings .comparison-value{color:#e65100}.chart-container{margin:16px 0}.delivery-info{display:flex;justify-content:space-around;padding-top:12px;border-top:1px solid #f0f0f0}.delivery-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-500)}.delivery-item i{color:var(--rose-400)}.ai-tip-card{display:flex;align-items:center;gap:12px;padding:14px 16px}.ai-icon{width:40px;height:40px;background:linear-gradient(135deg,#ffd54f,#ffb300);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px}.ai-tip-card p{font-size:13px;color:var(--ink-500);line-height:1.4}.waiting-wrapper{max-width:1000px;margin:0 auto}.waiting-top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding:16px 20px;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}.top-bar-left,.top-bar-right{display:flex;align-items:center;gap:12px}.status-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600}.waiting-pill{background:linear-gradient(135deg,#fff3e0,#ffe0b2);color:#e65100}.group-id-tag{background:var(--rose-100);color:var(--rose-600);padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;font-family:monospace}.timer-badge{display:flex;align-items:center;gap:8px;padding:8px 16px;background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-radius:20px;color:#1565c0;font-weight:600;font-size:14px}.waiting-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start}.members-card{background:white;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);overflow:hidden}.members-card-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:linear-gradient(135deg,var(--rose-50),#fff);border-bottom:1px solid var(--rose-100)}.header-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:var(--ink-700)}.header-title i{color:var(--rose-500)}.header-info{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-500)}.header-info .dot{color:#ddd}.progress-section{padding:16px 20px;background:#fafafa;border-bottom:1px solid #f0f0f0}.progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.progress-label{font-size:13px;color:var(--ink-500)}.progress-count{font-size:14px;font-weight:600;color:var(--rose-500)}.progress-track{height:10px;background:#e8e8e8;border-radius:5px;overflow:hidden}.progress-fill-bar{height:100%;background:linear-gradient(90deg,var(--rose-400),#4caf50);border-radius:5px;transition:width 0.5s ease}.members-grid{padding:20px;display:flex;flex-direction:column;gap:12px}.member-row{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#f8f9fa;border-radius:12px;border:1px solid #f0f0f0}.member-row.is-you{background:linear-gradient(135deg,#fff0f3,#ffe8ed);border-color:var(--rose-200)}.member-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--rose-400),var(--rose-500));display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:16px;flex-shrink:0}.member-avatar.empty-slot{background:#e0e0e0;color:#999;font-size:18px}.member-details{flex:1;min-width:0}.member-name{font-size:14px;font-weight:600;color:var(--ink-700);margin-bottom:2px}.member-name .you-tag{color:var(--rose-500);font-size:12px;margin-left:6px}.member-cost{font-size:12px;color:var(--ink-300)}.member-badge{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}.member-badge.creator{background:#fff3e0;color:#e65100}.share-section{padding:16px 20px;border-top:1px solid #f0f0f0;background:linear-gradient(135deg,#fafafa,#fff)}.share-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;background:linear-gradient(135deg,var(--rose-400),var(--rose-500));color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}.share-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,107,139,0.4)}.share-card{background:white;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06);overflow:hidden}.share-card-header{display:flex;align-items:center;gap:10px;padding:16px 20px;background:linear-gradient(135deg,var(--rose-50),#fff);border-bottom:1px solid var(--rose-100);font-size:15px;font-weight:600;color:var(--ink-700)}.share-card-header i{color:var(--rose-500)}.share-card-body{padding:20px}.cost-line{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:14px;color:var(--ink-500)}.cost-line:last-of-type{border-bottom:none}.cost-value{font-weight:600;color:var(--ink-700)}.shipping-breakdown-box{background:linear-gradient(135deg,#f8f9fa,#fff);border-radius:10px;padding:12px;margin:8px 0;border:1px dashed #e0e0e0}.breakdown-title{font-size:12px;font-weight:600;color:var(--ink-500);margin-bottom:8px;display:flex;align-items:center;gap:6px}.breakdown-title i{color:var(--rose-400);font-size:14px}.breakdown-row{display:flex;justify-content:space-between;font-size:12px;color:#888;padding:4px 0}.breakdown-row.highlight{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);margin:4px -12px;padding:8px 12px;border-radius:6px;color:#2e7d32;font-weight:600}.breakdown-row .old-price{text-decoration:line-through;color:#bbb;margin-right:8px}.total-line{margin-top:8px;padding-top:16px;border-top:2px dashed #e0e0e0;border-bottom:none}.total-line .cost-value.total{font-size:20px;color:var(--rose-500)}.savings-box{display:flex;align-items:center;gap:14px;margin:16px 0;padding:16px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-radius:12px}.savings-box i{font-size:28px;color:#43a047}.savings-text{display:flex;flex-direction:column}.savings-text span{font-size:12px;color:#2e7d32}.savings-text strong{font-size:22px;color:#2e7d32;font-weight:700}.action-buttons-stack{display:flex;flex-direction:column;gap:10px;margin-top:16px}.action-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none}.ship-now-btn{background:linear-gradient(135deg,#43a047,#2e7d32);color:white}.extend-btn{background:white;color:var(--ink-500);border:2px solid #e0e0e0}.leave-btn{background:#fff5f5;color:#e53935;border:1px solid #ffcdd2;cursor:pointer;pointer-events:auto!important;z-index:10}.leave-btn:hover{background:#ffebee;border-color:#ef5350}.modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.3s}.modal.active{opacity:1;visibility:visible}.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5)}.modal-box{position:relative;background:white;border-radius:var(--radius);padding:24px;width:90%;max-width:350px;text-align:center;z-index:1}.modal-box h3{margin-bottom:10px}.modal-box p{color:var(--ink-500);margin-bottom:20px}.modal-btn-row{display:flex;gap:10px}.modal-btn-row .btn{flex:1}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ink-700);color:white;padding:12px 24px;border-radius:8px;font-size:14px;z-index:2000;transition:transform 0.3s}.toast.show{transform:translateX(-50%) translateY(0)}.toast.success{background:var(--success)}.toast.error{background:var(--danger)}.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3000}.spinner{width:40px;height:40px;border:4px solid #f0f0f0;border-top-color:var(--rose-500);border-radius:50%;animation:spin 1s linear infinite}.loading-overlay p{margin-top:12px;color:var(--ink-500)}.main-footer{background:linear-gradient(135deg,#fdf2f8 0%,#fce7f3 50%,#fbcfe8 100%);padding:60px 0 30px;margin-top:40px}.footer-container{max-width:1200px;margin:0 auto;padding:0 24px}.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}.footer-logo{height:40px;margin-bottom:16px}.footer-brand p{font-size:14px;color:#6b7280;line-height:1.6;margin-bottom:20px}.footer-social{display:flex;gap:12px}.footer-social a{width:40px;height:40px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#e84a7f;text-decoration:none}.footer-links h4,.footer-contact h4{font-size:16px;margin-bottom:20px;color:#1a1a2e;font-weight:700}.footer-links a{display:block;color:#6b7280;text-decoration:none;margin-bottom:12px;font-size:14px}.footer-contact p{font-size:14px;color:#6b7280;margin-bottom:12px;display:flex;align-items:center;gap:10px}.footer-contact i{color:#e84a7f}.footer-bottom{border-top:1px solid rgba(232,74,127,0.2);padding-top:30px;display:flex;justify-content:space-between;font-size:13px;color:#6b7280}@media(max-width:1024px){.main-content,.waiting-grid{grid-template-columns:1fr}.right-panel{position:static}.footer-grid{grid-template-columns:1fr 1fr}}@media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.city-grid{grid-template-columns:repeat(5,1fr)}}@media(max-width:768px){.header-nav{display:none}.mobile-menu-btn{display:flex}.cs-container{padding-top:80px}.footer-grid{grid-template-columns:1fr;text-align:center}.footer-social{justify-content:center}.footer-bottom{flex-direction:column;align-items:center;gap:10px}}@media(max-width:600px){.city-grid{grid-template-columns:repeat(4,1fr)}.action-buttons{flex-direction:column}}@media(max-width:480px){.city-grid{grid-template-columns:repeat(3,1fr)}.how-it-works{flex-direction:column;gap:12px}.step-arrow{transform:rotate(90deg)}}
+    
+    /* ✅ Member Payment Status Styles */
+    .member-row.is-paid {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important;
+      border-color: #86efac !important;
+    }
+    .member-row.is-paid .member-avatar {
+      background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+    }
+    .member-status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .member-status-badge.paid {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #059669;
+    }
+    .member-status-badge.pending {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #d97706;
+    }
+    .member-status-badge.waiting {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+    
+    /* ✅ Group Complete Modal Styles */
+    .modal:not(.hidden){display:flex;opacity:1;visibility:visible}
+    .group-complete-box{max-width:420px;padding:32px;text-align:center}
+    .complete-icon{width:80px;height:80px;margin:0 auto 20px;background:linear-gradient(135deg,#4caf50,#8bc34a);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;color:white;animation:bounceIn 0.5s ease}
+    .group-complete-box h3{font-size:24px;color:var(--ink-700);margin-bottom:12px}
+    .complete-message{color:var(--ink-500);font-size:15px;line-height:1.6;margin-bottom:24px}
+    .complete-summary{background:linear-gradient(135deg,#f8f9fa,#fff);border-radius:12px;padding:16px;margin-bottom:24px;border:1px solid #eee}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+    .summary-row:first-child{border-bottom:1px dashed #e0e0e0;padding-bottom:12px;margin-bottom:4px}
+    .summary-row span{font-size:14px;color:var(--ink-500)}
+    .summary-value{font-size:18px;font-weight:700;color:var(--ink-700)}
+    .summary-value.savings{color:#2e7d32;font-size:20px}
+    .complete-actions{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+    .btn-success{background:linear-gradient(135deg,#43a047,#66bb6a);color:white}
+    .btn-success:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(67,160,71,0.4)}
+    .btn-danger{background:white;color:#e53935;border:2px solid #ffcdd2}
+    .btn-danger:hover{background:#ffebee;border-color:#ef5350}
+    .btn-lg{padding:16px 24px;font-size:16px;border-radius:12px}
+    .complete-note{font-size:12px;color:#999;display:flex;align-items:center;justify-content:center;gap:6px}
+    .complete-note i{color:#ffc107}
+    @keyframes bounceIn{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+    .pulse-animation{animation:pulse 1.5s ease infinite}
+  </style>
 </head>
-
-<body class="index-page">
-  <!-- Header -->
-  <header class="site-header">
-    <div class="logo"></div>
-    <nav class="site-nav">
-      <a href="{{ url_for('home_index') }}">Home</a>
-      <a href="{{ url_for('about_page') }}">About</a>
-      <a href="{{ url_for('help_page') }}">Help</a>
-      <a href="{{ url_for('account_page') }}">Account</a>
-    </nav>
+<body>
+  <header class="main-header" id="mainHeader">
+    <div class="header-container">
+      <a href="{{ url_for('home_index') }}" class="header-logo"><img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow"></a>
+      <nav class="header-nav">
+         
+        <a href="{{ url_for('home_index') }}" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+         <a href="{{ url_for('costSharing_page') }}" class="nav-link">
+          <i class="fas fa-users"></i>
+          <span>Cost-Sharing</span>
+        </a>
+        <a href="{{ url_for('design_options') }}" class="nav-link"><i class="fas fa-magic"></i><span>Design</span></a>
+        <a href="{{ url_for('about_page') }}" class="nav-link"><i class="fas fa-info-circle"></i><span>About</span></a>
+        <a href="{{ url_for('help_page') }}" class="nav-link"><i class="fas fa-question-circle"></i><span>Help</span></a>
+      </nav>
+      <div class="header-actions">
+        <a href="/cart" class="cart-btn" style="position:relative;"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cart-count">0</span></a>
+        <a href="{{ url_for('account_page') }}" class="account-btn"><i class="fas fa-user"></i></a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="{{ url_for('home_index') }}"><i class="fas fa-home"></i> Home</a>
+       <a href="{{ url_for('costSharing_page') }}" class="nav-link">
+          <i class="fas fa-users"></i>
+          <span>Cost-Sharing</span>
+        </a>
+      <a href="{{ url_for('design_options') }}"><i class="fas fa-magic"></i> Design</a>
+      <a href="{{ url_for('about_page') }}"><i class="fas fa-info-circle"></i> About</a>
+      <a href="{{ url_for('help_page') }}"><i class="fas fa-question-circle"></i> Help</a>
+      <a href="/cart"><i class="fas fa-shopping-bag"></i> Cart</a>
+      <a href="{{ url_for('account_page') }}"><i class="fas fa-user"></i> Account</a>
+    </div>
   </header>
 
-  <main class="container page">
-    <h1 class="page-title">Cost-Sharing Shipping</h1>
+  <main class="cs-container">
+    <div class="hero-section" id="hero-section">
+      <h1 class="cs-title"><i class="fas fa-shipping-fast"></i> Cost-Sharing Shipping</h1>
+      <p class="cs-subtitle">Share shipping costs with others and save up to 80%!</p>
+      <div class="how-it-works">
+        <div class="step"><div class="step-number">1</div><div class="step-icon"><i class="fas fa-map-marker-alt"></i></div><span>Select City</span></div>
+        <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="step"><div class="step-number">2</div><div class="step-icon"><i class="fas fa-users"></i></div><span>Join or Create</span></div>
+        <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="step"><div class="step-number">3</div><div class="step-icon"><i class="fas fa-hourglass-half"></i></div><span>Wait for Group</span></div>
+        <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="step"><div class="step-number">4</div><div class="step-icon"><i class="fas fa-credit-card"></i></div><span>Pay & Ship</span></div>
+      </div>
+    </div>
 
-    <section class="grid">
-      <!-- Join card -->
-      <div class="card">
-        <h3 class="card-title">Join Shared Shipping</h3>
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="stat-icon savings-icon"><i class="fas fa-piggy-bank"></i></div><div class="stat-info"><span class="stat-value" id="stat-savings">0 SAR</span><span class="stat-label">Potential Savings</span></div></div>
+      <div class="stat-card"><div class="stat-icon members-icon"><i class="fas fa-users"></i></div><div class="stat-info"><span class="stat-value" id="stat-members">0/5</span><span class="stat-label">Group Members</span></div></div>
+      <div class="stat-card"><div class="stat-icon shipping-icon"><i class="fas fa-truck"></i></div><div class="stat-info"><span class="stat-value" id="stat-shipping">0 SAR</span><span class="stat-label">Your Shipping Fee</span></div></div>
+      <div class="stat-card"><div class="stat-icon time-icon"><i class="fas fa-hourglass-half"></i></div><div class="stat-info"><span class="stat-value" id="stat-time">--</span><span class="stat-label">Time Left</span></div></div>
+    </div>
 
-        <div class="avatars">
-          <img src="https://i.pravatar.cc/40?img=1" alt="avatar">
-          <img src="https://i.pravatar.cc/40?img=2" alt="avatar">
-          <div class="avatar placeholder">+1</div>
-        </div>
+    <div class="cart-summary-bar" id="cart-summary-bar">
+      <div class="cart-info"><i class="fas fa-shopping-cart"></i><span>Your Cart:</span><strong id="cart-items-count">0 items</strong><span class="separator">|</span><strong id="cart-total">0 SAR</strong></div>
+      <div class="sfda-badge"><i class="fas fa-shield-alt"></i><span>SFDA Approved</span></div>
+    </div>
 
-        <div class="progress-wrap">
-          <div class="progress-bar">
-            <div class="progress" id="progress" style="width:100%"></div>
+    <div class="city-section" id="city-section">
+      <h3><i class="fas fa-map-marker-alt"></i> Select Destination City</h3>
+      <div class="city-grid" id="city-grid">
+        <button class="city-btn" data-city="riyadh">Riyadh</button>
+        <button class="city-btn" data-city="jeddah">Jeddah</button>
+        <button class="city-btn" data-city="makkah">Makkah</button>
+        <button class="city-btn" data-city="madinah">Madinah</button>
+        <button class="city-btn" data-city="dammam">Dammam</button>
+        <button class="city-btn" data-city="khobar">Khobar</button>
+        <button class="city-btn" data-city="dhahran">Dhahran</button>
+        <button class="city-btn" data-city="tabuk">Tabuk</button>
+        <button class="city-btn" data-city="abha">Abha</button>
+        <button class="city-btn" data-city="khamis">Khamis M.</button>
+        <button class="city-btn" data-city="taif">Taif</button>
+        <button class="city-btn" data-city="buraidah">Buraidah</button>
+        <button class="city-btn" data-city="najran">Najran</button>
+        <button class="city-btn" data-city="jubail">Jubail</button>
+        <button class="city-btn" data-city="yanbu">Yanbu</button>
+        <button class="city-btn" data-city="hail">Hail</button>
+        <button class="city-btn" data-city="jazan">Jazan</button>
+        <button class="city-btn" data-city="arar">Arar</button>
+        <button class="city-btn" data-city="albaha">Al Baha</button>
+        <button class="city-btn" data-city="hofuf">Hofuf</button>
+      </div>
+    </div>
+
+    <div class="state-container" id="state-not-in-group">
+      <div class="main-content">
+        <div class="left-panel">
+          <div class="cs-card">
+            <div class="card-header"><h3><i class="fas fa-users"></i> Available Groups</h3><button class="btn-icon-sm" id="btn-refresh" title="Refresh"><i class="fas fa-sync-alt"></i></button></div>
+            <div class="card-body"><div class="groups-list" id="groups-list"><div class="empty-hint"><i class="fas fa-hand-pointer"></i><span>Select a city to see available groups</span></div></div></div>
           </div>
-          <div class="progress-text" id="progressText">100% — ready to ship 🎉</div>
+          <div class="action-buttons">
+            <button class="btn btn-outline btn-large" id="btn-ship-solo">
+              <i class="fas fa-user"></i> Ship Solo
+            </button>
+            <button class="btn btn-primary btn-large" id="btn-create-group">
+              <i class="fas fa-plus"></i> Create Group
+            </button>
+          </div>
         </div>
-
-        <div class="card-actions three">
-          <!-- NEW: keep them side-by-side and matched -->
-          <a class="btn outline" id="leaveBtn" href="{{ url_for('invoice_page') }}">Leave Group</a>
-          <a class="btn primary" id="requestBtn" href="{{ url_for('invoiceShared_page') }}">Request Merge</a>
-          <a class="btn soft" id="findNewMergeBtn" href="{{ url_for('costSharing_page') }}">Find New Merge</a>
+        <div class="right-panel">
+          <div class="cs-card cost-comparison-card">
+            <div class="card-header"><h3><i class="fas fa-balance-scale"></i> Cost Comparison</h3></div>
+            <div class="card-body">
+              <div class="comparison-rows">
+                <div class="comparison-row solo"><div class="comparison-label"><i class="fas fa-user"></i><span>Shipping Fee (Solo)</span></div><div class="comparison-value" id="cost-solo">0 SAR</div></div>
+                <div class="comparison-row shared highlight"><div class="comparison-label"><i class="fas fa-users"></i><span>Shipping Fee (÷5)</span></div><div class="comparison-value" id="cost-shared">0 SAR</div></div>
+                <div class="comparison-row savings"><div class="comparison-label"><i class="fas fa-piggy-bank"></i><span>You Save</span></div><div class="comparison-value" id="cost-savings">0 SAR</div></div>
+              </div>
+              <div class="chart-container"><canvas id="cost-chart" height="120"></canvas></div>
+              <div class="delivery-info">
+                <div class="delivery-item"><i class="fas fa-calendar-alt"></i><span>Delivery: <strong id="delivery-days">--</strong></span></div>
+                <div class="delivery-item"><i class="fas fa-shield-alt"></i><span>SFDA Certified</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="cs-card ai-tip-card"><div class="ai-icon"><i class="fas fa-lightbulb"></i></div><p id="ai-tip">Select a city to see smart tips!</p></div>
         </div>
       </div>
+    </div>
 
-      <!-- Estimated cost -->
-      <div class="card">
-        <h3 class="card-title">Estimated Cost</h3>
-        <ul class="estimates">
-          <li><span>Solo shipping</span> <strong id="soloCost">—</strong></li>
-          <li><span>Shared shipping</span><strong id="sharedCost">—</strong></li>
-          <li class="save"><span>You save</span><strong id="youSave">—</strong></li>
-        </ul>
-
-        <label for="weightInput" class="label">Package weight (kg)</label>
-        <!-- EN weight with decimals -->
-        <input id="weightInput" class="input" type="number" step="0.1" min="0.1" value="50" placeholder="e.g., 75.5">
+    <div class="state-container hidden" id="state-waiting">
+      <div class="waiting-wrapper">
+        <div class="waiting-top-bar">
+          <div class="top-bar-left"><span class="status-pill waiting-pill"><i class="fas fa-hourglass-half"></i> Waiting for Members</span><span class="group-id-tag" id="waiting-group-id">#------</span></div>
+          <div class="top-bar-right"><div class="timer-badge"><i class="fas fa-clock"></i><span id="waiting-time-left">6d 23h</span></div></div>
+        </div>
+        <div class="waiting-grid">
+          <div class="waiting-left">
+            <div class="members-card">
+              <div class="members-card-header"><div class="header-title"><i class="fas fa-users"></i><span>Group Members</span></div><div class="header-info"><span id="waiting-city-name">City</span><span class="dot">•</span><span id="waiting-delivery-days">7-10 days</span></div></div>
+              <div class="progress-section"><div class="progress-info"><span class="progress-label">Progress</span><span class="progress-count" id="waiting-members-text">0/5 members</span></div><div class="progress-track"><div class="progress-fill-bar" id="waiting-progress-bar" style="width:0%"></div></div></div>
+              <div class="members-grid" id="waiting-members-grid"></div>
+              <div class="share-section"><button class="share-btn" id="btn-share-link"><i class="fas fa-share-alt"></i><span>Share Invite Link</span></button></div>
+            </div>
+          </div>
+          <div class="waiting-right">
+            <div class="share-card">
+              <div class="share-card-header"><i class="fas fa-receipt"></i><span>Your Share</span></div>
+              <div class="share-card-body">
+                <div class="cost-line"><span>Product Cost</span><span class="cost-value" id="waiting-product-cost">SAR 0</span></div>
+                <div class="shipping-breakdown-box">
+                  <div class="breakdown-title"><i class="fas fa-truck"></i> Shipping Fee</div>
+                  <div class="breakdown-row"><span>Solo Price</span><span class="old-price" id="waiting-shipping-solo">SAR 0</span></div>
+                  <div class="breakdown-row highlight"><span>Shared (÷<span id="waiting-members-div">5</span>)</span><span id="waiting-shipping-shared">SAR 0</span></div>
+                </div>
+                <div class="cost-line"><span>Custom Duties (5%)</span><span class="cost-value" id="waiting-customs">SAR 0</span></div>
+                <div class="cost-line"><span>SFDA Fee</span><span class="cost-value">SAR 20</span></div>
+                <div class="cost-line"><span>Handling Fee</span><span class="cost-value" id="waiting-handling">SAR 0</span></div>
+                <div class="cost-line"><span>Tax (15%)</span><span class="cost-value" id="waiting-tax">SAR 0</span></div>
+                <div class="cost-line total-line"><span>Estimated Total</span><span class="cost-value total" id="waiting-total">SAR 0</span></div>
+              </div>
+              <div class="savings-box"><i class="fas fa-piggy-bank"></i><div class="savings-text"><span>You're saving</span><strong id="waiting-savings">SAR 0</strong></div></div>
+            </div>
+            <div class="action-buttons-stack">
+              <button class="action-btn ship-now-btn hidden" id="btn-ship-now"><i class="fas fa-shipping-fast"></i> Ship Now (Pay)</button>
+              <button class="action-btn extend-btn hidden" id="btn-extend-time"><i class="fas fa-clock"></i> Extend (+7 days)</button>
+              <button class="action-btn leave-btn" id="btn-leave-group" onclick="window.leaveGroupClicked()"><i class="fas fa-sign-out-alt"></i> Leave Group</button>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <!-- AI tip -->
-      <div class="card tip">
-        <h3 class="card-title">AI Suggestion</h3>
-        <p id="aiTip">Let our AI optimize your shipment 💡</p>
-      </div>
-    </section>
+    </div>
   </main>
-  <style>
-    :root {
-      --rose-50: #fff5f7;
-      --rose-100: #ffe5ea;
-      --rose-200: #ffd0da;
-      --rose-300: #ffb5c6;
-      --rose-400: #ff97af;
-      --rose-500: #f17494;
-      --rose-600: #e25b7f;
-      --rose-700: #c2476a;
-      --ink-700: #3b3b4f;
-      --ink-500: #606071;
-      --radius: 18px;
-      --shadow: 0 8px 24px rgba(230, 86, 120, .15);
+
+  <div class="modal hidden" id="confirm-modal"><div class="modal-overlay"></div><div class="modal-box"><h3 id="modal-title">Confirm</h3><p id="modal-message">Are you sure?</p><div class="modal-btn-row"><button class="btn btn-outline" id="modal-cancel">Cancel</button><button class="btn btn-primary" id="modal-confirm">Confirm</button></div></div></div>
+  
+  <!-- ✅ Group Complete Confirmation Modal -->
+  <div class="modal hidden" id="group-complete-modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-box group-complete-box">
+      <div class="complete-icon">
+        <i class="fas fa-users-check"></i>
+      </div>
+      <h3>🎉 Group Complete!</h3>
+      <p class="complete-message">All 5 members have joined the group.<br>Please confirm you're ready to proceed.</p>
+      
+      <div class="complete-summary">
+        <div class="summary-row">
+          <span>Your Total</span>
+          <span class="summary-value" id="complete-total">SAR 0</span>
+        </div>
+        <div class="summary-row highlight">
+          <span>You're Saving</span>
+          <span class="summary-value savings" id="complete-savings">SAR 0</span>
+        </div>
+      </div>
+      
+      <div class="complete-actions">
+        <button class="btn btn-success btn-lg" id="btn-confirm-ready">
+          <i class="fas fa-check-circle"></i> I'm Ready! Let's Ship!
+        </button>
+      </div>
+      
+      <p class="complete-note">
+        <i class="fas fa-info-circle"></i> 
+        Once all members confirm, you can proceed to payment.
+      </p>
+    </div>
+  </div>
+  
+  <div class="toast" id="toast"></div>
+  <div class="loading-overlay hidden" id="loading"><div class="spinner"></div><p id="loading-text">Loading...</p></div>
+  
+<div class="modal hidden" id="fifth-member-modal">
+  <div class="modal-overlay"></div>
+  <div class="modal-box" style="max-width: 420px; padding: 28px; text-align: center;">
+    <div id="join-modal-icon" style="width: 70px; height: 70px; margin: 0 auto 16px; background: linear-gradient(135deg, #ff9800, #ff5722); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-exclamation-triangle" style="font-size: 32px; color: white;"></i>
+    </div>
+    <h3 id="join-modal-title" style="font-size: 20px; color: #333; margin-bottom: 12px;">⚠️ Important Notice</h3>
+    <p id="join-modal-message" style="color: #666; font-size: 14px; line-height: 1.7; margin-bottom: 20px;">
+      
+    </p>
+    <div id="join-modal-warning" style="background: #fff3e0; border-radius: 10px; padding: 12px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+      <p style="font-size: 13px; color: #e65100; margin: 0;">
+        <i class="fas fa-lock" style="margin-right: 6px;"></i>
+        <span id="join-modal-warning-text">All 5 members must proceed to payment together</span>
+      </p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-outline" id="fifth-modal-cancel" style="flex: 1; padding: 14px;">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button class="btn btn-primary" id="fifth-modal-join" style="flex: 1; padding: 14px;">
+        <i class="fas fa-check"></i> Join Group
+      </button>
+    </div>
+  </div>
+</div>
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand"><img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow" class="footer-logo"><p>AI-powered collaborative import platform for beauty businesses in Saudi Arabia.</p><div class="footer-social"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-linkedin"></i></a></div></div>
+        <div class="footer-links"><h4>Quick Links</h4><a href="{{ url_for('home_index') }}">Home</a><a href="{{ url_for('design_options') }}">Design Options</a><a href="{{ url_for('about_page') }}">About Us</a><a href="{{ url_for('help_page') }}">Help Center</a></div>
+        <div class="footer-links"><h4>Services</h4><a href="/AI">AI Custom Design</a><a href="/smartPicks">SmartPicks</a><a href="/cart">Shopping Cart</a></div>
+        <div class="footer-contact"><h4>Contact Us</h4><p><i class="fas fa-envelope"></i> support@beautyflow.com</p><p><i class="fas fa-phone"></i> +966 XX XXX XXXX</p><p><i class="fas fa-map-marker-alt"></i> Al-Baha, Saudi Arabia</p></div>
+      </div>
+      <div class="footer-bottom"><p>© 2025 BeautyFlow. All rights reserved.</p><p>Made with <i class="fas fa-heart"></i> by BeautyFlow Team</p></div>
+    </div>
+
+    
+  </footer>
+   <script>
+   // ========================================
+    // CONSTANTS
+    // ========================================
+    const SHIPPING_BASE = 50;
+    const SHIPPING_PER_ITEM = 5;
+    const CUSTOMS_RATE = 0.05;
+    const SFDA_FEE = 20;
+    const HANDLING_PER_ITEM = 8;
+    const TAX_RATE = 0.15;
+
+    const CITY_NAMES = {
+      riyadh:'Riyadh',jeddah:'Jeddah',makkah:'Makkah',madinah:'Madinah',
+      dammam:'Dammam',khobar:'Khobar',dhahran:'Dhahran',tabuk:'Tabuk',
+      abha:'Abha',khamis:'Khamis Mushait',taif:'Taif',buraidah:'Buraidah',
+      najran:'Najran',jubail:'Jubail',yanbu:'Yanbu',hail:'Hail',
+      jazan:'Jazan',arar:'Arar','albaha':'Al Baha',hofuf:'Hofuf'
+    };
+    
+    const DELIVERY_DAYS = {
+      riyadh:'7-10',jeddah:'5-7',makkah:'5-7',madinah:'6-8',
+      dammam:'7-10',khobar:'7-10',dhahran:'7-10',tabuk:'10-14',
+      abha:'10-14',khamis:'10-14',taif:'8-12',buraidah:'8-12',
+      najran:'12-16',jubail:'8-11',hofuf:'8-11',yanbu:'7-10',
+      hail:'9-12',jazan:'11-15',arar:'12-16','albaha':'12-16'
+    };
+
+    // ========================================
+    // STATE
+    // ========================================
+    let selectedCity = null;
+    let totalItems = 0;
+    let productCost = 0;
+    let products = [];
+    let availableGroups = [];
+    let groupData = null;
+    let costChart = null;
+    let groupCompleteShown = false;
+    let pendingJoinGroupId = null;
+
+    // ========================================
+    // UTILITY FUNCTIONS
+    // ========================================
+    function calculateUserShare(items, cost, members, isGroup) {
+      if (items === 0) return {productCost:0,shippingFeeSolo:0,shippingFeeShared:0,customDuties:0,sfdaFee:0,handlingFee:0,totalShipping:0,tax:0,grandTotal:0,savings:0};
+      const shippingFeeSolo = SHIPPING_BASE + (items * SHIPPING_PER_ITEM);
+      const shippingFeeShared = members > 1 ? Math.round(shippingFeeSolo / members) : shippingFeeSolo;
+      const customDuties = Math.round(cost * CUSTOMS_RATE);
+      const sfdaFee = SFDA_FEE;
+      const handlingFee = items * HANDLING_PER_ITEM;
+      const shippingFeeUsed = isGroup ? shippingFeeShared : shippingFeeSolo;
+      const totalShipping = shippingFeeUsed + customDuties + sfdaFee + handlingFee;
+      const tax = Math.round((cost + totalShipping) * TAX_RATE);
+      const grandTotal = cost + totalShipping + tax;
+      const savings = shippingFeeSolo - shippingFeeShared;
+      return {productCost:cost,shippingFeeSolo,shippingFeeShared,customDuties,sfdaFee,handlingFee,totalShipping,tax,grandTotal,savings};
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
+    function showLoading(text) { 
+      document.getElementById("loading-text").textContent = text; 
+      document.getElementById("loading").classList.remove("hidden"); 
+    }
+    
+    function hideLoading() { 
+      document.getElementById("loading").classList.add("hidden"); 
+    }
+    
+    function showToast(msg, type) { 
+      const toast = document.getElementById("toast"); 
+      toast.textContent = msg; 
+      toast.className = "toast show " + (type || ""); 
+      setTimeout(() => toast.classList.remove("show"), 15000); 
     }
 
-    body {
-      margin: 0;
-      background: #fffdfd;
-      color: var(--ink-700)
-    }
+    // ========================================
+    // ✅ SHIP SOLO
+    // ========================================
+    function handleShipSolo() {
+      console.log("🚀 handleShipSolo() called!");
+      
+      if (!selectedCity) {
+        showToast("Please select a city first!", "error");
+        return;
+      }
+      
+      if (totalItems === 0 && productCost === 0) {
+        showToast("Your cart is empty!", "error");
+        return;
+      }
 
-    .container {
-      width: min(1100px, 90%);
-      margin-inline: auto
-    }
+      const userShare = calculateUserShare(totalItems, productCost, 1, false);
+      const cityName = CITY_NAMES[selectedCity] || selectedCity;
+      const deliveryDays = DELIVERY_DAYS[selectedCity] || '7-10';
 
-    /* header */
-    .topbar {
-      background: linear-gradient(135deg, var(--rose-100), var(--rose-300))
-    }
+      const cleanProducts = products.map(p => ({
+        id: p.id || '',
+        name: p.name || 'Product',
+        price: parseFloat(p.price) || 0,
+        qty: parseInt(p.qty) || 1,
+        image: (p.image && !p.image.startsWith('data:') && p.image.length < 500) ? p.image : ''
+      }));
 
-    .nav {
-      padding: 10px 0
-    }
+      const paymentData = {
+        type: 'solo',
+        city: selectedCity,
+        city_name: cityName,
+        members_count: 1,
+        total_items: totalItems,
+        products: cleanProducts,
+        product_cost: userShare.productCost,
+        shipping_fee_solo: userShare.shippingFeeSolo,
+        shipping_fee_shared: userShare.shippingFeeSolo,
+        custom_duties: userShare.customDuties,
+        sfda_fee: userShare.sfdaFee,
+        handling_fee: userShare.handlingFee,
+        tax: userShare.tax,
+        total: userShare.grandTotal,
+        savings: 0,
+        delivery_days: deliveryDays
+      };
 
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 18px;
-      justify-content: flex-end;
-      margin: 0
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      color: #7a2942;
-      font-weight: 600;
-      opacity: .9
-    }
-
-    .nav-links a.active,
-    .nav-links a:hover {
-      opacity: 1
-    }
-
-    .wave svg {
-      width: 100%;
-      height: 100px
-    }
-
-    .wave path {
-      fill: var(--rose-200)
-    }
-
-    .page {
-      padding: 20px 0 60px
-    }
-
-    .page-title {
-      text-align: center;
-      color: #7a2942;
-      font-weight: 800;
-      margin-bottom: 25px
-    }
-
-    /* layout */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px
-    }
-
-    @media(max-width:900px) {
-      .grid {
-        grid-template-columns: 1fr
+      try {
+        sessionStorage.removeItem('beautyflow_payment');
+        sessionStorage.setItem('beautyflow_payment', JSON.stringify(paymentData));
+        window.location.href = '/payment';
+      } catch (e) {
+        console.error("Storage error:", e);
+        showToast("Storage full. Please clear browser data.", "error");
       }
     }
 
-    .card {
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px 16px
+    // ========================================
+    // ✅ CREATE GROUP -
+    // ========================================
+    async function handleCreateGroup() {
+      console.log("🏗️ handleCreateGroup() called!");
+      
+      if (!selectedCity) {
+        showToast("Please select a city first!", "error");
+        return;
+      }
+      
+      if (totalItems === 0) {
+        showToast("Your cart is empty!", "error");
+        return;
+      }
+      
+      const modalTitle = document.getElementById("join-modal-title");
+      const modalMessage = document.getElementById("join-modal-message");
+      const modalWarning = document.getElementById("join-modal-warning-text");
+      const modalIcon = document.getElementById("join-modal-icon");
+      
+      modalIcon.style.background = "linear-gradient(135deg, #2196f3, #03a9f4)";
+      modalTitle.innerHTML = "📢 Create New Group";
+      modalMessage.innerHTML = `
+        You are about to create a new shipping group as the <strong style="color: #e84a7f;">1st member</strong>.<br><br>
+        <span style="color: #4caf50;">✓ You CAN leave anytime while the group has less than 5 members.</span><br><br>
+        <span style="color: #f44336;">✗ Once 5 members join, the group will be <strong>locked</strong> and you cannot leave until payment is complete.</span>
+      `;
+      modalWarning.innerHTML = `<strong>4</strong> more members needed to complete the group.`;
+      
+
+      document.getElementById("fifth-modal-join").innerHTML = '<i class="fas fa-plus"></i> Create Group';
+      
+      pendingJoinGroupId = "CREATE_NEW";
+      document.getElementById("fifth-member-modal").classList.remove("hidden");
     }
 
-    .card-title {
-      margin: 0 0 10px;
-      font-weight: 700;
-      color: #7a2942
+    async function executeCreateGroup() {
+      showLoading("Creating group...");
+      try {
+        const res = await fetch("/api/groups/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ city: selectedCity })
+        });
+        const data = await res.json();
+        console.log("✅ Create response:", data);
+        
+        if (data.ok) {
+          showToast("🎉 Group created!", "success");
+          await loadMyGroup();
+          setTimeout(() => {
+            const waitingState = document.getElementById("state-waiting");
+            if (waitingState && waitingState.classList.contains("hidden")) {
+              location.reload();
+            }
+          }, 500);
+        } else {
+          showToast(data.message || "Failed to create group", "error");
+        }
+      } catch (err) {
+        console.error("Create error:", err);
+        showToast("Network error", "error");
+      } finally {
+        hideLoading();
+      }
     }
 
-    .card.tip {
-      background: linear-gradient(180deg, var(--rose-50), #fff)
+    // ========================================
+    // ✅ LEAVE GROUP - Global function for onclick
+    // ========================================
+    window.leaveGroupClicked = function() {
+      console.log("🚪 leaveGroupClicked() called!");
+      showConfirmModal("Leave Group", "Are you sure you want to leave this group?", handleLeaveGroup);
+    };
+
+    async function handleLeaveGroup() {
+      console.log("🚪 handleLeaveGroup() called!");
+      showLoading("Leaving group...");
+      try {
+        console.log("📡 Sending leave request...");
+        const res = await fetch("/api/groups/leave", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+        console.log("📡 Response status:", res.status);
+        const data = await res.json();
+        console.log("📦 Response data:", data);
+        
+        if (data.ok) {
+          showToast("✅ Left group successfully", "success");
+          showState('not-in-group');
+          groupData = null;
+          groupCompleteShown = false;
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          showToast(data.message || "Failed to leave group", "error");
+        }
+      } catch (err) {
+        console.error("❌ Leave error:", err);
+        showToast("Network error: " + err.message, "error");
+      } finally {
+        hideLoading();
+      }
     }
 
-    .avatars {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 10px
+    // ========================================
+    // CITY SELECTION
+    // ========================================
+    function selectCity(city) {
+      console.log("🏙️ City selected:", city);
+      selectedCity = city;
+      
+      document.querySelectorAll(".city-btn").forEach(btn => {
+        btn.classList.toggle("selected", btn.dataset.city === city);
+      });
+      
+      document.getElementById("delivery-days").textContent = (DELIVERY_DAYS[city] || "--") + " days";
+      loadAvailableGroups(city);
     }
 
-    .avatars img,
-    .avatar.placeholder {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, .1)
+    // ========================================
+    // LOAD DATA
+    // ========================================
+    function loadCartFromStorage() {
+      try {
+        const saved = sessionStorage.getItem('beautyflow_cart_products');
+        if (saved) {
+          products = JSON.parse(saved);
+          console.log("✅ Products from sessionStorage:", products.length);
+        }
+      } catch (e) {
+        console.error("Error loading products:", e);
+      }
     }
 
-    .avatar.placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--rose-300);
-      color: #fff;
-      font-weight: 700
+    async function loadInitialData() {
+      showLoading("Loading...");
+      try {
+        loadCartFromStorage();
+        
+        const res = await fetch("/api/cost-sharing/load");
+        const data = await res.json();
+        console.log("📦 API Response:", data);
+
+        const summary = data.summary || {};
+        totalItems = summary.total_qty || 0;
+        productCost = summary.subtotal || 0;
+
+        if (products.length === 0 && data.items && data.items.length > 0) {
+          products = data.items.map(item => ({
+            id: item.id || '',
+            name: item.name || 'Product',
+            price: parseFloat(item.price) || 0,
+            qty: parseInt(item.qty) || 1,
+            image: item.image || ''
+          }));
+        }
+
+        console.log("🛒 Final state:", { totalItems, productCost, products: products.length });
+
+        document.getElementById("cart-items-count").textContent = totalItems + " items";
+        document.getElementById("cart-total").textContent = productCost + " SAR";
+        updateCostComparison(5);
+
+        if (data.in_group) {
+          await loadMyGroup();
+        } else {
+          showState('not-in-group');
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        showToast("Failed to load data", "error");
+      } finally {
+        hideLoading();
+      }
     }
 
-    .progress-bar {
-      height: 10px;
-      background: var(--rose-100);
-      border-radius: 999px;
-      overflow: hidden
+    async function loadAvailableGroups(city) {
+      const btn = document.getElementById("btn-refresh");
+      btn?.classList.add("spinning");
+      try {
+        const res = await fetch("/api/groups/available?city=" + city);
+        const data = await res.json();
+        availableGroups = data.groups || [];
+        renderGroups();
+      } catch (err) {
+        console.error("Error:", err);
+      } finally {
+        btn?.classList.remove("spinning");
+      }
     }
 
-    .progress {
-      height: 100%;
-      background: var(--rose-600)
+    async function loadMyGroup() {
+      try {
+        const res = await fetch("/api/groups/my-group");
+        const data = await res.json();
+        console.log("📦 My group data:", data);
+        
+        if (data.ok && data.in_group) {
+          groupData = data;
+          const status = (data.group.status || "").toUpperCase();
+          const yourStatus = (data.your_info?.status || "").toUpperCase();
+          
+          console.log("📊 Group status:", status, "Your status:", yourStatus);
+          
+          if (yourStatus === 'PAID') {
+            console.log("✅ User has PAID - showing main page for new orders");
+            showState('not-in-group');
+            return;
+          }
+          
+          if (status === 'WAITING' || status === 'READY' || status === 'PAID') {
+            renderWaitingState(data);
+            showState('waiting');
+          }
+        } else {
+          showState('not-in-group');
+        }
+      } catch (err) {
+        console.error("Error loading group:", err);
+      }
     }
 
-    .progress-text {
-      font-size: .9rem;
-      color: var(--ink-500);
-      margin-top: 6px
+    // ========================================
+    // RENDER FUNCTIONS
+    // ========================================
+    function updateCostComparison(membersCount) {
+      const solo = calculateUserShare(totalItems, productCost, 1, false);
+      const shared = calculateUserShare(totalItems, productCost, membersCount, true);
+      document.getElementById("stat-savings").textContent = shared.savings + " SAR";
+      document.getElementById("stat-shipping").textContent = shared.shippingFeeShared + " SAR";
+      document.getElementById("cost-solo").textContent = solo.shippingFeeSolo + " SAR";
+      document.getElementById("cost-shared").textContent = shared.shippingFeeShared + " SAR";
+      document.getElementById("cost-savings").textContent = shared.savings + " SAR";
+      if (costChart) {
+        costChart.data.datasets[0].data = [solo.shippingFeeSolo, shared.shippingFeeShared];
+        costChart.update('none');
+      }
     }
 
-    .estimates {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 6px
+    function renderGroups() {
+      const list = document.getElementById("groups-list");
+      if (!list) return;
+      if (availableGroups.length === 0) {
+        list.innerHTML = '<div class="empty-hint"><i class="fas fa-users-slash"></i><span>No groups available.<br>Create one!</span></div>';
+        return;
+      }
+      const userShare = calculateUserShare(totalItems, productCost, 5, true);
+      list.innerHTML = availableGroups.map(g => 
+        '<div class="group-item"><div class="group-item-info"><div class="group-item-main"><span><i class="fas fa-users"></i> ' + g.members_count + '/5</span><span><i class="fas fa-clock"></i> ' + g.time_left + '</span></div><div class="group-item-savings"><i class="fas fa-piggy-bank"></i> Save ~' + userShare.savings + ' SAR</div></div><button class="btn-join" onclick="joinGroup(\'' + g.group_id + '\')">Join</button></div>'
+      ).join("");
     }
 
-    .estimates li {
-      display: flex;
-      justify-content: space-between;
-      background: var(--rose-50);
-      padding: 8px 10px;
-      border-radius: 12px
+    // ========================================
+    // ✅✅✅  renderWaitingState
+    // ========================================
+    function renderWaitingState(data) {
+      const group = data.group || {};
+      const members = data.members || [];
+      
+      document.getElementById("waiting-group-id").textContent = "#" + (group.group_id || "").substring(0, 12);
+      document.getElementById("waiting-time-left").textContent = group.time_left || "--";
+      document.getElementById("waiting-city-name").textContent = group.city_name || group.city || "";
+      document.getElementById("waiting-delivery-days").textContent = (group.delivery_days || "--") + " days";
+      
+      const totalJoinedMembers = members.length;
+      const activeMembers = members.filter(m => m.status !== 'PAID');
+      const activeMembersCount = activeMembers.length || 1;
+      const isGroupComplete = totalJoinedMembers >= 5;
+      
+      console.log("📊 Members breakdown:", {
+        totalJoined: totalJoinedMembers,
+        active: activeMembersCount,
+        paid: totalJoinedMembers - activeMembersCount,
+        isComplete: isGroupComplete
+      });
+      
+      const pct = (totalJoinedMembers / 5) * 100;
+      document.getElementById("waiting-progress-bar").style.width = pct + "%";
+      document.getElementById("waiting-members-text").textContent = totalJoinedMembers + "/5 members";
+      document.getElementById("waiting-members-div").textContent = 5;
+      
+      const userShare = calculateUserShare(totalItems, productCost, activeMembersCount, true);
+      document.getElementById("waiting-product-cost").textContent = "SAR " + userShare.productCost;
+      document.getElementById("waiting-shipping-solo").textContent = "SAR " + userShare.shippingFeeSolo;
+      document.getElementById("waiting-shipping-shared").textContent = "SAR " + userShare.shippingFeeShared;
+      document.getElementById("waiting-customs").textContent = "SAR " + userShare.customDuties;
+      document.getElementById("waiting-handling").textContent = "SAR " + userShare.handlingFee;
+      document.getElementById("waiting-tax").textContent = "SAR " + userShare.tax;
+      document.getElementById("waiting-total").textContent = "SAR " + userShare.grandTotal;
+      document.getElementById("waiting-savings").textContent = "SAR " + userShare.savings;
+      
+      const membersGrid = document.getElementById("waiting-members-grid");
+      let html = members.map(m => {
+        const isPaid = m.status === 'PAID';
+        const statusClass = isPaid ? 'is-paid' : '';
+        const statusBadge = isPaid 
+          ? '<span class="member-status-badge paid"><i class="fas fa-check-circle"></i> Paid</span>'
+          : '<span class="member-status-badge pending"><i class="fas fa-clock"></i> Pending</span>';
+        
+        return '<div class="member-row ' + (m.is_you ? 'is-you' : '') + ' ' + statusClass + '">' +
+          '<div class="member-avatar">' + (m.username || "U").charAt(0).toUpperCase() + '</div>' +
+          '<div class="member-details">' +
+            '<div class="member-name">' + (m.username || "User") + (m.is_you ? '<span class="you-tag">(You)</span>' : '') + '</div>' +
+            '<div class="member-cost">SAR ' + (m.product_cost || 0) + '</div>' +
+          '</div>' +
+          (m.is_creator ? '<span class="member-badge creator">Creator</span>' : '') +
+          statusBadge +
+        '</div>';
+      }).join("");
+      
+      for (let i = totalJoinedMembers; i < 5; i++) {
+        html += '<div class="member-row"><div class="member-avatar empty-slot"><i class="fas fa-plus"></i></div><div class="member-details"><div class="member-name" style="color:#aaa;">Waiting...</div></div><span class="member-status-badge waiting"><i class="fas fa-user-plus"></i> Empty</span></div>';
+      }
+      membersGrid.innerHTML = html;
+      
+      const status = (group.status || "").toUpperCase();
+      const userConfirmed = data.user_confirmed || false;
+      
+      if (totalJoinedMembers >= 5 && status === 'WAITING' && !userConfirmed && !groupCompleteShown) {
+        showGroupCompleteModal(userShare);
+        groupCompleteShown = true;
+      }
+      
+      const shipNowBtn = document.getElementById("btn-ship-now");
+      const extendBtn = document.getElementById("btn-extend-time");
+      const leaveBtn = document.getElementById("btn-leave-group");
+      const statusPill = document.querySelector(".status-pill");
+      
+      if (status === 'READY') {
+        shipNowBtn?.classList.remove("hidden");
+        extendBtn?.classList.add("hidden");
+        leaveBtn?.classList.add("hidden");
+        
+        if (statusPill) {
+          statusPill.innerHTML = '<i class="fas fa-check-circle"></i> Ready to Ship!';
+          statusPill.className = 'status-pill ready-pill';
+          statusPill.style.background = 'linear-gradient(135deg, #e8f5e9, #c8e6c9)';
+          statusPill.style.color = '#2e7d32';
+        }
+      } else if (isGroupComplete) {
+        shipNowBtn?.classList.remove("hidden");
+        extendBtn?.classList.add("hidden");
+        leaveBtn?.classList.add("hidden");
+        
+        if (statusPill) {
+          statusPill.innerHTML = '<i class="fas fa-users"></i> Group Complete - Awaiting Payments';
+          statusPill.style.background = 'linear-gradient(135deg, #e3f2fd, #bbdefb)';
+          statusPill.style.color = '#1565c0';
+        }
+      } else {
+        shipNowBtn?.classList.add("hidden");
+        extendBtn?.classList.add("hidden");
+        leaveBtn?.classList.remove("hidden");
+        
+        if (statusPill) {
+          statusPill.innerHTML = '<i class="fas fa-hourglass-half"></i> Waiting for Members';
+          statusPill.style.background = 'linear-gradient(135deg, #fff3e0, #ffe0b2)';
+          statusPill.style.color = '#e65100';
+        }
+      }
+      
+      document.getElementById("stat-members").textContent = totalJoinedMembers + "/5";
+      document.getElementById("stat-time").textContent = group.time_left || "--";
+    }
+    
+    function showGroupCompleteModal(userShare) {
+      const modal = document.getElementById("group-complete-modal");
+      if (!modal) return;
+      
+      document.getElementById("complete-total").textContent = "SAR " + userShare.grandTotal;
+      document.getElementById("complete-savings").textContent = "SAR " + userShare.savings;
+      
+      modal.classList.remove("hidden");
+      
+      const icon = modal.querySelector(".complete-icon");
+      if (icon) icon.classList.add("pulse-animation");
+    }
+    
+    function hideGroupCompleteModal() {
+      const modal = document.getElementById("group-complete-modal");
+      if (modal) modal.classList.add("hidden");
     }
 
-    .estimates li.save {
-      background: var(--rose-100);
-      font-weight: 700
+    function showState(stateName) {
+      document.getElementById("state-not-in-group").classList.add("hidden");
+      document.getElementById("state-waiting").classList.add("hidden");
+      
+      const el = document.getElementById("state-" + stateName);
+      if (el) el.classList.remove("hidden");
+      
+      const citySection = document.getElementById("city-section");
+      const heroSection = document.getElementById("hero-section");
+      const statsRow = document.getElementById("stats-row");
+      const cartSummary = document.getElementById("cart-summary-bar");
+      
+      if (stateName === 'not-in-group') {
+        citySection?.classList.remove("hidden");
+        heroSection?.classList.remove("hidden");
+        statsRow?.classList.remove("hidden");
+        cartSummary?.classList.remove("hidden");
+      } else if (stateName === 'waiting') {
+        citySection?.classList.add("hidden");
+        heroSection?.classList.remove("hidden");
+        statsRow?.classList.remove("hidden");
+        cartSummary?.classList.remove("hidden");
+      }
     }
 
-    .label {
-      font-weight: 600;
-      color: var(--ink-500);
-      font-size: .9rem;
-      margin-top: 12px
+    // ========================================
+    // ✅ JOIN GROUP -
+    // ========================================
+    async function joinGroup(groupId) {
+      if (totalItems === 0) {
+        showToast("Your cart is empty!", "error");
+        return;
+      }
+      
+      const group = availableGroups.find(g => g.group_id === groupId);
+      
+      if (group) {
+        const currentMembers = group.members_count;
+        const spotsLeft = 5 - currentMembers;
+        
+        const modalTitle = document.getElementById("join-modal-title");
+        const modalMessage = document.getElementById("join-modal-message");
+        const modalWarning = document.getElementById("join-modal-warning-text");
+        const modalIcon = document.getElementById("join-modal-icon");
+        
+        
+        document.getElementById("fifth-modal-join").innerHTML = '<i class="fas fa-check"></i> Join Group';
+        
+        if (currentMembers >= 4) {
+          modalIcon.style.background = "linear-gradient(135deg, #f44336, #e91e63)";
+          modalTitle.innerHTML = "🚨 Final Member Warning";
+          modalMessage.innerHTML = `
+            You will be the <strong style="color: #e84a7f;">5th and final member</strong> of this group.<br><br>
+            Once you join, the group will be <strong>locked</strong> and you <strong style="color: #f44336;">cannot leave</strong> until you complete the payment.
+          `;
+          modalWarning.textContent = "Once complete, all 5 members MUST proceed to payment";
+        } else {
+          modalIcon.style.background = "linear-gradient(135deg, #ff9800, #ff5722)";
+          modalTitle.innerHTML = "⚠️ Before You Join";
+          modalMessage.innerHTML = `
+            You will be member <strong style="color: #e84a7f;">#${currentMembers + 1}</strong> of this group.<br><br>
+            <span style="color: #4caf50;">✓ You CAN leave anytime while the group has less than 5 members.</span><br><br>
+            <span style="color: #f44336;">✗ Once 5 members join, the group will be <strong>locked</strong> and you cannot leave until payment is complete.</span>
+          `;
+          modalWarning.innerHTML = `<strong>${spotsLeft - 1}</strong> more members can join after you. Plan accordingly!`;
+        }
+        
+        pendingJoinGroupId = groupId;
+        document.getElementById("fifth-member-modal").classList.remove("hidden");
+        return;
+      }
+      
+      await executeJoinGroup(groupId);
     }
 
-    .input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid var(--rose-300);
-      border-radius: 12px
+    async function executeJoinGroup(groupId) {
+      showLoading("Joining...");
+      try {
+        const res = await fetch("/api/groups/join", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ group_id: groupId })
+        });
+        const data = await res.json();
+        console.log("✅ Join response:", data);
+        
+        if (data.ok) {
+          showToast("🎉 Joined successfully!", "success");
+          await loadMyGroup();
+          setTimeout(() => {
+            const waitingState = document.getElementById("state-waiting");
+            if (waitingState && waitingState.classList.contains("hidden")) {
+              location.reload();
+            }
+          }, 500);
+        } else {
+          showToast(data.message || "Failed to join", "error");
+        }
+      } catch (err) {
+        console.error("Join error:", err);
+        showToast("Network error", "error");
+      } finally {
+        hideLoading();
+      }
     }
 
-    /* buttons */
-    .card-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px
+    // ========================================
+    // INIT CHART
+    // ========================================
+    function initChart() {
+      const ctx = document.getElementById("cost-chart")?.getContext("2d");
+      if (!ctx) return;
+      costChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Solo", "Shared"],
+          datasets: [{
+            data: [0, 0],
+            backgroundColor: ["#ffb5c6", "#4caf50"],
+            borderRadius: 6,
+            barThickness: 40
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { display: false } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
     }
 
-    .card-actions.three .btn {
-      flex: 1 1 32%
+    // ========================================
+    // MODAL FUNCTIONS
+    // ========================================
+    let modalCallback = null;
+    
+    function showConfirmModal(title, message, callback) {
+      console.log("📋 Showing confirm modal:", title);
+      const modal = document.getElementById("confirm-modal");
+      document.getElementById("modal-title").textContent = title;
+      document.getElementById("modal-message").textContent = message;
+      modal.classList.remove("hidden");
+      modal.classList.add("active");
+      modal.style.display = "flex";
+      modal.style.opacity = "1";
+      modal.style.visibility = "visible";
+      modalCallback = callback;
+      
+      const confirmBtn = document.getElementById("modal-confirm");
+      confirmBtn.onclick = function() {
+        console.log("✅ Modal confirmed!");
+        const savedCallback = modalCallback;
+        hideConfirmModal();
+        if (savedCallback) {
+          console.log("🔄 Calling callback...");
+          savedCallback();
+        }
+      };
+    }
+    
+    function hideConfirmModal() {
+      console.log("🔴 Hiding confirm modal");
+      const modal = document.getElementById("confirm-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("active");
+      modal.style.display = "";
+      modal.style.opacity = "";
+      modal.style.visibility = "";
+      modalCallback = null;
     }
 
-    .btn {
-      border: none;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: .2s;
-      box-shadow: var(--shadow);
-      text-align: center;
-      text-decoration: none;
-      display: inline-block
-    }
+    // ========================================
+    // INIT
+    // ========================================
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("🚀 Page loaded!");
+      
+      initChart();
+      loadInitialData();
+      
+      // City buttons
+      document.querySelectorAll(".city-btn").forEach(btn => {
+        btn.addEventListener("click", () => selectCity(btn.dataset.city));
+      });
+      
+      // Refresh button
+      document.getElementById("btn-refresh")?.addEventListener("click", () => {
+        if (selectedCity) loadAvailableGroups(selectedCity);
+      });
+      
+      // Header scroll
+      const header = document.getElementById("mainHeader");
+      let lastScrollY = 0;
+      window.addEventListener("scroll", function() {
+        const currentY = window.pageYOffset;
+        if (currentY > lastScrollY && currentY > 60) header.classList.add("hide");
+        else header.classList.remove("hide");
+        if (currentY > 20) header.classList.add("scrolled");
+        else header.classList.remove("scrolled");
+        lastScrollY = currentY;
+      });
+      
+      // Ship Solo button
+      document.getElementById("btn-ship-solo")?.addEventListener("click", handleShipSolo);
+      
+      // Create Group button
+      document.getElementById("btn-create-group")?.addEventListener("click", handleCreateGroup);
+      
+      // Leave Group button
+      console.log("✅ Leave button handler: using window.leaveGroupClicked()");
+      
+      // Share link button
+      document.getElementById("btn-share-link")?.addEventListener("click", function() {
+        if (groupData && groupData.group) {
+          const link = window.location.origin + "/costSharing?join=" + groupData.group.group_id;
+          navigator.clipboard.writeText(link).then(() => {
+            showToast("📋 Link copied to clipboard!", "success");
+          }).catch(() => {
+            showToast("Failed to copy link", "error");
+          });
+        }
+      });
+      
+      // Ship Now button
+      document.getElementById("btn-ship-now")?.addEventListener("click", function() {
+        if (!groupData || !groupData.group) return;
+        
+        const members = groupData.members || [];
+        const activeMembers = members.filter(m => m.status !== 'PAID');
+        const activeMembersCount = activeMembers.length || 1;
+        
+        const userShare = calculateUserShare(totalItems, productCost, activeMembersCount, true);
+        const cityName = CITY_NAMES[groupData.group.city] || groupData.group.city;
+        
+        const paymentData = {
+          type: 'shared',
+          group_id: groupData.group.group_id,
+          city: groupData.group.city,
+          city_name: cityName,
+          members_count: activeMembersCount,
+          total_items: totalItems,
+          products: products.map(p => ({
+            id: p.id || '',
+            name: p.name || 'Product',
+            price: parseFloat(p.price) || 0,
+            qty: parseInt(p.qty) || 1,
+            image: ''
+          })),
+          product_cost: userShare.productCost,
+          shipping_fee_solo: userShare.shippingFeeSolo,
+          shipping_fee_shared: userShare.shippingFeeShared,
+          custom_duties: userShare.customDuties,
+          sfda_fee: userShare.sfdaFee,
+          handling_fee: userShare.handlingFee,
+          tax: userShare.tax,
+          total: userShare.grandTotal,
+          savings: userShare.savings,
+          delivery_days: groupData.group.delivery_days || '7-10'
+        };
+        
+        try {
+          sessionStorage.setItem('beautyflow_payment', JSON.stringify(paymentData));
+          window.location.href = '/payment';
+        } catch (e) {
+          console.error("Storage error:", e);
+          showToast("Error preparing payment", "error");
+        }
+      });
+      
+      // Extend time button
+      document.getElementById("btn-extend-time")?.addEventListener("click", function() {
+        showConfirmModal("Extend Time", "Extend the group deadline by 7 more days?", async () => {
+          showLoading("Extending...");
+          try {
+            const res = await fetch("/api/groups/extend", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" }
+            });
+            const data = await res.json();
+            if (data.ok) {
+              showToast("✅ Extended by 7 days!", "success");
+              await loadMyGroup();
+            } else {
+              showToast(data.message || "Failed to extend", "error");
+            }
+          } catch (err) {
+            console.error("Extend error:", err);
+            showToast("Network error", "error");
+          } finally {
+            hideLoading();
+          }
+        });
+      });
+      
+      // Modal handlers
+      document.getElementById("modal-cancel")?.addEventListener("click", hideConfirmModal);
+      document.querySelector("#confirm-modal .modal-overlay")?.addEventListener("click", hideConfirmModal);
+      
+      // Group Complete Modal
+      document.getElementById("btn-confirm-ready")?.addEventListener("click", async function() {
+        showLoading("Confirming...");
+        try {
+          const res = await fetch("/api/groups/confirm-ready", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+          });
+          const data = await res.json();
+          
+          if (data.ok) {
+            hideGroupCompleteModal();
+            showToast("✅ You're confirmed! Waiting for others...", "success");
+            await loadMyGroup();
+            if (data.all_confirmed) {
+              showToast("🎉 All members confirmed! Ready to ship!", "success");
+            }
+          } else {
+            showToast(data.message || "Failed to confirm", "error");
+          }
+        } catch (err) {
+          console.error("Confirm error:", err);
+          showToast("Network error", "error");
+        } finally {
+          hideLoading();
+        }
+      });
+      
+      document.querySelector("#group-complete-modal .modal-overlay")?.addEventListener("click", function() {
+        showToast("Please confirm to continue", "warning");
+      });
+      
+      // Check URL for join parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const joinGroupId = urlParams.get('join');
+      if (joinGroupId) {
+        setTimeout(() => {
+          joinGroup(joinGroupId);
+        }, 1000);
+      }
 
-    .btn.primary {
-      background: var(--rose-600);
-      color: #fff
-    }
+      // ✅ Fifth Member Modal handlers
+      document.getElementById("fifth-modal-cancel")?.addEventListener("click", function() {
+        document.getElementById("fifth-member-modal").classList.add("hidden");
+        pendingJoinGroupId = null;
+       
+        document.getElementById("fifth-modal-join").innerHTML = '<i class="fas fa-check"></i> Join Group';
+      });
 
-    .btn.primary:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.05)
-    }
+      document.getElementById("fifth-modal-join")?.addEventListener("click", async function() {
+        document.getElementById("fifth-member-modal").classList.add("hidden");
+        
+        if (pendingJoinGroupId === "CREATE_NEW") {
+          
+          await executeCreateGroup();
+          pendingJoinGroupId = null;
+          document.getElementById("fifth-modal-join").innerHTML = '<i class="fas fa-check"></i> Join Group';
+        } else if (pendingJoinGroupId) {
+          
+          await executeJoinGroup(pendingJoinGroupId);
+          pendingJoinGroupId = null;
+        }
+      });
 
-    .btn.outline {
-      background: #fff;
-      color: var(--rose-700);
-      border: 2px solid var(--rose-300)
-    }
+      document.querySelector("#fifth-member-modal .modal-overlay")?.addEventListener("click", function() {
+        document.getElementById("fifth-member-modal").classList.add("hidden");
+        pendingJoinGroupId = null;
+        document.getElementById("fifth-modal-join").innerHTML = '<i class="fas fa-check"></i> Join Group';
+      });
 
-    /* NEW: soft button for “Find New Merge” */
-    .btn.soft {
-      background: var(--rose-100);
-      color: #7a2942;
-      border: 2px solid var(--rose-200)
-    }
-
-    .btn.soft:hover {
-      filter: brightness(1.03)
-    }
-
-    .block {
-      width: 100%
-    }
-
-    .footer {
-      text-align: center;
-      padding: 20px;
-      color: #9a9aaa
-    }
-  </style>
-
-  <script>
-    // Elements
-    const weightInput = document.getElementById('weightInput');
-    const soloCostEl = document.getElementById('soloCost');
-    const sharedCostEl = document.getElementById('sharedCost');
-    const youSaveEl = document.getElementById('youSave');
-
-    // Update cost numbers (English / SAR)
-    // Update cost numbers (English / SAR)
-    function updateCost() {
-      const w = Math.max(0.1, Number(weightInput.value) || 0.1);
-      const solo = 10 * w + 300;  // sample solo model
-      const shared = 6 * w + 120; // sample shared model
-
-      soloCostEl.textContent = solo.toLocaleString('en-US') + " SAR";
-      sharedCostEl.textContent = shared.toLocaleString('en-US') + " SAR";
-      youSaveEl.textContent = (solo - shared).toLocaleString('en-US') + " SAR";
-    }
-    // run when typing
-    weightInput.addEventListener('input', updateCost);
-    updateCost();
-
-    // Random AI tip
-    const tips = [
-      "Merging within 24h can save up to 15%.",
-      "Compressing boxes reduces volumetric fees.",
-      "Tuesday shipping often has lower rates.",
-      "Closest destinations merge faster."
-    ];
-
-    const aiTip = document.getElementById('aiTip');
-    if (aiTip) {
-      aiTip.textContent = tips[Math.floor(Math.random() * tips.length)];
-    }
-
+    });
   </script>
+  <!-- 🤖 AI Bot -->
+
+  {% include 'aiBot.html' %}
 
 </body>
-
 </html>

@@ -1,48 +1,460 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8" />
+     <!-- ====================================================================
+     BeautyFlow - Design Options Page
+     ====================================================================
+     Selection page that allows users to choose between AI SmartPicks
+     and AI Custom Packaging to create unique beauty product designs.
+
+     Author: BeautyFlow Team
+     Version: 1.0.0
+     ==================================================================== -->
+  <meta charset="UTF-8" /> 
+   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BeautyFlow - Design Options</title>
-
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="designOptions-page">
-  <header class="site-header">
-    <div class="logo"></div>
-    <nav class="site-nav">
-      <a href="{{ url_for('home_index') }}">Home</a>
-      <a href="{{ url_for('about_page') }}">About</a>
-      <a href="{{ url_for('help_page') }}">Help</a>
-      <a href="{{ url_for('account_page') }}">Account</a>
-    </nav>
+
+  <!-- ========== HEADER ========== -->
+  <header class="main-header scrolled" id="mainHeader">
+    <div class="header-container">
+      <a href="{{ url_for('home_index') }}" class="header-logo">
+        <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow">
+      </a>
+
+      <nav class="header-nav">
+        <a href="{{ url_for('home_index') }}" class="nav-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+         <a href="{{ url_for('costSharing_page') }}" class="nav-link">
+          <i class="fas fa-users"></i>
+          <span>Cost-Sharing</span>
+        </a>
+        <a href="{{ url_for('design_options') }}" class="nav-link active">
+          <i class="fas fa-magic"></i>
+          <span>Design</span>
+        </a>
+        <a href="{{ url_for('about_page') }}" class="nav-link">
+          <i class="fas fa-info-circle"></i>
+          <span>About</span>
+        </a>
+        <a href="{{ url_for('help_page') }}" class="nav-link">
+          <i class="fas fa-question-circle"></i>
+          <span>Help</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="/cart" class="cart-btn">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge" id="cart-count">0</span>
+        </a>
+        <a href="{{ url_for('account_page') }}" class="account-btn">
+          <i class="fas fa-user"></i>
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="{{ url_for('home_index') }}"><i class="fas fa-home"></i> Home</a>
+      <a href="{{ url_for('design_options') }}"><i class="fas fa-magic"></i> Design</a>
+      <a href="{{ url_for('about_page') }}"><i class="fas fa-info-circle"></i> About</a>
+      <a href="{{ url_for('help_page') }}"><i class="fas fa-question-circle"></i> Help</a>
+      <a href="/cart"><i class="fas fa-shopping-bag"></i> Cart</a>
+      <a href="{{ url_for('account_page') }}"><i class="fas fa-user"></i> Account</a>
+    </div>
   </header>
 
-  <section class="hero hero--ribbon"></section>
+  <!-- ========== HERO SECTION ========== -->
+  <section class="design-hero">
+    <div class="design-hero-bg">
+      <div class="hero-shape shape-1"></div>
+      <div class="hero-shape shape-2"></div>
+      <div class="hero-shape shape-3"></div>
+    </div>
 
-  <main class="features">
-    <section class="features-grid">
-      <article class="feature-card">
-        <a href="/smartPicks" class="card-link">
-          <img src="{{ url_for('static', filename='images/smartPicks.jpg') }}" alt="Smart picks" class="feature-icon" />
-          <h3 class="feature-title">AI SmartPicks</h3>
-          <p class="feature-desc">.No duplication. No competition<br>.100% yours</p>
-        </a>
-      </article>
+    <div class="design-hero-content">
+      <div class="hero-badge animate-fade-down">
+        <i class="fas fa-palette"></i>
+        <span>Choose Your Style</span>
+      </div>
 
-      <article class="feature-card">
-        <a href="/AI" class="card-link">
-          <img src="{{ url_for('static', filename='images/aiCustom.png') }}" alt="AI custom packaging"
-            class="feature-icon" />
-          <h3 class="feature-title">AI-Custom<br>Packaging</h3>
-          <p class="feature-desc">.Describe it. See it. Approve it</p>
-        </a>
-      </article>
-    </section>
+      <h1 class="animate-fade-up">Design Your <span class="highlight">Dream</span> Product</h1>
+      <p class="animate-fade-up delay-1">Choose how you want to create your perfect beauty packaging</p>
+    </div>
+  </section>
+
+  <!-- ========== DESIGN OPTIONS ========== -->
+  <main class="design-options-section">
+    <div class="design-options-container">
+
+      <!-- Option 1: AI SmartPicks -->
+      <a href="/smartPicks" class="design-option-card">
+        <div class="option-glow"></div>
+        <div class="option-icon">
+          <img src="{{ url_for('static', filename='images/smartPicks.jpg') }}" alt="Smart Picks">
+          <div class="icon-overlay">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+        </div>
+        <div class="option-content">
+          <div class="option-badge">AI Powered</div>
+          <h2>AI SmartPicks</h2>
+          <p>Get AI-generated product recommendations based on your style preferences</p>
+          <ul class="option-features">
+            <li><i class="fas fa-check"></i> No duplication</li>
+            <li><i class="fas fa-check"></i> No competition</li>
+            <li><i class="fas fa-check"></i> 100% unique to you</li>
+          </ul>
+          <div class="option-cta">
+            <span>Explore SmartPicks</span>
+            <i class="fas fa-arrow-left"></i>
+          </div>
+        </div>
+      </a>
+
+      <!-- Option 2: AI Custom Packaging -->
+      <a href="/AI" class="design-option-card featured">
+        <div class="option-glow"></div>
+        <div class="featured-badge">
+          <i class="fas fa-star"></i> Most Popular
+        </div>
+        <div class="option-icon">
+          <img src="{{ url_for('static', filename='images/aiCustom.png') }}" alt="AI Custom">
+          <div class="icon-overlay">
+            <i class="fas fa-magic"></i>
+          </div>
+        </div>
+        <div class="option-content">
+          <div class="option-badge">Full Control</div>
+          <h2>AI-Custom Packaging</h2>
+          <p>Describe your vision and watch AI bring it to life with custom designs</p>
+          <ul class="option-features">
+            <li><i class="fas fa-check"></i> Describe your vision</li>
+            <li><i class="fas fa-check"></i> See it instantly</li>
+            <li><i class="fas fa-check"></i> Approve & order</li>
+          </ul>
+          <div class="option-cta">
+            <span>Start Creating</span>
+            <i class="fas fa-arrow-left"></i>
+          </div>
+        </div>
+      </a>
+
+
+
+    </div>
   </main>
+
+  <!-- ========== HOW IT WORKS ========== -->
+  <section class="design-steps-section">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-tag">Simple Process</span>
+        <h2 class="section-title">How It Works</h2>
+      </div>
+<style>
+.section-title {
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+</style>
+      <div class="design-steps">
+        <div class="design-step">
+          <div class="step-num">1</div>
+          <div class="step-icon"><i class="fas fa-hand-pointer"></i></div>
+          <h3>Choose Option</h3>
+          <p>Select SmartPicks or Custom Design</p>
+        </div>
+
+        <div class="step-line"></div>
+
+        <div class="design-step">
+          <div class="step-num">2</div>
+          <div class="step-icon"><i class="fas fa-paint-brush"></i></div>
+          <h3>Create Design</h3>
+          <p>Let AI generate your perfect packaging</p>
+        </div>
+
+        <div class="step-line"></div>
+
+        <div class="design-step">
+          <div class="step-num">3</div>
+          <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+          <h3>Add to Cart</h3>
+          <p>Review and add to your cart</p>
+        </div>
+
+        <div class="step-line"></div>
+
+        <div class="design-step">
+          <div class="step-num">4</div>
+          <div class="step-icon"><i class="fas fa-truck"></i></div>
+          <h3>Receive Products</h3>
+          <p>Get delivered to your doorstep</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+   <!-- FOOTER -->
+   <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow" class="footer-logo">
+          <p>AI-powered collaborative import platform for beauty businesses in Saudi Arabia.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <a href="{{ url_for('home_index') }}">Home</a>
+          <a href="{{ url_for('design_options') }}">Design Options</a>
+          <a href="{{ url_for('about_page') }}">About Us</a>
+          <a href="{{ url_for('help_page') }}">Help Center</a>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Services</h4>
+          <a href="/AI">AI Custom Design</a>
+          <a href="/smartPicks">SmartPicks</a>
+          <a href="/cart">Shopping Cart</a>
+        </div>
+        
+        <div class="footer-contact">
+          <h4>Contact Us</h4>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:beautyflow.team@gmail.com">beautyflow.team@gmail.com</a></p>
+          <p><i class="fas fa-phone"></i> +966 XX XXX XXXX</p>
+          <p><i class="fas fa-map-marker-alt"></i> Al-Baha, Saudi Arabia</p>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 BeautyFlow. All rights reserved.</p>
+        <p>Made with <i class="fas fa-heart"></i> by BeautyFlow Team</p>
+      </div>
+    </div>
+  </footer>
+
+  <style>
+      .main-footer {
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+      color: #1a1a2e;
+      padding: 60px 0 30px;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-logo {
+      height: 40px;
+      margin-bottom: 16px;
+    }
+
+    .footer-brand p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+
+    .footer-social a {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e84a7f;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(232, 74, 127, 0.15);
+    }
+
+    .footer-social a:hover {
+      background: #e84a7f;
+      color: white;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.3);
+    }
+
+    .footer-links h4,
+    .footer-contact h4 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #1a1a2e;
+      font-weight: 700;
+    }
+
+    .footer-links a {
+      display: block;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 12px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #e84a7f;
+      transform: translateX(5px);
+    }
+
+    .footer-contact p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-contact i {
+      color: #e84a7f;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(232, 74, 127, 0.2);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .footer-bottom i {
+      color: #e84a7f;
+    }
+  </style>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const header = document.getElementById("mainHeader");
+      let lastScrollY = window.pageYOffset;
+      const SCROLL_DELTA = 5; 
+  
+      window.addEventListener("scroll", function () {
+        const currentY = window.pageYOffset;
+  
+      
+        if (currentY <= 0) {
+          header.classList.remove("hide");
+          header.classList.remove("scrolled");
+          lastScrollY = 0;
+          return;
+        }
+  
+        
+        if (Math.abs(currentY - lastScrollY) < SCROLL_DELTA) return;
+  
+        
+        if (currentY > lastScrollY) {
+          header.classList.add("hide");
+        } else {
+          
+          header.classList.remove("hide");
+        }
+  
+        
+        if (currentY > 20) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+  
+        lastScrollY = currentY;
+      });
+    });
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuBtn.classList.toggle('active');
+        mobileMenu.classList.toggle('open');
+      });
+    }
+
+    // Card Hover Effects
+    document.querySelectorAll('.design-option-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.querySelector('.option-glow').style.opacity = '1';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.querySelector('.option-glow').style.opacity = '0';
+      });
+    });
+
+    // Update cart count
+    fetch('/cart/count')
+      .then(res => res.json())
+      .then(data => {
+        const badge = document.getElementById('cart-count');
+        if (badge && data.count !== undefined) {
+          badge.textContent = data.count;
+          if (data.count === 0) badge.classList.add('hidden');
+        }
+      })
+      .catch(() => { });
+
+    // Animate on scroll
+    const observerOptions = { threshold: 0.2 };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.design-option-card, .design-step').forEach(el => {
+      observer.observe(el);
+    });
+
+
+  </script>
+
+  <!-- 🤖 AI Bot -->
+  {% include 'aiBot.html' %}
 </body>
 
 </html>

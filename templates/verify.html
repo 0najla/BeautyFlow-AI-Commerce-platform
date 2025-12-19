@@ -1,81 +1,1403 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <title>Verify</title>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+      <!--
+    ============================================================================
+    BeautyFlow - OTP Verification Page
+    ============================================================================
+    Secure phone verification with 6-digit OTP input.
+    Features animated background, countdown timer, and auto-focus navigation.
+
+    Author: BeautyFlow Team
+    Version: 1.0.0
+    ============================================================================
+    -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeautyFlow - Verify Code</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ==========================================================================
+       STYLES
+       ========================================================================== -->
+  <style>
+
+    :root {
+      /* Primary Pink Palette */
+      --pink-primary: #ff8fab;
+      --pink-light: #ffc2d1;
+      --pink-dark: #fb6f92;
+      --pink-deep: #e75480;
+      
+      /* Neutral Colors */
+      --cream: #fff5f7;
+      --cream-dark: #ffe5ec;
+      --charcoal: #4a4a4a;
+      --charcoal-light: #6b6b6b;
+      --blush: #ffecf1;
+      --pearl: #fffbfc;
+      
+      /* Status Colors */
+      --success: #10b981;
+      --success-light: #d1fae5;
+    }
+
+
+    /* =========================================================================
+       RESET & BASE
+       ========================================================================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Montserrat', sans-serif;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 50%, #ffb3c6 100%);
+      position: relative;
+    }
+
+
+    /* =========================================================================
+       ANIMATED BACKGROUND
+       ========================================================================= */
+    
+    /* ---------- Background Container ---------- */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* ---------- Floating Orbs ---------- */
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #ff8fab 0%, transparent 70%);
+      top: -200px;
+      left: -200px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #ffc2d1 0%, transparent 70%);
+      bottom: -150px;
+      right: -150px;
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #ffb3c6 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -10s;
+      opacity: 0.3;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(50px, -50px) scale(1.1); }
+      50% { transform: translate(-30px, 30px) scale(0.95); }
+      75% { transform: translate(40px, 40px) scale(1.05); }
+    }
+
+    /* ---------- Sparkle Particles ---------- */
+    .sparkles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      animation: sparkle 3s ease-in-out infinite;
+      box-shadow: 0 0 6px rgba(255, 143, 171, 0.5);
+    }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+
+    /* =========================================================================
+       MAIN CONTAINER
+       ========================================================================= */
+    .verify-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .verify-wrapper {
+      display: flex;
+      width: 100%;
+      max-width: 1000px;
+      min-height: 550px;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 182, 193, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      animation: cardAppear 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    @keyframes cardAppear {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    /* =========================================================================
+       LEFT PANEL - BRANDING
+       ========================================================================= */
+    .brand-panel {
+      flex: 1;
+      background: linear-gradient(160deg, #ff8fab 0%, #fb6f92 100%);
+      padding: 60px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ---------- Background Pattern ---------- */
+    .brand-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+
+    /* ---------- Decorative Circle ---------- */
+    .brand-panel::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      right: -100px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .brand-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ---------- Logo ---------- */
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 50px;
+      animation: slideIn 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .logo-mark {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #ffffff 0%, #fff5f7 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      box-shadow: 0 8px 32px rgba(251, 111, 146, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-mark::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.6) 50%, transparent 60%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: white;
+      letter-spacing: 2px;
+    }
+
+    /* ---------- Headline ---------- */
+    .brand-headline {
+      animation: slideIn 0.8s ease-out 0.4s both;
+    }
+
+    .brand-headline h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 600;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .brand-headline h1 span {
+      color: #fff5f7;
+      text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .brand-headline p {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.8;
+      max-width: 350px;
+    }
+
+    /* ---------- Security Badges ---------- */
+    .security-badges {
+      display: flex;
+      gap: 12px;
+      margin-top: 40px;
+      animation: slideIn 0.8s ease-out 0.6s both;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .badge-icon {
+      font-size: 16px;
+    }
+
+    .badge-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: white;
+    }
+
+    /* ---------- Footer ---------- */
+    .brand-footer {
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 0.8s ease-out 0.8s both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .brand-footer p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+    }
+
+
+    /* =========================================================================
+       RIGHT PANEL - OTP FORM
+       ========================================================================= */
+    .form-panel {
+      flex: 1;
+      background: var(--cream);
+      padding: 60px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .form-panel::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, var(--blush) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(40px);
+    }
+
+    /* ---------- Form Header ---------- */
+    .form-header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: slideUp 0.8s ease-out 0.3s both;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---------- OTP Icon ---------- */
+    .otp-icon-wrapper {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-dark) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 12px 30px rgba(255, 143, 171, 0.4);
+      position: relative;
+    }
+
+    .otp-icon-wrapper::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 3px solid var(--pink-light);
+      animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes ping {
+      75%, 100% {
+        transform: scale(1.4);
+        opacity: 0;
+      }
+    }
+
+    .otp-icon-wrapper svg {
+      width: 40px;
+      height: 40px;
+      color: white;
+    }
+
+    .form-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 12px;
+    }
+
+    .form-header p {
+      color: var(--charcoal-light);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ---------- Phone Display Badge ---------- */
+    .phone-display {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--blush);
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-top: 8px;
+      font-weight: 600;
+      color: var(--pink-dark);
+      font-size: 14px;
+    }
+
+    .phone-display svg {
+      width: 16px;
+      height: 16px;
+    }
+
+
+    /* =========================================================================
+       OTP INPUT BOXES
+       ========================================================================= */
+    .otp-form {
+      animation: slideUp 0.8s ease-out 0.5s both;
+    }
+
+    .otp-input-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .otp-input {
+      width: 56px;
+      height: 68px;
+      text-align: center;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--charcoal);
+      background: var(--pearl);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow:
+        0 4px 12px rgba(255, 143, 171, 0.1),
+        inset 0 2px 4px rgba(0, 0, 0, 0.02);
+      caret-color: var(--pink-primary);
+    }
+
+    .otp-input::placeholder {
+      color: #ddd;
+    }
+
+    .otp-input:hover {
+      background: white;
+      box-shadow: 0 6px 16px rgba(255, 143, 171, 0.15);
+    }
+
+    .otp-input:focus {
+      background: white;
+      border-color: var(--pink-primary);
+      box-shadow:
+        0 8px 24px rgba(255, 143, 171, 0.2),
+        0 0 0 4px rgba(255, 143, 171, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ---------- Input States ---------- */
+    .otp-input.filled {
+      background: white;
+      border-color: var(--pink-light);
+    }
+
+    .otp-input.success {
+      border-color: var(--success);
+      background: var(--success-light);
+    }
+
+    .otp-input.error {
+      border-color: #f87171;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+
+    /* ---------- Hidden Input ---------- */
+    .hidden-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+
+    /* =========================================================================
+       MESSAGE ALERTS
+       ========================================================================= */
+    
+    /* ---------- Error Message ---------- */
+    .error-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border: 1px solid #f87171;
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #dc2626;
+      font-size: 13px;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .error-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .error-message::before {
+      content: '⚠️';
+      font-size: 16px;
+    }
+
+    /* ---------- Success Message ---------- */
+    .success-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border: 1px solid #34d399;
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #065f46;
+      font-size: 13px;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .success-message.show {
+      opacity: 1;
+      transform: translateY(0);
+      animation: successPop 0.5s ease-out;
+    }
+
+    .success-message::before {
+      content: '✅';
+      font-size: 16px;
+    }
+
+    @keyframes successPop {
+      0% { transform: translateY(-10px) scale(0.9); opacity: 0; }
+      50% { transform: translateY(0) scale(1.02); }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+
+    /* =========================================================================
+       VERIFY BUTTON
+       ========================================================================= */
+    .btn-verify {
+      width: 100%;
+      position: relative;
+      padding: 18px 32px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: white;
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-dark) 100%);
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow:
+        0 8px 24px rgba(255, 143, 171, 0.4),
+        0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-verify::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--pink-dark) 0%, var(--pink-deep) 100%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .btn-verify:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow:
+        0 12px 32px rgba(255, 143, 171, 0.5),
+        0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-verify:hover:not(:disabled)::before {
+      opacity: 1;
+    }
+
+    .btn-verify:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-verify span {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* ---------- Ripple Effect ---------- */
+    .btn-verify .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* ---------- Loading State ---------- */
+    .btn-verify.loading span {
+      opacity: 0;
+    }
+
+    .btn-verify .spinner {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      opacity: 0;
+    }
+
+    .btn-verify.loading .spinner {
+      opacity: 1;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+
+    /* =========================================================================
+       RESEND SECTION
+       ========================================================================= */
+    .resend-section {
+      text-align: center;
+      margin-top: 28px;
+      animation: slideUp 0.8s ease-out 0.7s both;
+    }
+
+    .resend-text {
+      font-size: 14px;
+      color: var(--charcoal-light);
+      margin-bottom: 12px;
+    }
+
+    .btn-resend {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pink-primary);
+      background: transparent;
+      border: 2px solid var(--pink-light);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-resend:hover:not(:disabled) {
+      background: var(--blush);
+      border-color: var(--pink-primary);
+      transform: translateY(-2px);
+    }
+
+    .btn-resend:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      color: var(--charcoal-light);
+      border-color: #ddd;
+    }
+
+    .btn-resend svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ---------- Countdown Timer ---------- */
+    .countdown {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--pink-light);
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pink-dark);
+    }
+
+
+    /* =========================================================================
+       BACK LINK
+       ========================================================================= */
+    .back-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--charcoal-light);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: var(--pink-primary);
+    }
+
+    .back-link svg {
+      transition: transform 0.3s ease;
+    }
+
+    .back-link:hover svg {
+      transform: translateX(-4px);
+    }
+
+
+    /* =========================================================================
+       RESPONSIVE DESIGN
+       ========================================================================= */
+    
+    /* ---------- Tablet (max-width: 900px) ---------- */
+    @media (max-width: 900px) {
+      .verify-wrapper {
+        flex-direction: column;
+        max-width: 500px;
+        min-height: auto;
+      }
+
+      .brand-panel {
+        padding: 40px 30px;
+        min-height: auto;
+      }
+
+      .brand-headline h1 {
+        font-size: 32px;
+      }
+
+      .security-badges {
+        flex-wrap: wrap;
+      }
+
+      .form-panel {
+        padding: 40px 30px;
+      }
+
+      .otp-input {
+        width: 48px;
+        height: 58px;
+        font-size: 24px;
+      }
+    }
+
+    /* ---------- Mobile (max-width: 480px) ---------- */
+    @media (max-width: 480px) {
+      .verify-container {
+        padding: 16px;
+      }
+
+      .verify-wrapper {
+        border-radius: 24px;
+      }
+
+      .brand-panel {
+        padding: 30px 24px;
+      }
+
+      .logo-mark {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+      }
+
+      .brand-headline h1 {
+        font-size: 26px;
+      }
+
+      .security-badges {
+        display: none;
+      }
+
+      .form-panel {
+        padding: 30px 24px;
+      }
+
+      .form-header h2 {
+        font-size: 26px;
+      }
+
+      .otp-icon-wrapper {
+        width: 70px;
+        height: 70px;
+      }
+
+      .otp-input-container {
+        gap: 8px;
+      }
+
+      .otp-input {
+        width: 44px;
+        height: 54px;
+        font-size: 22px;
+        border-radius: 12px;
+      }
+
+      .btn-verify {
+        padding: 16px 24px;
+      }
+    }
+  </style>
 </head>
 
-<body class="login-page phone-page">
-  <main class="login-card phone-card" style="max-width:560px">
-    <h1 class="title">Enter Verification Code</h1>
-    <p class="subtitle" style="color:#8b8b8b;margin-top:-6px;">
-      We sent a 6-digit code to <strong>{{ phone_mask }}</strong>
-    </p>
-
-    <form id="verifyForm" action="{{ url_for('verify_submit') }}" method="post" novalidate>
-
-
-      <!-- إذا ما أعفيتِ الراوت من CSRF، ضيفي: -->
-      <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
-      <div class="phone-input" style="background:#f2f3f5;">
-        <input id="code" name="code" type="text" inputmode="numeric" placeholder="Enter OTP code"
-          style="letter-spacing:3px; text-align:center; font-weight:500; font-size:20px;">
-      </div>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-  <div id="errorMessage" style="display:block;">
-    {% for category, message in messages %}
-      {% if category == 'error' %}
-        <p style="
-          color: #eb3838;
-          font-size: 14px;
-          text-align: center;
-          margin-top: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 8px;
-          padding: 6px 10px;
-        ">{{ message }}</p>
-      {% endif %}
-    {% endfor %}
+<body>
+  <!-- ==========================================================================
+       ANIMATED BACKGROUND
+       ========================================================================== -->
+  <div class="bg-animation">
+    <!-- Floating Orbs -->
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+    
+    <!-- Sparkle Particles Container -->
+    <div class="sparkles" id="sparkles"></div>
   </div>
-{% endif %}
-{% endwith %}
 
-      <button type="submit" class="btn btn-primary" id="verifyBtn">Verify</button>
+  <!-- ==========================================================================
+       MAIN CONTAINER
+       ========================================================================== -->
+  <div class="verify-container">
+    <div class="verify-wrapper">
+      
+      <!-- ==================== Left Panel - Branding ==================== -->
+      <div class="brand-panel">
+        <div class="brand-content">
+          
+          <!-- Logo -->
+          <div class="brand-logo">
+            <div class="logo-mark">BF</div>
+            <div class="logo-text">BeautyFlow</div>
+          </div>
 
-    </form>
+          <!-- Headline -->
+          <div class="brand-headline">
+            <h1>Almost<br><span>There!</span></h1>
+            <p>Just one more step to secure your account. Enter the verification code we sent to your phone</p>
+          </div>
 
-    <form action="{{ url_for('resend_otp') }}" method="post" style="margin-top:10px; text-align:center;">
-      <button type="submit" class="btn btn-outline" id="resendBtn" disabled>Resend code (30s)</button>
-    </form>
+          <!-- Security Badges -->
+          <div class="security-badges">
+            <div class="badge">
+              <span class="badge-icon">🔐</span>
+              <span class="badge-text">Secure</span>
+            </div>
+            <div class="badge">
+              <span class="badge-icon">⚡</span>
+              <span class="badge-text">Quick</span>
+            </div>
+            <div class="badge">
+              <span class="badge-icon">✨</span>
+              <span class="badge-text">Easy</span>
+            </div>
+          </div>
+          
+        </div>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <div style="margin-top:12px; color:#fff;">{{ messages[-1] }}</div>
-    {% endif %}
-    {% endwith %}
-  </main>
+        <!-- Footer -->
+        <div class="brand-footer">
+          <p>© 2025 BeautyFlow • BeautyFlow Project</p>
+        </div>
+      </div>
 
+      <!-- ==================== Right Panel - OTP Form ==================== -->
+      <div class="form-panel">
+        
+        <!-- Form Header -->
+        <div class="form-header">
+          <div class="otp-icon-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+          </div>
+          <h2>Enter Verification Code</h2>
+          <p>We sent a 6-digit code to</p>
+          <div class="phone-display">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            {{ phone_mask }}
+          </div>
+        </div>
 
+        <!-- OTP Form -->
+        <form class="otp-form" id="verifyForm" action="{{ url_for('verify_submit') }}" method="post" novalidate>
+          
+          <!-- Hidden Input for Combined Code -->
+          <input type="hidden" name="code" id="codeHidden">
+
+          <!-- OTP Input Boxes -->
+          <div class="otp-input-container" id="otpContainer">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="0" autocomplete="one-time-code">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="1">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="2">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="3">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="4">
+            <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="5">
+          </div>
+
+          <!-- Server Error Messages (Flask) -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                {% if category == 'error' %}
+                  <div class="error-message show" id="errorMessage">{{ message }}</div>
+                {% elif category == 'success' %}
+                  <div class="success-message show" id="successMessage">{{ message }}</div>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+          
+          <!-- Client-side Error Message -->
+          <div class="error-message" id="clientError"></div>
+          
+          <!-- Client-side Success Message (for AJAX resend) -->
+          <div class="success-message" id="resendSuccess"></div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-verify" id="verifyBtn" disabled>
+            <span>
+              Verify Code
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4" />
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+            </span>
+            <div class="spinner"></div>
+          </button>
+          
+        </form>
+
+        <!-- Resend Section -->
+        <div class="resend-section">
+          <p class="resend-text">Didn't receive the code?</p>
+          <button type="button" class="btn-resend" id="resendBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 4v6h-6" />
+              <path d="M1 20v-6h6" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+            Resend Code
+            <span class="countdown" id="countdown">30</span>
+          </button>
+        </div>
+
+        <!-- Back Link -->
+        <a href="{{ url_for('phone_login') }}" class="back-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          Change Phone Number
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT
+       ========================================================================== -->
   <script>
-    // احذف أي مسافات قبل الإرسال (لو كتبتي 2 2 2 2 2 2)
-    const form = document.getElementById('verifyForm');
-    const code = document.getElementById('code');
-    form.addEventListener('submit', () => {
-      code.value = (code.value || '').replace(/\s+/g, '');
+    /**
+     * ========================================================================
+     * BeautyFlow - OTP Verification Controller
+     * ========================================================================
+     * Handles OTP input navigation, validation, and form submission.
+     * 
+     * Features:
+     * - Auto-focus navigation between inputs
+     * - Paste support for full OTP code
+     * - Countdown timer for resend
+     * - Loading states and animations
+     * ========================================================================
+     */
+
+    // =========================================================================
+    // SPARKLE PARTICLES GENERATOR
+    // =========================================================================
+    
+    /**
+     * Create animated sparkle particles in background
+     */
+    function createSparkles() {
+      const container = document.getElementById('sparkles');
+      if (!container) return;
+
+      for (let i = 0; i < 50; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        sparkle.style.left = Math.random() * 100 + '%';
+        sparkle.style.top = Math.random() * 100 + '%';
+        sparkle.style.animationDelay = Math.random() * 3 + 's';
+        sparkle.style.animationDuration = (2 + Math.random() * 2) + 's';
+        container.appendChild(sparkle);
+      }
+    }
+
+    createSparkles();
+
+
+    // =========================================================================
+    // DOM ELEMENTS
+    // =========================================================================
+    
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const codeHidden = document.getElementById('codeHidden');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const verifyForm = document.getElementById('verifyForm');
+    const clientError = document.getElementById('clientError');
+    const resendSuccess = document.getElementById('resendSuccess');
+
+
+    // =========================================================================
+    // AUTO-FOCUS ON LOAD
+    // =========================================================================
+    
+    window.addEventListener('load', () => {
+      setTimeout(() => otpInputs[0].focus(), 1200);
     });
 
-    // عدّاد زر إعادة الإرسال (اختياري)
+
+    // =========================================================================
+    // UPDATE HIDDEN CODE
+    // =========================================================================
+    
+    /**
+     * Combine all OTP inputs into hidden field and toggle button state
+     */
+    function updateHiddenCode() {
+      let code = '';
+      otpInputs.forEach(input => {
+        code += input.value;
+      });
+      codeHidden.value = code;
+
+      // Enable/disable verify button based on code length
+      verifyBtn.disabled = code.length !== 6;
+    }
+
+
+    // =========================================================================
+    // OTP INPUT HANDLERS
+    // =========================================================================
+    
+    otpInputs.forEach((input, index) => {
+      
+      // ---------- Input Event (Number Only) ----------
+      input.addEventListener('input', function(e) {
+        let value = this.value.replace(/\D/g, '');
+
+        if (value.length > 1) {
+          // Handle paste of multiple digits
+          const chars = value.split('');
+          chars.forEach((char, i) => {
+            if (otpInputs[index + i]) {
+              otpInputs[index + i].value = char;
+              otpInputs[index + i].classList.add('filled');
+            }
+          });
+          const nextIndex = Math.min(index + chars.length, 5);
+          otpInputs[nextIndex].focus();
+        } else {
+          this.value = value;
+          if (value) {
+            this.classList.add('filled');
+            // Move to next input
+            if (index < 5) {
+              otpInputs[index + 1].focus();
+            }
+          } else {
+            this.classList.remove('filled');
+          }
+        }
+
+        updateHiddenCode();
+
+        // Hide messages when typing
+        clientError.classList.remove('show');
+        resendSuccess.classList.remove('show');
+      });
+
+      // ---------- Keydown Event (Backspace & Arrows) ----------
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace') {
+          if (!this.value && index > 0) {
+            otpInputs[index - 1].focus();
+            otpInputs[index - 1].value = '';
+            otpInputs[index - 1].classList.remove('filled');
+          } else {
+            this.classList.remove('filled');
+          }
+          updateHiddenCode();
+        }
+
+        // Arrow key navigation
+        if (e.key === 'ArrowLeft' && index > 0) {
+          otpInputs[index - 1].focus();
+        }
+        if (e.key === 'ArrowRight' && index < 5) {
+          otpInputs[index + 1].focus();
+        }
+      });
+
+      // ---------- Paste Event ----------
+      input.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const digits = paste.replace(/\D/g, '').slice(0, 6);
+
+        digits.split('').forEach((digit, i) => {
+          if (otpInputs[i]) {
+            otpInputs[i].value = digit;
+            otpInputs[i].classList.add('filled');
+          }
+        });
+
+        if (digits.length > 0) {
+          const focusIndex = Math.min(digits.length, 5);
+          otpInputs[focusIndex].focus();
+        }
+
+        updateHiddenCode();
+      });
+
+      // ---------- Focus Event (Select All) ----------
+      input.addEventListener('focus', function() {
+        this.select();
+      });
+    });
+
+
+    // =========================================================================
+    // FORM SUBMISSION
+    // =========================================================================
+    
+    verifyForm.addEventListener('submit', function(e) {
+      const code = codeHidden.value;
+
+      if (code.length !== 6) {
+        e.preventDefault();
+        clientError.textContent = 'Please enter all 6 digits';
+        clientError.classList.add('show');
+        
+        // Shake animation on inputs
+        otpInputs.forEach(input => input.classList.add('error'));
+        setTimeout(() => {
+          otpInputs.forEach(input => input.classList.remove('error'));
+        }, 500);
+        return;
+      }
+
+      // Show loading state
+      verifyBtn.classList.add('loading');
+    });
+
+
+    // =========================================================================
+    // RIPPLE EFFECT ON BUTTON
+    // =========================================================================
+    
+    verifyBtn.addEventListener('click', function(e) {
+      if (this.disabled) return;
+
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+
+      this.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+
+
+    // =========================================================================
+    // RESEND COUNTDOWN TIMER
+    // =========================================================================
+    
     const resendBtn = document.getElementById('resendBtn');
-    let t = 30;
-    (function tick() {
-      if (t <= 0) { resendBtn.disabled = false; resendBtn.textContent = 'Resend code'; return; }
-      resendBtn.textContent = `Resend code (${t--}s)`;
-      setTimeout(tick, 1000);
-    })();
+    const countdown = document.getElementById('countdown');
+    let timeLeft = 30;
+
+    /**
+     * Update countdown timer and enable button when finished
+     */
+    function updateCountdown() {
+      if (timeLeft <= 0) {
+        resendBtn.disabled = false;
+        countdown.style.display = 'none';
+        return;
+      }
+
+      countdown.textContent = timeLeft;
+      timeLeft--;
+      setTimeout(updateCountdown, 1000);
+    }
+
+    updateCountdown();
+
+
+    // =========================================================================
+    // RESEND OTP HANDLER (AJAX)
+    // =========================================================================
+    
+    resendBtn.addEventListener('click', function() {
+      if (this.disabled) return;
+      
+      // Disable button and show loading
+      this.disabled = true;
+      const originalHTML = this.innerHTML;
+      this.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 0.8s linear infinite;">
+          <path d="M23 4v6h-6" />
+          <path d="M1 20v-6h6" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+        Sending...
+      `;
+      
+      // Send AJAX request to resend OTP
+      fetch('{{ url_for("resend_otp") }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Show success message
+        resendSuccess.textContent = 'Code resent successfully! Check your phone.';
+        resendSuccess.classList.add('show');
+        
+        // Hide error message if visible
+        clientError.classList.remove('show');
+        
+        // Clear OTP inputs
+        otpInputs.forEach(input => {
+          input.value = '';
+          input.classList.remove('filled', 'error');
+        });
+        otpInputs[0].focus();
+        
+        // Reset countdown
+        timeLeft = 30;
+        countdown.style.display = 'inline-flex';
+        this.innerHTML = originalHTML;
+        updateCountdown();
+        
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => {
+          resendSuccess.classList.remove('show');
+        }, 5000);
+      })
+      .catch(error => {
+        // Show error
+        clientError.textContent = 'Failed to resend code. Please try again.';
+        clientError.classList.add('show');
+        
+        // Re-enable button
+        this.disabled = false;
+        this.innerHTML = originalHTML;
+      });
+    });
+
+
+    // =========================================================================
+    // AUTO-SUBMIT (OPTIONAL)
+    // =========================================================================
+    
+    /**
+     * Optionally auto-submit form when 6 digits entered
+     */
+    function checkAutoSubmit() {
+      const code = codeHidden.value;
+      if (code.length === 6) {
+        // Uncomment to enable auto-submit:
+        // verifyForm.submit();
+      }
+    }
   </script>
 </body>
 

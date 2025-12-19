@@ -1,159 +1,3012 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
+    <!-- ====================================================================
+       BeautyFlow - AI Custom Packaging Page
+       ====================================================================
+       AI-powered packaging design wizard with image generation, comparison,
+       favorites management, and design history sidebar.
+
+       Author: BeautyFlow Team
+       Version: 1.0.0
+       ==================================================================== -->
   <meta charset="UTF-8" />
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BeautyFlow - AI Chat</title>
+  <title>AI Custom Packaging - BeautyFlow</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
-
-</head>
-
-<body class="AI-page">
-  <header class="site-header">
-    <div class="logo"></div>
-    <nav class="site-nav">
-      <a href="{{ url_for('home_index') }}">Home</a>
-      <a href="{{ url_for('about_page') }}">About</a>
-      <a href="{{ url_for('help_page') }}">Help</a>
-      <a href="{{ url_for('account_page') }}">Account</a>
-    </nav>
-    </nav>
-  </header>
-
-  <section class="hero--ribbon">
-    <h1>AI-Custom Packaging</h1>
-    <p id="intro-text">
-      Describe it. See it. Approve it.<br />
-      Tell us how your packaging should look, and our AI will create a visual preview.
-    </p>
-  </section>
-
-  <main class="chat-box">
-    <div class="messages" id="chat-messages"></div>
-
-    <!-- لاحظ: id = chat-form -->
-    <form id="chat-form" class="chat-input" autocomplete="off">
-      <input type="text" id="user-input" placeholder="Type start" />
-      <button id="send-btn" type="submit">➤</button>
-    </form>
-  </main>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    .AI-page .hero--ribbon {
+    /* ========== Base ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fdf8fa;
+      min-height: 100vh;
+      direction: ltr;
+    }
+
+    ر
+
+    /* ========== Hero ========== */
+    .ai-hero {
+      padding: 140px 24px 80px;
       text-align: center;
-      padding: 100px 20px;
-      background: url("images/ribbon.svg") no-repeat center;
-      background-size: 100% auto;
-    }
-
-
-    .AI-page .chat-box {
-      max-width: 600px;
-      margin: 0 auto 30px;
-      /* صفر من فوق، 30 من تحت */
-      padding: 20px;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
       position: relative;
-      top: -40px;
-      /* ترفعها فوق 40 بكسل */
+      overflow: hidden;
     }
 
+    .ai-hero-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
 
-    /* الرسائل */
-    .AI-page .messages {
-      border: 1px solid #eee;
-      border-radius: 12px;
-      min-height: 120px;
-      padding: 15px;
-      margin-bottom: 15px;
-      background: #fff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    .hero-shape {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .shape-1 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, rgba(232, 74, 127, 0.2), rgba(255, 212, 224, 0.3));
+      top: -100px;
+      left: -50px;
+    }
+
+    .shape-2 {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(135deg, rgba(168, 139, 219, 0.3), rgba(255, 212, 224, 0.3));
+      bottom: -50px;
+      right: 10%;
+      animation-delay: -2s;
+    }
+
+    .shape-3 {
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(135deg, rgba(255, 184, 108, 0.2), rgba(255, 212, 224, 0.3));
+      top: 40%;
+      right: 5%;
+      animation-delay: -4s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .ai-hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #e84a7f;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(232, 74, 127, 0.15);
+    }
+
+    .ai-hero-content h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+    }
+
+    .ai-hero-content p {
+      font-size: 16px;
+      color: #6b7280;
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ========== Main ========== */
+    .ai-main {
+      margin-top: -40px;
+      position: relative;
+      z-index: 10;
+      padding-bottom: 80px;
+    }
+
+    .ai-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+    }
+
+    /* ========== History Toggle Button ========== */
+    .history-toggle {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      color: white;
+      padding: 14px 18px;
+      border-radius: 16px 0 0 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(232, 74, 127, 0.3);
+      transition: all 0.3s ease;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+    }
+
+    .history-toggle:hover {
+      padding-left: 28px;
+      box-shadow: 0 6px 25px rgba(232, 74, 127, 0.4);
+    }
+
+    /* ========== Sidebar ========== */
+    .ai-sidebar {
+      position: fixed;
+      right: -360px;
+      top: 0;
+      width: 340px;
+      height: 100vh;
+      background: white;
+      box-shadow: -5px 0 30px rgba(0,0,0,0.15);
+      transition: right 0.3s ease;
+      z-index: 1001;
       overflow-y: auto;
     }
 
-    .AI-page .messages:empty {
-      display: none;
-      /* يخفي الصندوق إذا فاضي */
+    .ai-sidebar.open {
+      right: 0;
     }
 
-    .AI-page .chat-input {
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      width: 95%;
-      max-width: 650px;
-      margin: 30px auto;
-      background-color: #ffffff;
-      /* أبيض */
-      border-radius: 25px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-      padding: 5px 5px;
-      /* الطول متناسق وجميل */
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
-    .AI-page .chat-input input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      outline: none;
-      font-size: 17px;
-      color: #333;
-      padding: 12px 10px;
-      /* ارتفاع بسيط ومرتب */
-    }
-
-    .AI-page .chat-input button {
-      border: none;
-      background-color: #f7c9d4;
-      /* وردي جميل */
-      color: white;
+    .sidebar-header h3 {
+      margin: 0;
       font-size: 18px;
-      width: 38px;
-      height: 38px;
+      font-weight: 700;
+      color: #1a1a2e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-header h3 i {
+      color: #e84a7f;
+    }
+
+    .sidebar-close {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-close:hover {
+      background: #e84a7f;
+      color: white;
+      transform: rotate(90deg);
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 2px solid #f3f4f6;
+      background: white;
+      position: sticky;
+      top: 76px;
+      z-index: 9;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      color: #9ca3af;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      color: #e84a7f;
+      border-bottom: 3px solid #e84a7f;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: #f9fafb;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9ca3af;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #fda4af;
+    }
+
+    .empty-state p {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #6b7280;
+    }
+
+    .empty-state span {
+      font-size: 13px;
+    }
+
+
+
+/* ===== Sidebar Item - Layout ===== */
+.sidebar-item {
+  background: white;
+  border: 2px solid #f3f4f6;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+
+}
+
+.sidebar-item:hover {
+  border-color: #e84a7f;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(232, 74, 127, 0.15);
+}
+
+
+.sidebar-item img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+
+.sidebar-item-name {
+  font-weight: 600;
+  color: #1a1a2e;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+
+.sidebar-item-info {
+  font-size: 0.85rem;
+  color: #e84a7f;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+
+.sidebar-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sidebar-item-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.sidebar-item-btn:hover {
+  background: #fce7f3;
+  color: #e84a7f;
+}
+
+
+.sidebar-item-btn.load-design {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.sidebar-item-btn.load-design:hover {
+  background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+  color: white;
+}
+
+
+.sidebar-item-btn.favorite {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.sidebar-item-btn.favorite:hover {
+  background: #e84a7f;
+  color: white;
+}
+
+
+.sidebar-item-btn.remove-favorite {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.sidebar-item-btn.remove-favorite:hover {
+  background: #ef4444;
+  color: white;
+}
+    /* ========== Chat Area ========== */
+    .ai-chat-area {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 15px 50px rgba(232, 74, 127, 0.1);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ========== Progress ========== */
+    .progress-container {
+      margin-bottom: 30px;
+      padding: 24px;
+      background: linear-gradient(135deg, #fce7f3, #fdf2f8);
+      border-radius: 16px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      font-weight: 600;
+      color: #1a1a2e;
+      font-size: 14px;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: white;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #e84a7f, #ff6b9d);
+      width: 0%;
+      transition: width 0.5s ease;
+      border-radius: 999px;
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      direction: ltr;
+    }
+
+    .step {
+      flex: 1;
+      height: 44px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #9ca3af;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .step.active {
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(232, 74, 127, 0.3);
+    }
+
+    .step.completed {
+      background: #fce7f3;
+      color: #e84a7f;
+    }
+
+    /* ========== Chat Messages ========== */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 0;
+      min-height: 400px;
+      max-height: 550px;
+    }
+
+    .msg {
+      margin-bottom: 20px;
+      animation: fadeIn 0.3s ease;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user {
+      justify-content: flex-end;
+    }
+
+    .msg.bot {
+      justify-content: flex-start;
+    }
+
+    .msg-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .msg.user .msg-avatar {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      order: 2;
+      margin-left: 12px;
+    }
+
+    .msg.bot .msg-avatar {
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      color: white;
+      margin-right: 12px;
+    }
+
+    .msg-bubble {
+      max-width: 70%;
+      padding: 16px 20px;
+      border-radius: 16px;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-bottom-right-radius: 6px;
+    }
+
+    .msg.bot .msg-bubble {
+      background: #fce7f3;
+      color: #1a1a2e;
+      border-bottom-left-radius: 6px;
+    }
+
+    /* Typing */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 20px;
+      background: #fce7f3;
+      border-radius: 16px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 10px;
+      height: 10px;
+      background: #e84a7f;
+      border-radius: 50%;
+      animation: typingBounce 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-10px); }
+    }
+
+    /* Wizard Options */
+    .wizard-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .wizard-btn {
+      padding: 20px 16px;
+      background: white;
+      border: 2px solid #fce7f3;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wizard-btn:hover {
+      background: #fce7f3;
+      border-color: #e84a7f;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.15);
+    }
+
+    .wizard-btn.selected {
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      border-color: #e84a7f;
+      color: white;
+      transform: scale(1.03);
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.3);
+    }
+
+    .wizard-btn i {
+      font-size: 28px;
+    }
+
+    /* Header Hide on Scroll */
+    .main-header.hide {
+     transform: translateY(-120%);
+        }
+
+    .wizard-start-btn {
+      padding: 18px 50px;
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.3);
+      margin-top: 24px;
+    }
+
+    .wizard-start-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 35px rgba(232, 74, 127, 0.4);
+    }
+
+    /* Product Result */
+    .product-result {
+      margin-top: 30px;
+      padding: 28px;
+      background: linear-gradient(135deg, #fce7f3, #fdf2f8);
+      border-radius: 24px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .product-image-container {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .product-image {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .product-image:hover {
+      transform: scale(1.02);
+    }
+
+    .image-zoom-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(232, 74, 127, 0.9);
+      color: white;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-      transition: 0.25s ease;
+      transition: all 0.3s ease;
+      opacity: 0;
+      font-size: 18px;
     }
 
-    .AI-page .chat-input button:hover {
-      background-color: #f9afbb;
-      transform: scale(1.05);
+    .product-image-container:hover .image-zoom-icon {
+      opacity: 1;
     }
 
-
-
-
-    /* تلوين الرسائل */
-    .msg.user {
-      text-align: right;
-      color: #444;
-      margin: 5px 0;
+    .product-info {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      margin-bottom: 20px;
     }
 
-    .msg.bot {
-      text-align: left;
-      color: #e956a7a7;
+    .product-info h3 {
+      margin: 0 0 16px 0;
+      color: #1a1a2e;
+      font-size: 22px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .product-specs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .spec-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #f9fafb;
+      border-radius: 12px;
+    }
+
+    .spec-item i {
+      color: #e84a7f;
+      font-size: 16px;
+    }
+
+    .spec-label {
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-right: 4px;
+    }
+
+    .spec-value {
+      color: #6b7280;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      flex: 1;
+      min-width: 160px;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      color: white;
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.3);
+    }
+
+    .action-btn.primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(232, 74, 127, 0.4);
+    }
+
+    .action-btn.secondary {
+      background: white;
+      color: #e84a7f;
+      border: 2px solid #e84a7f;
+    }
+
+    .action-btn.secondary:hover {
+      background: #fce7f3;
+    }
+
+    .action-btn.outline {
+      background: transparent;
+      color: #4b5563;
+      border: 2px solid #e5e7eb;
+    }
+
+    .action-btn.outline:hover {
+      border-color: #e84a7f;
+      color: #e84a7f;
+    }
+
+    /* Chat Nav */
+    .chat-nav {
+      display: flex;
+      gap: 14px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 2px solid #f3f4f6;
+    }
+
+    .nav-btn {
+      padding: 12px 24px;
+      border: 2px solid #e5e7eb;
+      background: white;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      color: #4b5563;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .nav-btn:hover {
+      border-color: #e84a7f;
+      color: #e84a7f;
+    }
+
+    .btn-back {
+      flex: 1;
+    }
+
+    .btn-restart:hover {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    /* Chat Input */
+    .chat-input-form {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 2px solid #f3f4f6;
+    }
+
+    .chat-input-form input {
+      flex: 1;
+      padding: 16px 24px;
+      border: 2px solid #fce7f3;
+      border-radius: 999px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .chat-input-form input:focus {
+      border-color: #e84a7f;
+      box-shadow: 0 0 0 4px rgba(232, 74, 127, 0.1);
+    }
+
+    .chat-input-form button {
+      width: 54px;
+      height: 54px;
+      border: none;
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      color: white;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 6px 20px rgba(232, 74, 127, 0.3);
+    }
+
+    .chat-input-form button:hover {
+      transform: scale(1.1);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #1a1a2e;
+      color: white;
+      padding: 16px 28px;
+      border-radius: 999px;
+      font-size: 14px;
       font-weight: 500;
-      margin: 5px 0;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      transform: translateX(400px);
+      opacity: 0;
+      transition: all 0.4s ease;
+      z-index: 10000;
     }
 
-     .msg.ai {
-      text-align: left;
-      color: #e956a7a7;
-      font-weight: 500;
-      margin: 5px 0;
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    /* Loading */
+    .loading-animation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 50px;
+    }
+
+    .loading-heart {
+      font-size: 64px;
+      animation: heartBeat 1.2s infinite;
+    }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.2); }
+      50% { transform: scale(1); }
+    }
+
+    .loading-text {
+      font-size: 18px;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    /* Modals */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 24px;
+      max-width: 90%;
+      max-height: 90%;
+      overflow: auto;
+      position: relative;
+    }
+
+    .modal-large {
+      width: 1100px;
+    }
+
+    .modal-image {
+      background: transparent;
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 2px solid #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: #1a1a2e;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-header h2 i {
+      color: #e84a7f;
+    }
+
+    .modal-close {
+      background: #f3f4f6;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      color: #4b5563;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: #e84a7f;
+      color: white;
+    }
+
+    .modal-body {
+      padding: 30px;
+    }
+
+    .compare-container {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .compare-item {
+      text-align: center;
+    }
+
+    .compare-item h3 {
+      margin-bottom: 20px;
+      color: #1a1a2e;
+    }
+
+    .compare-item img {
+      width: 100%;
+      max-width: 380px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .compare-divider {
+      width: 60px;
+      height: 60px;
+      background: #fce7f3;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #e84a7f;
+    }
+
+    .btn-compare-select {
+      padding: 14px 36px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-compare-select:hover {
+      transform: translateY(-3px);
+    }
+
+    #zoom-img {
+      width: 100%;
+      max-width: 900px;
+      height: auto;
+      border-radius: 16px;
+    }
+
+    .zoom-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .zoom-btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 999px;
+      background: white;
+      color: #e84a7f;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .zoom-btn:hover {
+      background: #e84a7f;
+      color: white;
+    }
+
+    /* Footer */
+    .main-footer {
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+      color: #1a1a2e;
+      padding: 60px 0 30px;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-logo {
+      height: 40px;
+      margin-bottom: 16px;
+    }
+
+    .footer-brand p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+
+    .footer-social a {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e84a7f;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(232, 74, 127, 0.15);
+    }
+
+    .footer-social a:hover {
+      background: #e84a7f;
+      color: white;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.3);
+    }
+
+    .footer-links h4,
+    .footer-contact h4 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #1a1a2e;
+      font-weight: 700;
+    }
+
+    .footer-links a {
+      display: block;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 12px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #e84a7f;
+      transform: translateX(5px);
+    }
+
+    .footer-contact p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-contact i {
+      color: #e84a7f;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(232, 74, 127, 0.2);
+      padding-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .footer-bottom i {
+      color: #e84a7f;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-nav {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .ai-hero-content h1 {
+        font-size: 28px;
+      }
+
+      .ai-sidebar {
+        width: 100%;
+        right: -100%;
+      }
+
+      .wizard-options {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .product-actions {
+        flex-direction: column;
+      }
+
+      .compare-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .compare-divider {
+        margin: 0 auto;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .footer-social {
+        justify-content: center;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+
+
+/* ===== Product Name Wrapper ===== */
+.product-name-wrapper {
+  margin-bottom: 15px;
 }
+
+.product-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.product-icon {
+  font-size: 1.2rem;
+}
+
+.product-name-text {
+  flex: 1;
+  font-weight: 600;
+}
+
+
+.inline-edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.inline-edit-btn:hover {
+  opacity: 1;
+  background: rgba(233, 30, 99, 0.1);
+  transform: scale(1.1);
+}
+
+/* ===== Inline Edit Mode ===== */
+.inline-edit-mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: linear-gradient(135deg, #fff5f8, #fff);
+  border-radius: 12px;
+  border: 2px solid #f8bbd9;
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.1);
+}
+
+.inline-name-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid #f48fb1;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.inline-name-input:focus {
+  border-color: #e91e63;
+  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.15);
+}
+
+.inline-save-btn,
+.inline-cancel-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inline-save-btn {
+  background: linear-gradient(135deg, #4caf50, #66bb6a);
+  color: white;
+}
+
+.inline-save-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+}
+
+.inline-cancel-btn {
+  background: linear-gradient(135deg, #ef5350, #e57373);
+  color: white;
+}
+
+.inline-cancel-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(239, 83, 80, 0.4);
+}
+
+
+.product-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.product-actions .action-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.product-actions .action-btn.primary {
+  background: linear-gradient(135deg, #e91e63, #f48fb1);
+  color: white;
+}
+
+.product-actions .action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4);
+}
+
+.product-actions .action-btn.secondary {
+  background: linear-gradient(135deg, #9c27b0, #ba68c8);
+  color: white;
+}
+
+.product-actions .action-btn.secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
+}
+
+.product-actions .action-btn.outline {
+  background: white;
+  border: 2px solid #e91e63;
+  color: #e91e63;
+}
+
+.product-actions .action-btn.outline:hover {
+  background: #fce4ec;
+  transform: translateY(-2px);
+}
+
+.product-actions .action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+/* ===== Price Highlight ===== */
+.spec-item.highlight-price {
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
+.spec-item.highlight-price .price-value {
+  font-weight: 700;
+  color: #e65100;
+  font-size: 1.1rem;
+}
+
+/* ===== Empty State ===== */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}
+
+.empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* ===== Toast Notification ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #333, #555);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 9999;
+  animation: slideIn 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ✅ Price - متوافق مع SmartPicks */
+.sp-product-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e84a7f;
+  margin: 16px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sp-product-price .price-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+} 
+
   </style>
+</head>
 
- 
+<body>
 
+  <!-- ========== HEADER ========== -->
+  <header class="main-header" id="mainHeader">
+    <div class="header-container">
+      <a href="{{ url_for('home_index') }}" class="header-logo">
+        <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow">
+      </a>
+      
+      <nav class="header-nav">
+        <a href="{{ url_for('home_index') }}" class="nav-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="{{ url_for('design_options') }}" class="nav-link">
+          <i class="fas fa-magic"></i>
+          <span>Design</span>
+        </a>
+        <a href="{{ url_for('about_page') }}" class="nav-link">
+          <i class="fas fa-info-circle"></i>
+          <span>About</span>
+        </a>
+        <a href="{{ url_for('help_page') }}" class="nav-link">
+          <i class="fas fa-question-circle"></i>
+          <span>Help</span>
+        </a>
+      </nav>
+      
+      <div class="header-actions">
+        <a href="/cart" class="cart-btn">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge" id="cart-count">{% if cart_count > 0 %}{{ cart_count }}{% else %}0{% endif %}</span>
+        </a>
+        <a href="{{ url_for('account_page') }}" class="account-btn">
+          <i class="fas fa-user"></i>
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="{{ url_for('home_index') }}"><i class="fas fa-home"></i> Home</a>
+      <a href="{{ url_for('design_options') }}"><i class="fas fa-magic"></i> Design</a>
+      <a href="{{ url_for('about_page') }}"><i class="fas fa-info-circle"></i> About</a>
+      <a href="{{ url_for('help_page') }}"><i class="fas fa-question-circle"></i> Help</a>
+      <a href="/cart"><i class="fas fa-shopping-bag"></i> Cart</a>
+      <a href="{{ url_for('account_page') }}"><i class="fas fa-user"></i> Account</a>
+    </div>
+  </header>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <!-- ========== HERO SECTION ========== -->
+  <section class="ai-hero">
+    <div class="ai-hero-bg">
+      <div class="hero-shape shape-1"></div>
+      <div class="hero-shape shape-2"></div>
+      <div class="hero-shape shape-3"></div>
+    </div>
+    <div class="ai-hero-content">
+      <div class="hero-badge">
+        <i class="fas fa-robot"></i>
+        <span>AI-Powered</span>
+      </div>
+      <h1>Custom Packaging Design</h1>
+      <p>Describe it. See it. Approve it.<br>Tell us how your packaging should look, and our AI will create it.</p>
+    </div>
+  </section>
+
+  <br>
+  <br>
+  <br>
+  <br>
+
+  <!-- ========== History Toggle Button ========== -->
+  <button class="history-toggle" id="historyToggle">
+    <i class="fas fa-history"></i>
+    <span>History</span>
+  </button>
+
+  <!-- ========== Sidebar Overlay ========== -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== Sidebar ========== -->
+  <aside class="ai-sidebar" id="aiSidebar">
+    <div class="sidebar-header">
+      <h3><i class="fas fa-palette"></i> Your Designs</h3>
+      <button class="sidebar-close" id="sidebarClose">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-tabs">
+      <button class="tab-btn active" data-tab="favorites">
+        <i class="fas fa-heart"></i> Favorites
+      </button>
+      <button class="tab-btn" data-tab="history">
+        <i class="fas fa-clock"></i> History
+      </button>
+    </div>
+
+    <div class="tab-content active" id="favorites-tab">
+      <div class="empty-state">
+        <i class="fas fa-heart"></i>
+        <p>No favorites yet</p>
+        <span>Save designs you love</span>
+      </div>
+    </div>
+
+    <div class="tab-content" id="history-tab">
+      <div class="sidebar-items" id="history-items">
+        <div class="empty-state">
+          <i class="fas fa-image"></i>
+          <p>No designs yet</p>
+          <span>Start creating to see your history</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="ai-main">
+    <div class="ai-container">
+
+      <!-- Chat Area -->
+      <div class="ai-chat-area">
+        
+        <!-- Progress Bar -->
+        <div class="progress-container" id="progress-container" style="display: none;">
+          <div class="progress-header">
+            <span class="progress-text" id="progress-text">Question 1 of 6</span>
+            <span class="progress-percent" id="progress-percent">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-steps" id="progress-steps">
+            <div class="step active">1</div>
+            <div class="step">2</div>
+            <div class="step">3</div>
+            <div class="step">4</div>
+            <div class="step">5</div>
+            <div class="step">6</div>
+          </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chat-messages">
+          <!-- Messages will appear here -->
+        </div>
+
+        <!-- AI Product Result -->
+        <div id="ai-product-result" class="product-result" style="display:none;">
+          <div class="product-image-container">
+            <img id="ai-product-image" class="product-image" src="" alt="Product Image">
+            <div class="image-zoom-icon" id="zoom-icon">
+              <i class="fas fa-search-plus"></i>
+            </div>
+          </div>
+
+          <div class="product-info">
+            <h3 id="ai-product-name">Product Name</h3>
+            <div class="product-specs">
+              <div class="spec-item">
+                <i class="fas fa-tag"></i>
+                <span class="spec-label">Size:</span>
+                <span id="ai-product-size" class="spec-value"></span>
+              </div>
+              <div class="spec-item">
+                <i class="fas fa-dollar-sign"></i>
+                <span class="spec-label">Price:</span>
+              <p class="sp-product-price">
+             <span class="price-value" id="ai-product-price">0</span> SAR
+              </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="product-actions">
+            <button id="ai-add-to-cart" class="action-btn primary add-to-cart-btn"
+                    data-id="" data-name="" data-price="" data-image="">
+              <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+            <button class="action-btn secondary" id="save-fav-btn">
+              <i class="fas fa-heart"></i> Save to Favorites
+            </button>
+            <button class="action-btn outline" id="Edit-btn">
+              <i class="fas fa-sync"></i> Edit
+            </button>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="chat-nav" id="chat-nav" style="display: none;">
+          <button class="nav-btn btn-back" id="btn-back">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button class="nav-btn btn-restart" id="btn-restart">
+            <i class="fas fa-redo"></i> Restart
+          </button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="chat-form" class="chat-input-form" autocomplete="off" style="display: none;">
+          <input type="text" id="user-input" placeholder="Describe your packaging...">
+          <button id="send-btn" type="submit">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow" class="footer-logo">
+          <p>AI-powered collaborative import platform for beauty businesses in Saudi Arabia.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <a href="{{ url_for('home_index') }}">Home</a>
+          <a href="{{ url_for('design_options') }}">Design Options</a>
+          <a href="{{ url_for('about_page') }}">About Us</a>
+          <a href="{{ url_for('help_page') }}">Help Center</a>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Services</h4>
+          <a href="/AI">AI Custom Design</a>
+          <a href="/smartPicks">SmartPicks</a>
+          <a href="/cart">Shopping Cart</a>
+        </div>
+        
+        <div class="footer-contact">
+          <h4>Contact Us</h4>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:beautyflow.team@gmail.com">beautyflow.team@gmail.com</a></p>
+          <p><i class="fas fa-phone"></i> +966 XX XXX XXXX</p>
+          <p><i class="fas fa-map-marker-alt"></i> Al-Baha, Saudi Arabia</p>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 BeautyFlow. All rights reserved.</p>
+        <p>Made with <i class="fas fa-heart"></i> by BeautyFlow Team</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== MODALS ========== -->
+  
+  <!-- Compare Modal -->
+  <div class="modal" id="compare-modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2><i class="fas fa-columns"></i> Compare Designs</h2>
+        <button class="modal-close" id="compare-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="compare-container">
+          <div class="compare-item">
+            <h3>Previous Design</h3>
+            <img id="compare-old-img" src="" alt="Old design">
+            <button class="btn-compare-select" data-version="old">
+              <i class="fas fa-check"></i> Keep This
+            </button>
+          </div>
+          <div class="compare-divider">
+            <span>VS</span>
+          </div>
+          <div class="compare-item">
+            <h3>New Design</h3>
+            <img id="compare-new-img" src="" alt="New design">
+            <button class="btn-compare-select" data-version="new">
+              <i class="fas fa-check"></i> Keep This
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zoom Modal -->
+  <div class="modal" id="zoom-modal">
+    <div class="modal-content modal-image">
+      <button class="modal-close" id="zoom-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <img id="zoom-img" src="" alt="Zoomed image">
+      <div class="zoom-actions">
+        <button class="zoom-btn" id="zoom-download">
+          <i class="fas fa-download"></i> Download
+        </button>
+        <button class="zoom-btn" id="zoom-share">
+          <i class="fas fa-share"></i> Share
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // ========== Header & Mobile Menu ==========
+document.addEventListener("DOMContentLoaded", () => {
+  // Check if we're on AI page
+  const chatMessages = document.getElementById("chat-messages");
+  if (!chatMessages) return;
+
+  const chatForm = document.getElementById("chat-form");
+  const userInput = document.getElementById("user-input");
+  const progressContainer = document.getElementById("progress-container");
+  const progressText = document.getElementById("progress-text");
+  const progressPercent = document.getElementById("progress-percent");
+  const progressFill = document.getElementById("progress-fill");
+  const progressSteps = document.querySelectorAll(".step");
+  const chatNav = document.getElementById("chat-nav");
+  const btnBack = document.getElementById("btn-back");
+  const btnRestart = document.getElementById("btn-restart");
+  
+  // Sidebar
+  const historyTab = document.getElementById("history-tab");
+  const favoritesTab = document.getElementById("favorites-tab");
+  const historyItems = document.getElementById("history-items");
+  const tabBtns = document.querySelectorAll(".tab-btn");
+  
+  // Modals
+  const compareModal = document.getElementById("compare-modal");
+  const compareClose = document.getElementById("compare-close");
+  const compareOldImg = document.getElementById("compare-old-img");
+  const compareNewImg = document.getElementById("compare-new-img");
+  const compareSelectBtns = document.querySelectorAll(".btn-compare-select");
+  
+  const zoomModal = document.getElementById("zoom-modal");
+  const zoomClose = document.getElementById("zoom-close");
+  const zoomImg = document.getElementById("zoom-img");
+  const zoomDownload = document.getElementById("zoom-download");
+
+  if (!chatForm || !userInput) {
+    console.warn("AI Chat: Required elements not found");
+    return;
+  }
+
+  // ========== State ==========
+  const wizardState = {
+    step: 0,
+    done: false,
+    basePrompt: "",
+    lastProductName: "",
+    lastProductId: null,
+    lastImageUrl: null,
+    lastProductData: null,
+    previousImageUrl: null,
+    tempNewImage: null,
+    tempNewProductId: null,
+    tempNewProductName: null,
+    tempNewProductData: null,
+    answers: {
+      product_type: null,
+      formula_base: null,
+      coverage: null,
+      finish: null,
+      skin_type: null,
+      packaging_desc: null
+    }
+  };
+
+  loadSavedState();
+
+  // ========== Wizard Steps ==========
+  const steps = [
+    {
+      key: "product_type",
+      type: "buttons",
+      question: "First question: What is the product type?",
+      options: [
+        { label: "Lipstick", value: "LIPSTICK", icon: "💄" },
+        { label: "Mascara", value: "MASCARA", icon: "💅" },
+        { label: "Blush", value: "BLUSH", icon: "🎨" },
+        { label: "Foundation", value: "FOUNDATION", icon: "✨" },
+        { label: "Eyeliner", value: "EYELINER", icon: "👁️" }
+      ]
+    },
+    {
+      key: "formula_base",
+      type: "buttons",
+      question: "What is the main formula base?",
+      options: [
+        { label: "Water-based", value: "WATER", icon: "💧" },
+        { label: "Oil-based", value: "OIL", icon: "🫒" },
+        { label: "Cream", value: "CREAM", icon: "🥛" },
+        { label: "Gel", value: "GEL", icon: "🧴" },
+        { label: "Powder", value: "POWDER", icon: "✨" },
+        { label: "Silicone", value: "SILICONE", icon: "🔬" }
+      ]
+    },
+    {
+      key: "coverage",
+      type: "buttons",
+      question: "What coverage level do you want?",
+      options: [
+        { label: "Sheer", value: "SHEER", icon: "◯" },
+        { label: "Medium", value: "MEDIUM", icon: "◐" },
+        { label: "Full", value: "FULL", icon: "●" }
+      ]
+    },
+    {
+      key: "finish",
+      type: "buttons",
+      question: "What finish do you want?",
+      options: [
+        { label: "Matte", value: "MATTE", icon: "⬜" },
+        { label: "Natural", value: "NATURAL", icon: "🌿" },
+        { label: "Dewy", value: "DEWY", icon: "💎" },
+        { label: "Glowy", value: "GLOWY", icon: "✨" }
+      ]
+    },
+    {
+      key: "skin_type",
+      type: "buttons",
+      question: "Which skin type should it suit?",
+      options: [
+        { label: "Normal", value: "NORMAL", icon: "😊" },
+        { label: "Oily", value: "OILY", icon: "💧" },
+        { label: "Dry", value: "DRY", icon: "🏜️" },
+        { label: "Combination", value: "COMBINATION", icon: "⚖️" },
+        { label: "Sensitive", value: "SENSITIVE", icon: "🌸" }
+      ]
+    },
+    {
+      key: "packaging_desc",
+      type: "text",
+      question: "Finally: How do you want the outer packaging to look? Describe the style, colors, and vibe.",
+      options: null
+    }
+  ];
+
+  // ========================================
+  // ✅ PRICING & SIZES
+  // ========================================
+  const BASE_PRICES = {
+    LIPSTICK: 45, MASCARA: 50, BLUSH: 55, FOUNDATION: 65,
+    EYELINER: 40, EYESHADOW: 60, HIGHLIGHTER: 55,
+    BRONZER: 55, PRIMER: 60, SETTING_SPRAY: 50
+  };
+
+  const FORMULA_MULT = { WATER: 1.0, OIL: 1.05, CREAM: 1.03, GEL: 1.02, POWDER: 0.98, SILICONE: 1.08 };
+  const COVERAGE_MULT = { SHEER: 0.95, MEDIUM: 1.0, FULL: 1.05 };
+  const FINISH_MULT = { MATTE: 1.02, NATURAL: 1.0, DEWY: 1.03, GLOWY: 1.04, SATIN: 1.02 };
+  const SKIN_MULT = { NORMAL: 1.0, OILY: 1.02, DRY: 1.03, COMBINATION: 1.03, SENSITIVE: 1.05 };
+  const MAX_PRICE = 150;
+
+  const PRODUCT_SIZES = {
+    LIPSTICK: "3.5g", MASCARA: "8ml", BLUSH: "5g", FOUNDATION: "30ml",
+    EYELINER: "0.5ml", EYESHADOW: "1.5g", HIGHLIGHTER: "8g",
+    BRONZER: "8g", PRIMER: "30ml", SETTING_SPRAY: "60ml"
+  };
+
+  function calculateDynamicPrice(answers) {
+    const productType = answers.product_type || "LIPSTICK";
+    const formula = answers.formula_base || "CREAM";
+    const coverage = answers.coverage || "MEDIUM";
+    const finish = answers.finish || "NATURAL";
+    const skinType = answers.skin_type || "NORMAL";
+
+    const base = BASE_PRICES[productType] || 50;
+    let price = base 
+        * (FORMULA_MULT[formula] || 1)
+        * (COVERAGE_MULT[coverage] || 1)
+        * (FINISH_MULT[finish] || 1)
+        * (SKIN_MULT[skinType] || 1);
+    
+    return Math.min(Math.round(price / 5) * 5, MAX_PRICE);
+  }
+
+  function getProductSize(productType) {
+    return PRODUCT_SIZES[productType] || "10g";
+  }
+
+  // ========== Helper Functions ==========
+  
+  function saveState() {
+    try {
+      localStorage.setItem("beautyflow_wizard_state", JSON.stringify({
+        step: wizardState.step,
+        answers: wizardState.answers,
+        lastProductId: wizardState.lastProductId,
+        lastProductName: wizardState.lastProductName
+      }));
+    } catch (e) {
+      console.warn("Could not save state:", e);
+    }
+  }
+
+  function loadSavedState() {
+    const saved = localStorage.getItem("beautyflow_wizard_state");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        Object.assign(wizardState, parsed);
+      } catch (e) {
+        console.error("Failed to load saved state:", e);
+      }
+    }
+  }
+
+  function updateProgress() {
+    const total = steps.length;
+    const current = wizardState.step + 1;
+    const percent = Math.round((current / total) * 100);
+    
+    if (progressText) progressText.textContent = "Question " + current + " of " + total;
+    if (progressPercent) progressPercent.textContent = percent + "%";
+    if (progressFill) progressFill.style.width = percent + "%";
+    
+    progressSteps.forEach((step, index) => {
+      if (index < wizardState.step) {
+        step.classList.add("completed");
+        step.classList.remove("active");
+      } else if (index === wizardState.step) {
+        step.classList.add("active");
+        step.classList.remove("completed");
+      } else {
+        step.classList.remove("active", "completed");
+      }
+    });
+  }
+
+  function addMessage(type, content) {
+    const msg = document.createElement("div");
+    msg.classList.add("msg", type);
+    
+    const avatar = document.createElement("div");
+    avatar.classList.add("msg-avatar");
+    avatar.innerHTML = type === "user" ? "👤" : "🤖";
+    
+    const bubble = document.createElement("div");
+    bubble.classList.add("msg-bubble");
+    
+    if (typeof content === "string") {
+      bubble.innerHTML = content;
+    } else {
+      bubble.appendChild(content);
+    }
+    
+    if (type === "user") {
+      msg.appendChild(bubble);
+      msg.appendChild(avatar);
+    } else {
+      msg.appendChild(avatar);
+      msg.appendChild(bubble);
+    }
+    
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return msg;
+  }
+
+  function addTypingIndicator() {
+    const typing = document.createElement("div");
+    typing.classList.add("msg", "bot");
+    typing.id = "typing-indicator";
+    
+    const avatar = document.createElement("div");
+    avatar.classList.add("msg-avatar");
+    avatar.innerHTML = "🤖";
+    
+    const indicator = document.createElement("div");
+    indicator.classList.add("typing-indicator");
+    indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    
+    typing.appendChild(avatar);
+    typing.appendChild(indicator);
+    chatMessages.appendChild(typing);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return typing;
+  }
+
+  function removeTypingIndicator() {
+    const typing = document.getElementById("typing-indicator");
+    if (typing) typing.remove();
+  }
+
+  function clearOptions() {
+    const old = chatMessages.querySelectorAll(".wizard-options");
+    old.forEach(el => el.remove());
+  }
+
+  function showToast(message, duration) {
+    duration = duration || 3000;
+    const existing = document.querySelector(".toast");
+    if (existing) existing.remove();
+
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(100px)";
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
+  function updateCartCount(count) {
+    const badge = document.querySelector("#cart-count");
+    if (!badge) return;
+    if (count < 1) {
+      badge.classList.add("is-empty");
+      badge.textContent = "";
+    } else {
+      badge.classList.remove("is-empty");
+      badge.textContent = count;
+    }
+  }
+
+  // ========== Render Options ==========
+  function renderOptions(step) {
+    clearOptions();
+    const wrap = document.createElement("div");
+    wrap.classList.add("wizard-options");
+
+    step.options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.classList.add("wizard-btn");
+      btn.innerHTML = (opt.icon ? '<i>' + opt.icon + '</i>' : '') + '<span>' + opt.label + '</span>';
+      btn.addEventListener("click", () => handleButtonAnswer(step, opt, btn));
+      wrap.appendChild(btn);
+    });
+
+    chatMessages.appendChild(wrap);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function handleButtonAnswer(step, opt, btn) {
+    document.querySelectorAll(".wizard-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    wizardState.answers[step.key] = opt.value;
+    
+    setTimeout(() => {
+      addMessage("user", opt.label);
+      clearOptions();
+      saveState();
+      wizardState.step++;
+      updateProgress();
+      
+      if (wizardState.step < steps.length) {
+        runStep();
+      } else {
+        showTextInput();
+      }
+    }, 300);
+  }
+
+  function runStep() {
+    const currentStep = steps[wizardState.step];
+    addTypingIndicator();
+    
+    setTimeout(() => {
+      removeTypingIndicator();
+      addMessage("bot", currentStep.question);
+      
+      if (currentStep.type === "buttons") {
+        renderOptions(currentStep);
+      } else {
+        if (chatForm) chatForm.style.display = "flex";
+        if (userInput) userInput.focus();
+      }
+    }, 800);
+  }
+
+  function showTextInput() {
+    if (chatForm) chatForm.style.display = "flex";
+    if (userInput) {
+      userInput.placeholder = "Describe your packaging (min 10 words)...";
+      userInput.focus();
+    }
+  }
+
+  // ========== Generate Image ==========
+  async function generatePackagingImage(description) {
+    if (chatForm) chatForm.style.display = "none";
+    
+    const loading = document.createElement("div");
+    loading.classList.add("loading-animation");
+    loading.id = "loading-animation";
+    loading.innerHTML = '<div class="loading-heart">💗</div><div class="loading-text">Creating your design...</div>';
+    addMessage("bot", loading);
+
+    const prompt = buildPrompt();
+    console.log("🚀 Sending request to /ai/generate");
+    
+    try {
+      const res = await fetch("/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt, context: "custom-packaging", vibe: "custom" })
+      });
+
+      const data = await res.json();
+      console.log("📦 Response:", data);
+
+      // Remove loading
+      const loadingMsg = document.getElementById("loading-animation");
+      if (loadingMsg) {
+        const msgWrapper = loadingMsg.closest(".msg");
+        if (msgWrapper) msgWrapper.remove();
+        else loadingMsg.remove();
+      }
+
+      if (!res.ok || !data.ok || !data.image_url) {
+        addMessage("bot", "😔 " + (data.message || "Something went wrong") + ". Please try again.");
+        showRetryOptions();
+        return;
+      }
+
+      console.log("✅ Product received:", data.product);
+
+      const productName = data.product && data.product.name ? data.product.name : "BeautyFlow AI Product";
+      
+      
+      const newProductData = {
+        id: data.product ? data.product.id : null,
+        name: productName,
+        price_sar: data.product ? data.product.price_sar : calculateDynamicPrice(wizardState.answers),
+        size: data.product ? data.product.size : getProductSize(wizardState.answers.product_type)
+      };
+
+      
+      if (wizardState.previousImageUrl && wizardState.previousImageUrl !== data.image_url) {
+        console.log("🔄 Opening Compare Modal");
+        console.log("   Old:", wizardState.previousImageUrl.substring(0, 50) + "...");
+        console.log("   New:", data.image_url.substring(0, 50) + "...");
+        
+       
+        wizardState.tempNewImage = data.image_url;
+        wizardState.tempNewProductId = data.product ? data.product.id : null;
+        wizardState.tempNewProductName = productName;
+        wizardState.tempNewProductData = newProductData;
+        
+       
+        if (compareOldImg) compareOldImg.src = wizardState.previousImageUrl;
+        if (compareNewImg) compareNewImg.src = data.image_url;
+        if (compareModal) {
+          compareModal.classList.add("open");
+          console.log("✅ Compare Modal opened!");
+        }
+        
+        return; 
+      }
+
+      
+      wizardState.lastImageUrl = data.image_url;
+      wizardState.lastProductName = productName;
+      wizardState.lastProductId = data.product ? data.product.id : null;
+      wizardState.lastProductData = newProductData;
+
+      console.log("✅ Saved to state:", wizardState.lastProductData);
+
+      saveState();
+      showProductResult(data.image_url, productName, wizardState.lastProductData);
+      loadHistoryFromBackend();
+
+    } catch (err) {
+      console.error("❌ Network error:", err);
+      const loadingMsg = document.getElementById("loading-animation");
+      if (loadingMsg) {
+        const msgWrapper = loadingMsg.closest(".msg");
+        if (msgWrapper) msgWrapper.remove();
+      }
+      addMessage("bot", "❌ Network error. Please check your connection.");
+      showRetryOptions();
+    }
+  }
+
+  function buildPrompt() {
+    const ans = wizardState.answers;
+    return "Professional product photo of a " + ans.product_type + " with " + ans.formula_base + " formula, " + ans.coverage + " coverage, " + ans.finish + " finish, for " + ans.skin_type + " skin. Packaging: " + ans.packaging_desc + ". Studio lighting, white background, commercial quality, high-end cosmetics photography.";
+  }
+
+  
+  function showProductResult(imageUrl, productName, productData) {
+    console.log("🖼️ Showing product:", productName, productData);
+    
+    const productId = productData && productData.id ? productData.id : null;
+    const price = productData && productData.price_sar ? productData.price_sar : calculateDynamicPrice(wizardState.answers);
+    const size = productData && productData.size ? productData.size : getProductSize(wizardState.answers.product_type);
+    
+    const result = document.createElement("div");
+    result.classList.add("product-result");
+    
+    result.innerHTML = `
+      <div class="product-image-container">
+        <img src="${imageUrl}" alt="${productName}" class="product-image" data-zoom="${imageUrl}" />
+        <div class="image-zoom-icon"><i class="fas fa-search-plus"></i></div>
+      </div>
+      
+      <div class="product-info">
+        <div class="product-name-wrapper">
+          <h3 class="product-title" id="product-title">
+            <span class="product-icon">📦</span>
+            <span class="product-name-text" id="product-name-text">${productName}</span>
+            <button class="inline-edit-btn" id="btn-inline-edit" title="Edit name">✏️</button>
+          </h3>
+          <div class="inline-edit-mode" id="inline-edit-mode" style="display: none;">
+            <input type="text" id="inline-name-input" value="${productName}" maxlength="100" class="inline-name-input">
+            <button class="inline-save-btn" id="btn-inline-save">✓</button>
+            <button class="inline-cancel-btn" id="btn-inline-cancel">✕</button>
+          </div>
+        </div>
+        
+        <div class="product-specs">
+          <div class="spec-item">
+            <i class="fas fa-tag"></i>
+            <span class="spec-label">Type:</span>
+            <span class="spec-value">${wizardState.answers.product_type || 'N/A'}</span>
+          </div>
+          <div class="spec-item">
+            <i class="fas fa-flask"></i>
+            <span class="spec-label">Formula:</span>
+            <span class="spec-value">${wizardState.answers.formula_base || 'N/A'}</span>
+          </div>
+          <div class="spec-item">
+            <i class="fas fa-layer-group"></i>
+            <span class="spec-label">Coverage:</span>
+            <span class="spec-value">${wizardState.answers.coverage || 'N/A'}</span>
+          </div>
+          <div class="spec-item">
+            <i class="fas fa-star"></i>
+            <span class="spec-label">Finish:</span>
+            <span class="spec-value">${wizardState.answers.finish || 'N/A'}</span>
+          </div>
+          <div class="spec-item">
+            <i class="fas fa-ruler"></i>
+            <span class="spec-label">Size:</span>
+            <span class="spec-value">${size}</span>
+          </div>
+          <div class="spec-item highlight-price">
+            <i class="fas fa-money-bill-wave"></i>
+            <span class="spec-label">Price:</span>
+            <span class="spec-value price-value">${price} SAR</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-actions">
+        <button class="action-btn primary" id="btn-add-cart" ${!productId ? 'disabled' : ''}>
+          <i class="fas fa-shopping-cart"></i> Add to Cart
+        </button>
+        <button class="action-btn secondary" id="btn-edit-regenerate">
+          <i class="fas fa-redo"></i> Edit
+        </button>
+        <button class="action-btn outline" id="btn-save-favorite" ${!productId ? 'disabled' : ''}>
+          <i class="fas fa-heart"></i> Favorite
+        </button>
+      </div>
+    `;
+
+    addMessage("bot", result);
+    
+    setTimeout(() => {
+      attachProductListeners(productId, productName, price, imageUrl);
+    }, 100);
+  }
+
+  
+  function attachProductListeners(productId, productName, price, imageUrl) {
+    
+    // Zoom
+    document.querySelectorAll("[data-zoom]").forEach(img => {
+      img.addEventListener("click", () => {
+        if (zoomImg) zoomImg.src = img.dataset.zoom;
+        if (zoomModal) zoomModal.classList.add("open");
+      });
+    });
+
+    // ========== INLINE EDIT NAME ==========
+    const btnInlineEdit = document.getElementById("btn-inline-edit");
+    const inlineEditMode = document.getElementById("inline-edit-mode");
+    const productTitle = document.getElementById("product-title");
+    const inlineNameInput = document.getElementById("inline-name-input");
+    const btnInlineSave = document.getElementById("btn-inline-save");
+    const btnInlineCancel = document.getElementById("btn-inline-cancel");
+    
+    if (btnInlineEdit) {
+      btnInlineEdit.addEventListener("click", () => {
+        productTitle.style.display = "none";
+        inlineEditMode.style.display = "flex";
+        inlineNameInput.focus();
+        inlineNameInput.select();
+      });
+    }
+    
+    if (btnInlineCancel) {
+      btnInlineCancel.addEventListener("click", () => {
+        inlineEditMode.style.display = "none";
+        productTitle.style.display = "flex";
+        inlineNameInput.value = wizardState.lastProductName;
+      });
+    }
+    
+    if (btnInlineSave) {
+      btnInlineSave.addEventListener("click", async () => {
+        const newName = inlineNameInput.value.trim();
+        if (!newName) {
+          showToast("⚠️ Name cannot be empty");
+          return;
+        }
+        
+        btnInlineSave.disabled = true;
+        btnInlineSave.textContent = "...";
+        
+        try {
+          const res = await fetch("/ai/product/update-name", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ product_id: wizardState.lastProductId, name: newName })
+          });
+          
+          const data = await res.json();
+          
+          if (res.ok && data.ok) {
+            wizardState.lastProductName = newName;
+            if (wizardState.lastProductData) wizardState.lastProductData.name = newName;
+            
+            document.getElementById("product-name-text").textContent = newName;
+            inlineEditMode.style.display = "none";
+            productTitle.style.display = "flex";
+            
+            showToast("✅ Name updated!");
+            loadHistoryFromBackend();
+            saveState();
+          } else {
+            showToast("❌ " + (data.message || "Failed"));
+          }
+        } catch (err) {
+          showToast("❌ Network error");
+        } finally {
+          btnInlineSave.disabled = false;
+          btnInlineSave.textContent = "✓";
+        }
+      });
+    }
+    
+    if (inlineNameInput) {
+      inlineNameInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") btnInlineSave.click();
+      });
+      inlineNameInput.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") btnInlineCancel.click();
+      });
+    }
+
+    // ========== ADD TO CART ==========
+    const btnAddCart = document.getElementById("btn-add-cart");
+    if (btnAddCart) {
+      btnAddCart.addEventListener("click", async () => {
+        if (!productId) {
+          showToast("❌ No product to add");
+          return;
+        }
+        
+        btnAddCart.disabled = true;
+        btnAddCart.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        
+        try {
+          const res = await fetch("/cart/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
+            body: JSON.stringify({
+              id: String(productId),
+              name: wizardState.lastProductName,
+              price: price,
+              image: imageUrl || wizardState.lastImageUrl || ""
+            })
+          });
+          
+          const data = await res.json();
+          
+          if (res.ok && data.ok) {
+            showToast("✅ Added to cart!");
+            updateCartCount(data.cart_count);
+            btnAddCart.innerHTML = '<i class="fas fa-check"></i> Added!';
+            btnAddCart.style.background = "#4caf50";
+            
+            setTimeout(() => {
+              btnAddCart.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+              btnAddCart.style.background = "";
+              btnAddCart.disabled = false;
+            }, 2000);
+          } else {
+            showToast("❌ " + (data.message || "Failed"));
+            btnAddCart.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+            btnAddCart.disabled = false;
+          }
+        } catch (err) {
+          showToast("❌ Network error");
+          btnAddCart.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+          btnAddCart.disabled = false;
+        }
+      });
+    }
+
+    // ========== SAVE TO FAVORITES ==========
+    const btnSaveFav = document.getElementById("btn-save-favorite");
+    if (btnSaveFav) {
+      btnSaveFav.addEventListener("click", async () => {
+        const prodId = parseInt(productId);
+        if (!prodId || isNaN(prodId)) {
+          showToast("❌ No product to save");
+          return;
+        }
+        
+        btnSaveFav.disabled = true;
+        btnSaveFav.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        try {
+          const res = await fetch("/ai/favorites/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
+            body: JSON.stringify({ product_id: prodId })
+          });
+          
+          const data = await res.json();
+          
+          if (res.ok && data.ok) {
+            showToast(data.message === "Already in favorites" ? "ℹ️ Already in favorites!" : "❤️ Added to favorites!");
+            btnSaveFav.innerHTML = '<i class="fas fa-heart" style="color:#e91e63"></i> Saved!';
+            loadFavoritesFromBackend();
+            
+            setTimeout(() => {
+              btnSaveFav.innerHTML = '<i class="fas fa-heart"></i> Favorite';
+              btnSaveFav.disabled = false;
+            }, 2000);
+          } else {
+            showToast("⚠️ " + (data.message || "Failed"));
+            btnSaveFav.innerHTML = '<i class="fas fa-heart"></i> Favorite';
+            btnSaveFav.disabled = false;
+          }
+        } catch (err) {
+          showToast("❌ Network error");
+          btnSaveFav.innerHTML = '<i class="fas fa-heart"></i> Favorite';
+          btnSaveFav.disabled = false;
+        }
+      });
+    }
+
+    // ========== EDIT / REGENERATE ==========
+    const btnRegenerate = document.getElementById("btn-edit-regenerate");
+    if (btnRegenerate) {
+      btnRegenerate.addEventListener("click", () => {
+        // ✅✅✅ حفظ الصورة الحالية للمقارنة لاحقاً
+        if (wizardState.lastImageUrl) {
+          wizardState.previousImageUrl = wizardState.lastImageUrl;
+          console.log("📸 Saved previous image for comparison");
+        }
+        
+        wizardState.step = steps.length - 1;
+        updateProgress();
+        clearOptions();
+        addMessage("bot", "✏️ Let's create a new design! Describe your packaging:");
+        if (chatForm) chatForm.style.display = "flex";
+        if (userInput) {
+          userInput.value = wizardState.answers.packaging_desc || "";
+          userInput.focus();
+        }
+      });
+    }
+  }
+
+  function showRetryOptions() {
+    const div = document.createElement("div");
+    div.innerHTML = '<div style="display: flex; gap: 12px; margin-top: 20px;"><button class="action-btn secondary" id="btn-retry"><i class="fas fa-redo"></i> Try Again</button></div>';
+    chatMessages.appendChild(div);
+
+    const retryBtn = document.getElementById("btn-retry");
+    if (retryBtn) {
+      retryBtn.addEventListener("click", () => {
+        const desc = wizardState.answers.packaging_desc;
+        if (desc) generatePackagingImage(desc);
+      });
+    }
+  }
+
+async function loadHistoryFromBackend() {
+  if (!historyItems) return;
+  
+  try {
+    const res = await fetch("/ai/history");
+    const data = await res.json();
+    
+    if (data.ok && data.history && data.history.length) {
+      historyItems.innerHTML = data.history.map(function(item) {
+        const size = item.size || '10g';
+        return `
+          <div class="sidebar-item" data-product-id="${item.id}" data-price="${item.price_sar}" data-size="${size}">
+            <img src="${item.image_url}" alt="${item.name}" onerror="this.src='/static/images/BF_Slogo.png'">
+            <div class="sidebar-item-name">${item.name}</div>
+            <div class="sidebar-item-info">${item.price_sar} SAR • ${size}</div>
+            <div class="sidebar-item-actions">
+              <button class="sidebar-item-btn load-design"><i class="fas fa-eye"></i> View</button>
+              <button class="sidebar-item-btn favorite"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+        `;
+      }).join("");
+      attachSidebarListeners();
+    } else {
+      historyItems.innerHTML = '<div class="empty-state"><i class="fas fa-image"></i><p>No designs yet</p><span>Start creating to see your history</span></div>';
+    }
+  } catch (err) {
+    console.error("Error loading history:", err);
+  }
+}
+
+  async function loadFavoritesFromBackend() {
+  const favContainer = document.getElementById("favorites-tab");
+  if (!favContainer) return;
+  
+  try {
+    const res = await fetch("/ai/favorites");
+    const data = await res.json();
+    
+    if (data.ok && data.favorites && data.favorites.length) {
+      favContainer.innerHTML = data.favorites.map(function(item) {
+        const size = item.size || '10g';
+        return `
+          <div class="sidebar-item" data-product-id="${item.id}" data-price="${item.price_sar}" data-size="${size}">
+            <img src="${item.image_url}" alt="${item.name}" onerror="this.src='/static/images/BF_Slogo.png'">
+            <div class="sidebar-item-name">${item.name}</div>
+            <div class="sidebar-item-info">${item.price_sar} SAR • ${size}</div>
+            <div class="sidebar-item-actions">
+              <button class="sidebar-item-btn load-design"><i class="fas fa-eye"></i> View</button>
+              <button class="sidebar-item-btn remove-favorite"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      }).join("");
+      attachSidebarListeners();
+    } else {
+      favContainer.innerHTML = '<div class="empty-state"><i class="fas fa-heart"></i><p>No favorites yet</p><span>Save designs you love</span></div>';
+    }
+  } catch (err) {
+    console.error("Error loading favorites:", err);
+  }
+}
+
+  function attachSidebarListeners() {
+    // View buttons
+    document.querySelectorAll(".sidebar-item .load-design").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const item = e.target.closest(".sidebar-item");
+        const productId = item.dataset.productId;
+        const img = item.querySelector("img");
+        const name = item.querySelector(".sidebar-item-name").textContent;
+        const price = parseFloat(item.dataset.price) || 120;
+        const size = item.dataset.size || "10g";
+        
+        if (img && name && productId) {
+          wizardState.lastProductId = parseInt(productId);
+          wizardState.lastProductName = name;
+          wizardState.lastImageUrl = img.src;
+          wizardState.lastProductData = { id: productId, name: name, price_sar: price, size: size };
+          
+          chatMessages.innerHTML = "";
+          showProductResult(img.src, name, { id: productId, price_sar: price, size: size });
+          
+          const sidebar = document.getElementById("aiSidebar");
+          const overlay = document.getElementById("sidebarOverlay");
+          if (sidebar) sidebar.classList.remove("open");
+          if (overlay) overlay.classList.remove("open");
+          document.body.style.overflow = "";
+        }
+      });
+    });
+
+    // Add to favorites
+    document.querySelectorAll(".sidebar-item .favorite").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const item = e.target.closest(".sidebar-item");
+        const productId = item.dataset.productId;
+        
+        if (!productId) return;
+        
+        try {
+          const res = await fetch("/ai/favorites/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ product_id: parseInt(productId) })
+          });
+          
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            showToast("❤️ Added to favorites!");
+            loadFavoritesFromBackend();
+          } else {
+            showToast(data.message || "Already in favorites");
+          }
+        } catch (err) {
+          console.error("Error:", err);
+        }
+      });
+    });
+
+    // Remove from favorites
+    document.querySelectorAll(".sidebar-item .remove-favorite").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const item = e.target.closest(".sidebar-item");
+        const productId = item.dataset.productId;
+        
+        try {
+          const res = await fetch("/ai/favorites/remove", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ product_id: parseInt(productId) })
+          });
+          
+          if (res.ok) {
+            showToast("Removed from favorites");
+            loadFavoritesFromBackend();
+          }
+        } catch (err) {
+          console.error("Error:", err);
+        }
+      });
+    });
+  }
+
+// ========== Header Scroll Behavior ==========
+(function() {
+  const header = document.getElementById("mainHeader") || document.querySelector(".main-header");
+  if (!header) return;
+  
+  let lastScrollY = window.pageYOffset;
+  const SCROLL_DELTA = 5;
+
+  window.addEventListener("scroll", function() {
+    const currentY = window.pageYOffset;
+
+    if (currentY <= 0) {
+      header.classList.remove("hide");
+      header.classList.remove("scrolled");
+      lastScrollY = 0;
+      return;
+    }
+
+    if (Math.abs(currentY - lastScrollY) < SCROLL_DELTA) return;
+
+    if (currentY > lastScrollY) {
+      header.classList.add("hide");
+    } else {
+     
+      header.classList.remove("hide");
+    }
+
+    if (currentY > 20) {
+      header.classList.add("scrolled");
+    } else {
+      header.classList.remove("scrolled");
+    }
+
+    lastScrollY = currentY;
+  });
+})();
+
+  function startWizard() {
+    chatMessages.innerHTML = "";
+    if (progressContainer) progressContainer.style.display = "block";
+    if (chatNav) chatNav.style.display = "flex";
+    
+    addMessage("bot", "Hi! I'm here to help you create your perfect packaging. 🎨<br><br>Let's start designing!");
+
+    const startBtn = document.createElement("button");
+    startBtn.textContent = "Start";
+    startBtn.classList.add("wizard-start-btn");
+    startBtn.addEventListener("click", () => {
+      chatMessages.innerHTML = "";
+      wizardState.step = 0;
+      wizardState.done = false;
+      wizardState.previousImageUrl = null;
+      updateProgress();
+      runStep();
+    });
+
+    chatMessages.appendChild(startBtn);
+  }
+
+  // ========== Event Listeners ==========
+  
+  if (btnBack) {
+    btnBack.addEventListener("click", () => {
+      if (wizardState.step > 0) {
+        wizardState.step--;
+        updateProgress();
+        clearOptions();
+        runStep();
+      }
+    });
+  }
+
+  if (btnRestart) {
+    btnRestart.addEventListener("click", () => {
+      if (confirm("Restart? Your progress will be lost.")) {
+        wizardState.step = 0;
+        wizardState.answers = {};
+        wizardState.previousImageUrl = null;
+        saveState();
+        startWizard();
+      }
+    });
+  }
+
+  if (chatForm) {
+    chatForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      wizardState.answers.packaging_desc = text;
+      saveState();
+      addMessage("user", text);
+      userInput.value = "";
+      await generatePackagingImage(text);
+    });
+  }
+
+  // Modals Close
+  if (compareClose && compareModal) {
+    compareClose.addEventListener("click", () => compareModal.classList.remove("open"));
+  }
+
+  if (zoomClose && zoomModal) {
+    zoomClose.addEventListener("click", () => zoomModal.classList.remove("open"));
+  }
+
+  
+ // ✅✅✅ COMPARE MODAL SELECTION
+  if (compareSelectBtns && compareSelectBtns.length > 0) {
+    compareSelectBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const version = btn.dataset.version;
+        console.log("🔘 User selected:", version);
+        
+        if (version === "new" && wizardState.tempNewImage) {
+          
+          wizardState.lastImageUrl = wizardState.tempNewImage;
+          wizardState.lastProductId = wizardState.tempNewProductId;
+          wizardState.lastProductName = wizardState.tempNewProductName;
+          wizardState.lastProductData = wizardState.tempNewProductData;
+          showToast("✅ Using new design!");
+        } else {
+         
+          wizardState.lastImageUrl = wizardState.previousImageUrl;
+          showToast("✅ Kept original design!");
+        }
+        
+        
+        if (compareModal) compareModal.classList.remove("open");
+        
+       
+        const currentId = wizardState.lastProductId;
+        const currentName = wizardState.lastProductName;
+        const currentData = wizardState.lastProductData;
+        const currentImage = wizardState.lastImageUrl;
+        
+        console.log("📦 Displaying product with ID:", currentId);
+        
+   
+        wizardState.tempNewImage = null;
+        wizardState.tempNewProductId = null;
+        wizardState.tempNewProductName = null;
+        wizardState.tempNewProductData = null;
+        wizardState.previousImageUrl = null;
+        
+        
+        chatMessages.innerHTML = "";
+        showProductResult(currentImage, currentName, currentData);
+        
+        saveState();
+        loadHistoryFromBackend();
+      });
+    });
+  }
+
+  if (zoomDownload) {
+    zoomDownload.addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.href = zoomImg.src;
+      link.download = (wizardState.lastProductName || "design") + ".png";
+      link.click();
+      showToast("📥 Downloading...");
+    });
+  }
+
+  // Click outside to close
+  [compareModal, zoomModal].forEach(modal => {
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.classList.remove("open");
+      });
+    }
+  });
+
+  // ESC to close
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (compareModal) compareModal.classList.remove("open");
+      if (zoomModal) zoomModal.classList.remove("open");
+    }
+  });
+
+  // ========== Sidebar Toggle ==========
+  const historyToggle = document.getElementById('historyToggle');
+  const aiSidebar = document.getElementById('aiSidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const sidebarCloseBtn = document.getElementById('sidebarClose');
+
+  function openSidebar() {
+    if (aiSidebar) aiSidebar.classList.add('open');
+    if (sidebarOverlay) sidebarOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    if (aiSidebar) aiSidebar.classList.remove('open');
+    if (sidebarOverlay) sidebarOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (historyToggle) {
+    historyToggle.addEventListener('click', openSidebar);
+  }
+
+  if (sidebarCloseBtn) {
+    sidebarCloseBtn.addEventListener('click', closeSidebar);
+  }
+
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', closeSidebar);
+  }
+
+  // Tabs in sidebar
+  if (tabBtns && tabBtns.length > 0) {
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        const targetTab = document.getElementById(tab + '-tab');
+        if (targetTab) targetTab.classList.add('active');
+      });
+    });
+  }
+  
+
+  // Initialize
+  startWizard();
+  loadHistoryFromBackend();
+  loadFavoritesFromBackend();
+});
+
+  </script>
+
+  {% include 'aiBot.html' %}
+
+  
 </body>
-
-
 </html>

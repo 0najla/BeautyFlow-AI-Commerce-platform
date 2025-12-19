@@ -866,7 +866,7 @@ def home():
 
 @app.route("/index", strict_slashes=False)
 def home_index():
-    """Main homepage after login."""
+    """Main homepage - accessible to guests and logged-in users."""
     return render_template("index.html")
 
 
@@ -876,19 +876,28 @@ def home_index():
 
 @app.route("/design-options", strict_slashes=False)
 def design_options():
-    """Design options selection page."""
+    """Design options selection page. Requires login."""
+    if "user_id" not in session:
+        flash("Please login to access design options", "error")
+        return redirect(url_for("login_page"))
     return render_template("designOptions.html")
 
 
 @app.route("/AI", methods=["GET"])
 def ai_page():
-    """AI packaging design page."""
+    """AI packaging design page. Requires login."""
+    if "user_id" not in session:
+        flash("Please login to create AI designs", "error")
+        return redirect(url_for("login_page"))
     return render_template("AI.html", cart_count=get_cart_count())
 
 
 @app.route("/smartPicks", strict_slashes=False)
 def smartPicks_page():
-    """AI-powered product recommendations page."""
+    """AI-powered product recommendations page. Requires login."""
+    if "user_id" not in session:
+        flash("Please login to view SmartPicks", "error")
+        return redirect(url_for("login_page"))
     return render_template("smartPicks.html", cart_count=get_cart_count())
 
 
@@ -898,13 +907,19 @@ def smartPicks_page():
 
 @app.route("/costSharing", methods=["GET"])
 def costSharing_page():
-    """Cost sharing groups page."""
+    """Cost sharing groups page. Requires login."""
+    if "user_id" not in session:
+        flash("Please login to access cost sharing", "error")
+        return redirect(url_for("login_page"))
     return render_template("costSharing.html")
 
 
 @app.route("/shipment", methods=["GET"])
 def shipment_page():
-    """Shipment tracking page."""
+    """Shipment tracking page. Requires login."""
+    if "user_id" not in session:
+        flash("Please login to track shipments", "error")
+        return redirect(url_for("login_page"))
     return render_template("shipment.html")
 
 
@@ -914,13 +929,19 @@ def shipment_page():
 
 @app.route("/invoice", methods=["GET"])
 def invoice_page():
-    """Solo order invoice page."""
+    """Solo order invoice page. Requires login."""
+    if "user_id" not in session:
+        flash("Please login to view invoices", "error")
+        return redirect(url_for("login_page"))
     return render_template("invoice.html")
 
 
 @app.route("/invoiceShared", methods=["GET"])
 def invoiceShared_page():
-    """Shared shipping invoice page."""
+    """Shared shipping invoice page. Requires login."""
+    if "user_id" not in session:
+        flash("Please login to view invoices", "error")
+        return redirect(url_for("login_page"))
     return render_template("invoiceShared.html")
 
 
@@ -930,7 +951,10 @@ def invoiceShared_page():
 
 @app.route("/payment", strict_slashes=False)
 def payment_page():
-    """Solo payment page."""
+    """Solo payment page. Requires login."""
+    if "user_id" not in session:
+        flash("Please login to make payments", "error")
+        return redirect(url_for("login_page"))
     return render_template("payment.html")
 
 
@@ -940,13 +964,13 @@ def payment_page():
 
 @app.route("/about")
 def about_page():
-    """About us page."""
+    """About us page. Open to all."""
     return render_template("about.html")
 
 
 @app.route("/help", methods=["GET"], strict_slashes=False)
 def help_page():
-    """Help and support page."""
+    """Help and support page. Open to all."""
     return render_template("help.html")
 
 
@@ -958,8 +982,12 @@ def help_page():
 def account_page():
     """
     User account/profile page.
-    Loads profile data from session.
+    Requires login.
     """
+    if "user_id" not in session:
+        flash("Please login to access your account", "error")
+        return redirect(url_for("login_page"))
+    
     profile = session.get("profile", {
         "firstName": "",
         "lastName": "",
@@ -977,7 +1005,7 @@ def account_page():
 def cart_page():
     """
     Display shopping cart page.
-    Loads products from session and fetches images from database.
+    Requires login.
     
     Returns:
         Rendered cart.html template with:
@@ -988,6 +1016,10 @@ def cart_page():
             - tax: Tax amount
             - grand_total: Final total
     """
+    if "user_id" not in session:
+        flash("Please login to view your cart", "error")
+        return redirect(url_for("login_page"))
+    
     cart = get_cart()
     items = []
 
@@ -1274,6 +1306,17 @@ def send_otp():
         flash("Phone number format is invalid. Use 05xxxxxxxx.", "error")
         return redirect(url_for("phone_login"))
 
+    # Check if phone is already used by another account
+    user_id = session.get("user_id")
+    if user_id:
+        existing = Account.query.filter(
+            Account.phone_number == phone_full,
+            Account.id != user_id
+        ).first()
+        if existing:
+            flash("This phone number is already linked to another account", "error")
+            return redirect(url_for("phone_login"))
+
     # Save phone to session
     session["phone_full"] = phone_full
 
@@ -1348,7 +1391,7 @@ def verify_submit():
     # Update user account with verified phone
     user = Account.query.get(session["user_id"])
     if user:
-        # Update phone number
+        # Update phone number (already validated in send_otp)
         if user.phone_number != phone_full:
             user.phone_number = phone_full
 
@@ -1405,6 +1448,295 @@ def resend_otp():
         flash("Failed to resend code. Try again.", "error")
 
     return redirect(url_for("verify_page"))
+
+
+# =============================================================================
+# FORGOT PASSWORD - STEP 1: Enter Email
+# =============================================================================
+
+@app.route("/forgot-password", methods=["GET"], strict_slashes=False)
+def forgot_password():
+    """
+    Display forgot password form.
+    Step 1: User enters email to receive OTP.
+    
+    Returns:
+        Rendered forgot_password.html template
+    """
+    return render_template("forgot_password.html")
+
+
+@csrf.exempt
+@app.route("/forgot-password", methods=["POST"], strict_slashes=False)
+def forgot_password_submit():
+    """
+    Process forgot password request.
+    Validates email exists and sends OTP to associated phone.
+    
+    Returns:
+        Redirect to verify_reset page on success
+        Redirect to forgot_password with error on failure
+    """
+    email = (request.form.get("email") or "").strip().lower()
+    
+    # Validate email
+    if not email:
+        flash("Please enter your email address.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    # Find user by email
+    user = Account.query.filter_by(email=email).first()
+    
+    if not user:
+        flash("No account found with this email address.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    # Check if user has phone number
+    if not user.phone_number:
+        flash("No phone number associated with this account. Please contact support.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    # Store reset data in session
+    session["reset_user_id"] = user.id
+    session["reset_email"] = email
+    session["reset_phone"] = user.phone_number
+    
+    # Send OTP
+    try:
+        if USE_TWILIO:
+            # Production: Send via Twilio
+            twilio_client.verify.v2.services(VERIFY_SID).verifications.create(
+                to=user.phone_number,
+                channel="sms"
+            )
+            flash("Verification code sent to your phone.", "success")
+        else:
+            # Dev mode: Generate random code
+            otp = f"{random.randint(0, 999999):06d}"
+            session["reset_otp"] = otp
+            print(f"[DEV MODE] Reset OTP -> {otp} for {user.phone_number}")
+            flash(f"DEV mode: OTP is {otp}", "success")
+            
+    except Exception as e:
+        print(f"[Reset OTP ERROR] {repr(e)}")
+        flash("Failed to send verification code. Please try again.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    return redirect(url_for("verify_reset"))
+
+
+# =============================================================================
+# VERIFY RESET OTP - STEP 2: Enter OTP Code
+# =============================================================================
+
+@app.route("/verify-reset", methods=["GET"], strict_slashes=False)
+def verify_reset():
+    """
+    Display OTP verification form for password reset.
+    Step 2: User enters OTP code sent to phone.
+    
+    Returns:
+        Rendered verify_reset.html template with masked phone number
+        Redirect to forgot_password if no reset session
+    """
+    # Check if reset session exists
+    if "reset_phone" not in session:
+        flash("Session expired. Please start again.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    phone = session.get("reset_phone", "")
+    
+    # Mask phone number (show last 2 digits only)
+    if len(phone) > 4:
+        masked = phone[:-2] + "**"
+    else:
+        masked = "****"
+    
+    return render_template("verify_reset.html", phone_mask=masked)
+
+
+@csrf.exempt
+@app.route("/verify-reset", methods=["POST"], strict_slashes=False)
+def verify_reset_submit():
+    """
+    Verify OTP code for password reset.
+    On success, allows user to set new password.
+    
+    Returns:
+        Redirect to reset_password page on success
+        Redirect to verify_reset with error on failure
+    """
+    code = (request.form.get("code") or "").strip()
+    
+    # Validate session
+    if "reset_phone" not in session or "reset_user_id" not in session:
+        flash("Session expired. Please start again.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    phone = session.get("reset_phone")
+    
+    # Verify the code
+    try:
+        if USE_TWILIO:
+            # Production: Verify with Twilio
+            check = twilio_client.verify.v2.services(VERIFY_SID).verification_checks.create(
+                to=phone,
+                code=code
+            )
+            if check.status != "approved":
+                flash("Incorrect verification code. Please try again.", "error")
+                return redirect(url_for("verify_reset"))
+        else:
+            # Dev mode: Check against session OTP
+            expected = session.get("reset_otp")
+            if not expected or code != expected:
+                flash("Incorrect verification code. Please try again.", "error")
+                return redirect(url_for("verify_reset"))
+                
+    except Exception as e:
+        print(f"[Verify Reset ERROR] {repr(e)}")
+        flash("Verification failed. Please try again.", "error")
+        return redirect(url_for("verify_reset"))
+    
+    # Mark as verified - allow password reset
+    session["reset_verified"] = True
+    
+    # Clear OTP from session
+    session.pop("reset_otp", None)
+    
+    return redirect(url_for("reset_password"))
+
+
+@csrf.exempt
+@app.route("/resend-reset-otp", methods=["POST"], strict_slashes=False)
+def resend_reset_otp():
+    """
+    Resend OTP code for password reset.
+    
+    Returns:
+        JSON response with success/error status
+    """
+    if "reset_phone" not in session:
+        return jsonify({"ok": False, "message": "Session expired"}), 400
+    
+    phone = session.get("reset_phone")
+    
+    try:
+        if USE_TWILIO:
+            twilio_client.verify.v2.services(VERIFY_SID).verifications.create(
+                to=phone,
+                channel="sms"
+            )
+        else:
+            otp = f"{random.randint(0, 999999):06d}"
+            session["reset_otp"] = otp
+            print(f"[DEV RESEND] Reset OTP -> {otp}")
+            
+        return jsonify({"ok": True, "message": "Code resent"})
+        
+    except Exception as e:
+        print(f"[Resend Reset ERROR] {repr(e)}")
+        return jsonify({"ok": False, "message": "Failed to resend code"}), 500
+
+
+# =============================================================================
+# RESET PASSWORD - STEP 3: Set New Password
+# =============================================================================
+
+@app.route("/reset-password", methods=["GET"], strict_slashes=False)
+def reset_password():
+    """
+    Display reset password form.
+    Step 3: User enters new password.
+    
+    Returns:
+        Rendered reset_password.html template
+        Redirect to forgot_password if not verified
+    """
+    # Check if user is verified
+    if not session.get("reset_verified"):
+        flash("Please verify your identity first.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    return render_template("reset_password.html")
+
+
+@csrf.exempt
+@app.route("/reset-password", methods=["POST"], strict_slashes=False)
+def reset_password_submit():
+    """
+    Process password reset.
+    Updates user password and logs them in directly.
+    
+    IMPORTANT: After reset, user goes directly to home page
+    WITHOUT needing to verify OTP again (already verified in Step 2)
+    
+    Returns:
+        Redirect to home_index on success (logged in automatically)
+        Redirect to reset_password with error on failure
+    """
+    # Validate session
+    if not session.get("reset_verified") or not session.get("reset_user_id"):
+        flash("Session expired. Please start again.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    password = request.form.get("password", "").strip()
+    confirm = request.form.get("confirm_password", "").strip()
+    
+    # Validate password
+    if not password or len(password) < 6:
+        flash("Password must be at least 6 characters.", "error")
+        return redirect(url_for("reset_password"))
+    
+    # Check password match
+    if password != confirm:
+        flash("Passwords do not match.", "error")
+        return redirect(url_for("reset_password"))
+    
+    # Get user
+    user_id = session.get("reset_user_id")
+    user = Account.query.get(user_id)
+    
+    if not user:
+        flash("User not found. Please start again.", "error")
+        return redirect(url_for("forgot_password"))
+    
+    # Update password
+    try:
+        user.password_hash = generate_password_hash(password)
+        db.session.commit()
+        print(f"[RESET] Password updated for user {user_id}")
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"[RESET ERROR] {repr(e)}")
+        flash("Failed to update password. Please try again.", "error")
+        return redirect(url_for("reset_password"))
+    
+    # =========================================================================
+    # AUTO LOGIN - User goes directly to home WITHOUT OTP verification again
+    # =========================================================================
+    
+    # Clear reset session data
+    session.pop("reset_user_id", None)
+    session.pop("reset_email", None)
+    session.pop("reset_phone", None)
+    session.pop("reset_verified", None)
+    session.pop("reset_otp", None)
+    
+    # Create login session - USER IS NOW LOGGED IN
+    session["user_id"] = int(user.id)
+    session["username"] = user.username
+    
+    # Load cart from database
+    load_cart_from_db(user.id)
+    
+    flash("Password reset successfully! Welcome back.", "success")
+    
+    # =========================================================================
+    # GO DIRECTLY TO HOME PAGE - NO OTP NEEDED (already verified)
+    # =========================================================================
+    return redirect(url_for("home_index"))
 
 
 # =============================================================================
@@ -1776,6 +2108,7 @@ def ai_generate_packaging():
             model="gpt-image-1",
             prompt=prompt_raw,
             size="1024x1024",
+            quality="high"
         )
 
         b64_data = result.data[0].b64_json
@@ -3996,7 +4329,20 @@ def api_update_profile():
 
         # Update phone with country code
         if digits:
-            user.phone_number = f"+966{digits}"
+            new_phone = f"+966{digits}"
+            # Check if phone already used by another account
+            if user.phone_number != new_phone:
+                existing = Account.query.filter(
+                    Account.phone_number == new_phone,
+                    Account.id != user_id
+                ).first()
+                if existing:
+                    return jsonify({
+                        "ok": False,
+                        "error": "PHONE_EXISTS",
+                        "message": "This phone number is already linked to another account"
+                    }), 400
+            user.phone_number = new_phone
 
         # Update city
         if city:
@@ -4385,6 +4731,26 @@ Shipping: Solo (50-120 SAR) or Shared (10-25 SAR), delivery 5-16 days
 Payment: Credit card, Apple Pay, Mada
 
 Cities: Riyadh, Jeddah, Mecca, Medina, Dammam, Khobar, Taif, Tabuk, and more
+
+BEAUTYFLOW OWNERSHIP:
+BeautyFlow is a Saudi graduation project created with love by five Saudi female students:
+1. Najla Abdullah
+2. Dania Kamel
+3. Nora Nasser
+4. Bayan Ali
+5. Maha Zayed
+
+If the user asks:
+- "Who owns BeautyFlow?"
+- "Who is the owner of BeautyFlow?"
+
+You MUST answer by listing all five names clearly.
+
+NAMING:
+- "BF" or "bf" is the official abbreviation of BeautyFlow.
+- If a user asks what BF or bf means, you must answer that it stands for BeautyFlow.
+
+
 """
 
 
@@ -4407,7 +4773,11 @@ def mika_chat():
     """
     user_id = session.get("user_id")
     if not user_id:
-        return jsonify({"ok": False, "message": "Please login first"}), 401
+        return jsonify({
+            "ok": True,
+            "response": "Hi there! 💕 I'm Mika, your BeautyFlow assistant. To chat with me and get personalized help, please <a href='/login' style='color:#e84a7f;font-weight:600;'>login</a> or <a href='/signup' style='color:#e84a7f;font-weight:600;'>create an account</a> first! I can't wait to help you discover amazing beauty products! ✨",
+            "expression": "happy"
+        }), 200
 
     try:
         data = request.get_json() or {}
@@ -4439,7 +4809,7 @@ def mika_chat():
         expression = "happy"  # Default expression
         msg_lower = user_message.lower()
 
-        if any(word in msg_lower for word in ["angry", "mad", "frustrated", "terrible", "hate"]):
+        if any(word in msg_lower for word in ["angry", "mad", "frustrated", "terrible", "hate" , "?????"]):
             expression = "sad"
         elif any(word in msg_lower for word in ["sad", "disappointed", "problem", "issue", "wrong"]):
             expression = "sad"

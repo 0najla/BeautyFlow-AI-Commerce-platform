@@ -1,366 +1,542 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About - BeautyFlow</title>
+    <!-- ====================================================================
+         BeautyFlow - About Us Page
+         ====================================================================
+         About page showcasing company vision, mission, team, and features.
+         
+         Author: BeautyFlow Team
+         Version: 1.0.0
+         ==================================================================== -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us - BeautyFlow</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body>
-  <header>
-    <header class="site-header">
-      <div class="logo"></div>
-      <nav class="site-nav">
-        <a href="{{ url_for('home_index') }}">Home</a>
-        <a href="{{ url_for('about_page') }}">About</a>
-        <a href="{{ url_for('help_page') }}">Help</a>
-        <a href="{{ url_for('account_page') }}">Account</a>
-      </nav>
+<body class="about-page">
+
+    <!-- ====================================================================
+         HEADER SECTION
+         ==================================================================== -->
+    <header class="main-header" id="mainHeader">
+        <div class="header-container">
+
+            <!-- Logo -->
+            <a href="{{ url_for('home_index') }}" class="header-logo">
+                <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow">
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="header-nav">
+                <a href="{{ url_for('home_index') }}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="{{ url_for('costSharing_page') }}" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>Cost-Sharing</span>
+                </a>
+                <a href="{{ url_for('design_options') }}" class="nav-link">
+                    <i class="fas fa-magic"></i>
+                    <span>Design</span>
+                </a>
+                <a href="{{ url_for('about_page') }}" class="nav-link active">
+                    <i class="fas fa-info-circle"></i>
+                    <span>About</span>
+                </a>
+                <a href="{{ url_for('help_page') }}" class="nav-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help</span>
+                </a>
+            </nav>
+
+            <!-- Header Action Buttons -->
+            <div class="header-actions">
+                <!-- Cart Button -->
+                <a href="/cart" class="cart-btn">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </a>
+
+                <!-- Account Button -->
+                <a href="{{ url_for('account_page') }}" class="account-btn">
+                    <i class="fas fa-user"></i>
+                </a>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="{{ url_for('home_index') }}"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ url_for('design_options') }}"><i class="fas fa-magic"></i> Design</a>
+            <a href="{{ url_for('about_page') }}" class="active"><i class="fas fa-info-circle"></i> About</a>
+            <a href="{{ url_for('help_page') }}"><i class="fas fa-question-circle"></i> Help</a>
+            <a href="/cart"><i class="fas fa-shopping-bag"></i> Cart</a>
+            <a href="{{ url_for('account_page') }}"><i class="fas fa-user"></i> Account</a>
+        </div>
     </header>
-  </header>
 
-  <main class="container">
-    <h1 class="page-title">
-      <span class="bf">BeautyFlow</span> <span class="bar">|</span> <span class="au">About us</span>
-    </h1>
 
-    <div class="bg-veil" aria-hidden="true"></div>
-
-    <section class="grid">
-      <!-- Left / Row 1 -->
-      <article class="card vision">
-        <div class="card-head">
-          <h3>Our Vision</h3>
-          <!-- icon -->
-          <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
-            <g fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="32" cy="26" r="13" fill="#ffe36f" />
-              <path d="M32 39v7M26 46h12M24 26h16M28 22h8M26 30h12" />
-            </g>
-          </svg>
+    <!-- ====================================================================
+         HERO SECTION
+         ==================================================================== -->
+    <section class="about-hero">
+        <!-- Background Shapes -->
+        <div class="about-hero-bg">
+            <div class="hero-shape shape-1"></div>
+            <div class="hero-shape shape-2"></div>
+            <div class="hero-shape shape-3"></div>
         </div>
-        <p>To revolutionize the beauty import experience through collaboration, smart technology, and transparency.</p>
-      </article>
 
-      <!-- Center (spans two rows) -->
-      <article class="card who tall center">
-        <div class="card-head">
-          <h3>Who We Are</h3>
-          <svg class="icon" viewBox="0 0 72 64" aria-hidden="true">
-            <g fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="8" y="14" width="20" height="32" rx="6" fill="#ffa1b7" />
-              <rect x="44" y="14" width="20" height="32" rx="6" fill="#ffd1d9" />
-              <path d="M18 46v6M54 46v6" />
-              <circle cx="18" cy="10" r="6" fill="#ffe06e" />
-              <circle cx="54" cy="10" r="6" fill="#ffe06e" />
-            </g>
-          </svg>
+        <!-- Hero Content -->
+        <div class="about-hero-content">
+            <h1><span class="highlight">BeautyFlow</span> | About Us</h1>
+            <p>Empowering beauty businesses through collaboration and smart technology</p>
         </div>
-        <p>
-          BeautyFlow started as a university project and evolved into a true vision to transform the way beauty
-          products are sourced and shared. What began as a simple idea has become a smart, collaborative platform
-          that empowers individuals and small businesses to import together in a smarter, more affordable, and
-          more transparent way.
-        </p>
-      </article>
-
-      <!-- Right / Row 1 -->
-      <article class="card mission">
-        <div class="card-head">
-          <h3>Our Mission</h3>
-          <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
-            <g fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="24" cy="24" r="14" fill="#ffd1de" />
-              <path d="M32 40l10 10M54 42l-12 8" />
-              <circle cx="52" cy="24" r="6" fill="#9cf7a0" />
-            </g>
-          </svg>
-        </div>
-        <p>Empowering individuals and small businesses to access global beauty products affordably by sharing shipments
-          and simplifying the import process.</p>
-      </article>
-
-      <!-- Left / Row 2 -->
-      <article class="card team">
-        <div class="card-head">
-          <h3>Meet the Team</h3>
-          <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
-            <g fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 28c8-10 18-10 26 0" fill="#ffa1b7" />
-              <path d="M24 36c8-10 18-10 26 0" fill="#ffd1de" />
-            </g>
-          </svg>
-        </div>
-        <ul class="names">
-          <li>Najla</li>
-          <li>Noor</li>
-          <li>Maha</li>
-          <li>Bayan</li>
-          <li>Dania</li>
-        </ul>
-      </article>
-
-      <!-- Right / Row 2 -->
-      <article class="card different">
-        <div class="card-head">
-          <h3>What Makes Us Different?</h3>
-          <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
-            <g fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 44l18-8v16z" fill="#ffd966" />
-              <path d="M30 48l18-8v16z" fill="#ffa1b7" />
-              <circle cx="56" cy="20" r="3" fill="#ffa1b7" />
-              <circle cx="50" cy="16" r="3" fill="#ffd966" />
-              <circle cx="58" cy="28" r="3" fill="#9cf7a0" />
-            </g>
-          </svg>
-        </div>
-        <ul class="bullets">
-          <li>Collaborative shipping that saves costs</li>
-          <li>AI-powered delivery optimization</li>
-          <li>Clear, fair pricing with no surprises</li>
-          <li>Built for beauty lovers, by beauty lovers</li>
-        </ul>
-      </article>
-      <style>
-        :root {
-          --bg: #fff6f8;
-          --ink: #34343a;
-          --muted: #6c6c74;
-          --waveTop: #f7d9e3;
-          --card: #ffffff;
-          --border: #e8d7dd;
-          --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-          --accent: #cf6385;
-        }
-
-        /* Reset & Base */
-        * {
-          box-sizing: border-box;
-        }
-
-        html,
-        body {
-          height: 100%;
-        }
-
-        body {
-          margin: 0;
-          background: var(--bg);
-          color: var(--ink);
-          font-family: "Poppins", system-ui, Arial, sans-serif;
-        }
-
-        /* Header (Wave) */
-        .wave-header {
-          position: relative;
-          height: 190px;
-          background: var(--waveTop);
-          overflow: hidden;
-        }
-
-        .brand-area {
-          position: relative;
-          max-width: 1100px;
-          margin: 0 auto;
-          padding: 18px 18px 0;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .logo {
-          font-weight: 800;
-          letter-spacing: 4px;
-          color: #ab5c72;
-        }
-
-        .nav {
-          display: flex;
-          gap: 18px;
-        }
-
-        .pill {
-          padding: 10px 18px;
-          border-radius: 24px;
-          text-decoration: none;
-          color: #54373f;
-          font-weight: 600;
-          transition: background .2s ease, box-shadow .2s ease;
-        }
-
-        .pill.active {
-          background: #cf7896;
-          color: #fff;
-          box-shadow: 0 6px 12px rgba(0, 0, 0, .1);
-        }
-
-        .wave {
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: -1px;
-          width: 100%;
-          height: 130px;
-        }
-
-        /* Title */
-        .container {
-          max-width: 1050px;
-          margin: 28px auto 80px;
-          padding: 0 16px;
-          position: relative;
-        }
-
-        .page-title {
-          text-align: center;
-          margin: 26px 0 18px;
-          font-size: 32px;
-          font-weight: 600;
-        }
-
-        .page-title .bf,
-        .page-title .au {
-          font-family: "Playfair Display", serif;
-          font-style: italic;
-        }
-
-        .page-title .bar {
-          opacity: .55;
-          margin: 0 8px;
-        }
-
-        /* Veil */
-        .bg-veil {
-          position: absolute;
-          inset: 160px 0 auto 0;
-          height: 220px;
-          background:
-            radial-gradient(600px 180px at 20% 40%, rgba(255, 255, 255, .7), transparent 60%),
-            radial-gradient(700px 220px at 80% 30%, rgba(255, 200, 220, .35), transparent 60%);
-          pointer-events: none;
-          filter: blur(.2px);
-        }
-
-        /* GRID LAYOUT (Who We Are centered and tall) */
-        .grid {
-          display: grid;
-          grid-template-columns: 1fr 1.15fr 1fr;
-          /* وسط أعرض قليلًا لتوازن النص الطويل */
-          gap: 24px;
-          align-items: start;
-          justify-content: center;
-          max-width: 1050px;
-          margin: 0 auto;
-        }
-
-        /* Cards */
-        .card {
-          background: var(--card);
-          border: 1px solid var(--border);
-          border-radius: 20px;
-          padding: 14px 16px;
-          box-shadow: var(--shadow);
-          font-size: 14.5px;
-          line-height: 1.65;
-          min-height: 180px;
-          /* ارتفاع موحّد للكروت العادية */
-        }
-
-        .card.tall {
-          min-height: 390px;
-          /* ارتفاع أعلى لبطاقة Who We Are */
-        }
-
-        .center {
-          grid-column: 2;
-          grid-row: span 2;
-        }
-
-        /* تثبيت الكرت في الوسط صفّين */
-
-        .card-head {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 10px;
-        }
-
-        .card-head h3 {
-          margin: 0;
-          font-weight: 700;
-          font-size: 15.5px;
-        }
-
-        .icon {
-          width: 26px;
-          height: 26px;
-          flex: 0 0 auto;
-        }
-
-        .card p {
-          color: #444;
-        }
-
-        .bullets {
-          margin: 0;
-          padding: 0 16px;
-          display: grid;
-          gap: 8px;
-        }
-
-        .bullets li {
-          color: #444;
-        }
-
-        /* Team names stacked */
-        .names {
-          list-style: none;
-          margin: 0;
-          padding: 0 2px 0 16px;
-          display: grid;
-          gap: 6px;
-          color: #444;
-        }
-
-        .names li {
-          line-height: 1.6;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 1020px) {
-          .grid {
-            grid-template-columns: 1fr 1fr;
-          }
-
-          .center {
-            grid-column: auto;
-            grid-row: auto;
-          }
-
-          /* ترجع عادي على التابلت */
-          .card.tall {
-            min-height: 320px;
-          }
-        }
-
-        @media (max-width: 680px) {
-          .grid {
-            grid-template-columns: 1fr;
-          }
-
-          .card,
-          .card.tall {
-            min-height: auto;
-          }
-        }
-      </style>
     </section>
-  </main>
+
+    <!-- Spacer -->
+    <br><br><br><br>
+
+
+    <!-- ====================================================================
+         MAIN CONTENT
+         ==================================================================== -->
+    <main class="about-main">
+
+        <!-- ================================================================
+             WHO WE ARE SECTION
+             ================================================================ -->
+        <section class="who-section">
+            <div class="who-card">
+                <div class="who-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h2>Who We Are</h2>
+                <p>
+                    BeautyFlow started as a university project and evolved into a true vision to transform the way beauty
+                    products are sourced and shared. What began as a simple idea has become a smart, collaborative platform that
+                    empowers individuals and small businesses to import together in a smarter, more affordable, and more
+                    transparent way.
+                </p>
+            </div>
+        </section>
+
+
+        <!-- ================================================================
+             VISION & MISSION SECTION
+             ================================================================ -->
+        <section class="vm-section">
+            <div class="vm-grid">
+                <!-- Vision Card -->
+                <div class="vm-card">
+                    <div class="vm-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>
+                        To revolutionize the beauty import experience through collaboration, smart technology, and transparency.
+                    </p>
+                </div>
+
+                <!-- Mission Card -->
+                <div class="vm-card">
+                    <div class="vm-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>
+                        Empowering individuals and small businesses to access global beauty products affordably by sharing
+                        shipments and simplifying the import process.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================================================================
+             WHAT MAKES US DIFFERENT SECTION
+             ================================================================ -->
+        <section class="different-section">
+            <h2>What Makes Us Different?</h2>
+
+            <div class="different-grid">
+                <!-- Feature 1: Collaborative Shipping -->
+                <div class="different-item">
+                    <div class="different-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h4>Collaborative Shipping</h4>
+                    <p>Share shipping costs with others to save money</p>
+                </div>
+
+                <!-- Feature 2: AI-Powered -->
+                <div class="different-item">
+                    <div class="different-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>AI-Powered</h4>
+                    <p>Smart delivery optimization and product recommendations</p>
+                </div>
+
+                <!-- Feature 3: Fair Pricing -->
+                <div class="different-item">
+                    <div class="different-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h4>Fair Pricing</h4>
+                    <p>Clear, transparent pricing with no surprises</p>
+                </div>
+
+                <!-- Feature 4: Made for You -->
+                <div class="different-item">
+                    <div class="different-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4>Made for You</h4>
+                    <p>Built for beauty lovers, by beauty lovers</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================================================================
+             TEAM SECTION
+             ================================================================ -->
+        <section class="team-section">
+            <h2>Meet the Team</h2>
+            <p class="team-subtitle">The amazing people behind BeautyFlow</p>
+
+            <div class="team-grid">
+                <!-- Team Member 1 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4>Maha</h4>
+                </div>
+
+                <!-- Team Member 2 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4>Bayan</h4>
+                </div>
+
+                <!-- Team Member 3 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4>Noor</h4>
+                </div>
+
+                <!-- Team Member 4 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4>Dania</h4>
+                </div>
+
+                <!-- Team Member 5 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4>Najla</h4>
+                </div>
+            </div>
+
+            <p class="team-university">Al-Baha University - Computer Information System</p>
+        </section>
+
+    </main>
+
+
+    <!-- ====================================================================
+         FOOTER SECTION
+         ==================================================================== -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+
+                <!-- Footer: Brand Info -->
+                <div class="footer-brand">
+                    <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow" class="footer-logo">
+                    <p>AI-powered collaborative import platform for beauty businesses in Saudi Arabia.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+
+                <!-- Footer: Quick Links -->
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <a href="{{ url_for('home_index') }}">Home</a>
+                    <a href="{{ url_for('design_options') }}">Design Options</a>
+                    <a href="{{ url_for('about_page') }}">About Us</a>
+                    <a href="{{ url_for('help_page') }}">Help Center</a>
+                </div>
+
+                <!-- Footer: Services -->
+                <div class="footer-links">
+                    <h4>Services</h4>
+                    <a href="/AI">AI Custom Design</a>
+                    <a href="/smartPicks">SmartPicks</a>
+                    <a href="/cart">Shopping Cart</a>
+                </div>
+
+                <!-- Footer: Contact Info -->
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p>
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:beautyflow.team@gmail.com">beautyflow.team@gmail.com</a>
+                    </p>
+                    <p><i class="fas fa-phone"></i> +966 XX XXX XXXX</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Al-Baha, Saudi Arabia</p>
+                </div>
+            </div>
+
+            <!-- Footer: Bottom Bar -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 BeautyFlow. All rights reserved.</p>
+                <p>Made with <i class="fas fa-heart"></i> by BeautyFlow Team</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ====================================================================
+         INTERNAL STYLES (Footer)
+         ==================================================================== -->
+    <style>
+        /* =================================================================
+           FOOTER STYLES
+           ================================================================= */
+
+        .main-footer {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+            color: #1a1a2e;
+            padding: 60px 0 30px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Footer Grid Layout */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        /* Footer Logo */
+        .footer-logo {
+            height: 40px;
+            margin-bottom: 16px;
+        }
+
+        /* Footer Brand Description */
+        .footer-brand p {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Social Media Links */
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e84a7f;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(232, 74, 127, 0.15);
+        }
+
+        .footer-social a:hover {
+            background: #e84a7f;
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(232, 74, 127, 0.3);
+        }
+
+        /* Footer Links Headings */
+        .footer-links h4,
+        .footer-contact h4 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #1a1a2e;
+            font-weight: 700;
+        }
+
+        /* Footer Links */
+        .footer-links a {
+            display: block;
+            color: #6b7280;
+            text-decoration: none;
+            margin-bottom: 12px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #e84a7f;
+            transform: translateX(5px);
+        }
+
+        /* Footer Contact Info */
+        .footer-contact p {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-contact i {
+            color: #e84a7f;
+        }
+
+        /* Footer Bottom Bar */
+        .footer-bottom {
+            border-top: 1px solid rgba(232, 74, 127, 0.2);
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .footer-bottom i {
+            color: #e84a7f;
+        }
+    </style>
+
+
+    <!-- ====================================================================
+         JAVASCRIPT
+         ==================================================================== -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            // =================================================================
+            // 1. HEADER SCROLL BEHAVIOR
+            // =================================================================
+
+            const header = document.getElementById("mainHeader");
+            let lastScrollY = window.pageYOffset;
+            const SCROLL_DELTA = 5; // Minimum scroll amount to trigger
+
+            window.addEventListener("scroll", function() {
+                const currentY = window.pageYOffset;
+
+                // At top of page - show header without background
+                if (currentY <= 0) {
+                    header.classList.remove("hide");
+                    header.classList.remove("scrolled");
+                    lastScrollY = 0;
+                    return;
+                }
+
+                // Ignore small scroll movements
+                if (Math.abs(currentY - lastScrollY) < SCROLL_DELTA) return;
+
+                // Scrolling down - hide header
+                if (currentY > lastScrollY) {
+                    header.classList.add("hide");
+                } else {
+                    // Scrolling up - show header
+                    header.classList.remove("hide");
+                }
+
+                // Add scrolled class for background/shadow
+                if (currentY > 20) {
+                    header.classList.add("scrolled");
+                } else {
+                    header.classList.remove("scrolled");
+                }
+
+                lastScrollY = currentY;
+            });
+
+
+            // =================================================================
+            // 2. MOBILE MENU TOGGLE
+            // =================================================================
+
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenuBtn.classList.toggle('active');
+                    mobileMenu.classList.toggle('open');
+                });
+            }
+
+
+            // =================================================================
+            // 3. LOAD CART COUNT
+            // =================================================================
+
+            fetch('/cart/count')
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.getElementById('cart-count');
+                    if (badge && data.count) {
+                        badge.textContent = data.count;
+                    }
+                })
+                .catch(() => {
+                    // Silent fail - cart count is not critical
+                });
+
+        });
+    </script>
+
+
+    <!-- ====================================================================
+         AI BOT INCLUDE
+         ==================================================================== -->
+    {% include 'aiBot.html' %}
+
 </body>
 
 </html>

@@ -1,583 +1,1390 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shipment Details - BeautyFlow</title>
+  <!-- ====================================================================
+     BeautyFlow - Track Shipment Page
+     ====================================================================
+     Shipment tracking page with order status, timeline, products, and group info.
 
-  <!-- Fonts & Styles -->
+     Author: BeautyFlow Team
+     Version: 1.0.0
+     ==================================================================== -->
 
+  <meta charset="UTF-8" />  
+ <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='white' rx='15' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='45' font-weight='bold' fill='%23e84a8a' text-anchor='middle'%3EBF%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Shipment - BeautyFlow</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* No Shipment State */
+    .no-shipment-container {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .no-shipment-icon {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .no-shipment-icon i {
+      font-size: 48px;
+      color: #e84a7f;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .no-shipment-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 15px;
+    }
+    
+    .no-shipment-text {
+      font-size: 16px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    
+    .no-shipment-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .no-shipment-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .no-shipment-btn.primary {
+      background: linear-gradient(135deg, #e84a7f, #ff6b9d);
+      color: white;
+      box-shadow: 0 4px 15px rgba(232, 74, 127, 0.3);
+    }
+    
+    .no-shipment-btn.primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(232, 74, 127, 0.4);
+    }
+    
+    .no-shipment-btn.secondary {
+      background: white;
+      color: #e84a7f;
+      border: 2px solid #fce7f3;
+    }
+    
+    .no-shipment-btn.secondary:hover {
+      background: #fdf2f8;
+      border-color: #e84a7f;
+    }
+    
+    /* Loading State */
+    .loading-container {
+      text-align: center;
+      padding: 80px 20px;
+    }
+    
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #fce7f3;
+      border-top-color: #e84a7f;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      color: #6b7280;
+      font-size: 16px;
+    }
+    
+    /* Shipment Type Badge */
+    .shipment-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-left: 15px;
+    }
+    
+    .shipment-type-badge.solo {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    
+    .shipment-type-badge.shared {
+      background: #d1fae5;
+      color: #059669;
+    }
+    
+    /* Group Members Section */
+    .group-members-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .group-members-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .group-members-header i {
+      color: #e84a7f;
+      font-size: 20px;
+    }
+    
+    .group-members-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin: 0;
+    }
+    
+    .members-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px;
+      background: #fdf2f8;
+      border-radius: 12px;
+    }
+    
+    .member-item.is-you {
+      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+      border: 2px solid #e84a7f;
+    }
+    
+    .member-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .member-info {
+      flex: 1;
+    }
+    
+    .member-name {
+      font-weight: 600;
+      color: #1a1a2e;
+      font-size: 14px;
+    }
+    
+    .member-status {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    .member-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .member-badge.paid {
+      background: #d1fae5;
+      color: #059669;
+    }
+    
+    .member-badge.pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    
+    /* Products in Shipment */
+    .products-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .products-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .products-header i {
+      color: #e84a7f;
+      font-size: 20px;
+    }
+    
+    .products-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin: 0;
+    }
+    
+    .product-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+    
+    .product-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #fdf2f8;
+    }
+    
+    .product-image-placeholder {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e84a7f;
+      font-size: 24px;
+    }
+    
+    .product-image-loading {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .product-image-loading i {
+      color: #e84a7f;
+      font-size: 18px;
+      animation: spin 1s linear infinite;
+    }
+    
+    .product-details {
+      flex: 1;
+    }
+    
+    .product-name {
+      font-weight: 600;
+      color: #1a1a2e;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    
+    .product-qty {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    .product-price {
+      font-weight: 700;
+      color: #e84a7f;
+      font-size: 15px;
+    }
+    
+    /* Savings Banner */
+    .savings-banner {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+    
+    .savings-banner i {
+      font-size: 28px;
+      color: #059669;
+    }
+    
+    .savings-banner .text {
+      flex: 1;
+    }
+    
+    .savings-banner .text span {
+      font-size: 13px;
+      color: #065f46;
+    }
+    
+    .savings-banner .text strong {
+      font-size: 20px;
+      color: #047857;
+      display: block;
+    }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/B.png') }}" />
 
+    /* Timeline Date Styles */
+.timeline-date.completed {
+  color: #059669;
+  font-weight: 600;
+}
+
+.timeline-date.active {
+  color: #e84a7f;
+  font-weight: 600;
+  animation: pulse-text 1.5s infinite;
+}
+
+.timeline-date.expected {
+  color: #6b7280;
+  font-style: italic;
+  font-size: 12px;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Progress Bar Styles */
+.overall-progress {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.progress-bar {
+  height: 12px;
+  background: #fce7f3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e84a7f, #ff6b9d);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #6b7280;
+}
+  </style>
 </head>
 
-<body>
-  <header>
-    <header class="site-header">
-      <div class="logo"></div>
-      <nav class="site-nav">
-        <a href="{{ url_for('home_index') }}">Home</a>
-        <a href="{{ url_for('about_page') }}">About</a>
-        <a href="{{ url_for('help_page') }}">Help</a>
-        <a href="{{ url_for('account_page') }}">Account</a>
+<body class="track-page">
+
+  <!-- ========== HEADER ========== -->
+  <header class="main-header" id="mainHeader">
+    <div class="header-container">
+      <a href="{{ url_for('home_index') }}" class="header-logo">
+        <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow">
+      </a>
+      
+      <nav class="header-nav">
+        <a href="{{ url_for('home_index') }}" class="nav-link">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="{{ url_for('costSharing_page') }}" class="nav-link">
+          <i class="fas fa-users"></i>
+          <span>Cost-Sharing</span>
+        </a>
+        <a href="{{ url_for('design_options') }}" class="nav-link">
+          <i class="fas fa-magic"></i>
+          <span>Design</span>
+        </a>
+        <a href="{{ url_for('about_page') }}" class="nav-link">
+          <i class="fas fa-info-circle"></i>
+          <span>About</span>
+        </a>
+        <a href="{{ url_for('help_page') }}" class="nav-link">
+          <i class="fas fa-question-circle"></i>
+          <span>Help</span>
+        </a>
       </nav>
-    </header>
+      
+      <div class="header-actions">
+        <a href="/cart" class="cart-btn">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge" id="cart-count">0</span>
+        </a>
+        <a href="{{ url_for('account_page') }}" class="account-btn">
+          <i class="fas fa-user"></i>
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="{{ url_for('home_index') }}"><i class="fas fa-home"></i> Home</a>
+      <a href="{{ url_for('design_options') }}"><i class="fas fa-magic"></i> Design</a>
+      <a href="{{ url_for('about_page') }}"><i class="fas fa-info-circle"></i> About</a>
+      <a href="{{ url_for('help_page') }}"><i class="fas fa-question-circle"></i> Help</a>
+      <a href="/cart"><i class="fas fa-shopping-bag"></i> Cart</a>
+      <a href="{{ url_for('account_page') }}"><i class="fas fa-user"></i> Account</a>
+    </div>
   </header>
 
+  <!-- ========== HERO SECTION ========== -->
+  <section class="track-hero">
+    <div class="track-hero-bg">
+      <div class="hero-shape shape-1"></div>
+      <div class="hero-shape shape-2"></div>
+      <div class="hero-shape shape-3"></div>
+    </div>
+    <div class="track-hero-content">
+      <h1><i class="fas fa-shipping-fast"></i> Track Your Shipment</h1>
+      <p>Monitor your order status in real-time</p>
+    </div>
+  </section>
+  <br><br><br><br>
 
-  <main class="container page shipment-page">
-    <h1 class="page-title">Shipment Details</h1>
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="track-main">
+    <div class="track-container">
 
-    <section class="shipment-grid">
-      <!-- تفاصيل الشحنة -->
-      <div class="card shipment-info">
-        <ul class="shipment-list" id="shipmentList"></ul>
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading shipment data...</p>
       </div>
 
-      <!-- ملخص الطلب -->
-      <div class="card order-summary">
-        <h3 class="card-title">Order Summary</h3>
-        <div class="product-mini">
-          <div>
-            <div class="p-name">Blush</div>
-            <div class="p-meta">Color: Pink</div>
+      <!-- No Shipment State -->
+      <div id="noShipmentState" class="no-shipment-container" style="display: none;">
+        <div class="no-shipment-icon">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <h2 class="no-shipment-title">No Active Shipment</h2>
+        <p class="no-shipment-text">
+          You don't have any shipments to track yet.<br>
+          Start shopping and join a cost-sharing group to save on shipping!
+        </p>
+        <div class="no-shipment-actions">
+          <a href="/AI" class="no-shipment-btn primary">
+            <i class="fas fa-magic"></i> Create AI Design
+          </a>
+          <a href="/costSharing" class="no-shipment-btn secondary">
+            <i class="fas fa-users"></i> Cost Sharing
+          </a>
+        </div>
+      </div>
+
+      <!-- Shipment Content (will be populated by JS) -->
+      <div id="shipmentContent" style="display: none;">
+        
+        <!-- Order Header Card -->
+        <div class="order-header-card">
+          <div class="order-info">
+            <div class="order-icon">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="order-text">
+              <h2 id="orderNumber">Order #BF-2025-000000</h2>
+              <span id="orderDate">Loading...</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center;">
+            <div class="status-badge" id="statusBadge">
+              <i class="fas fa-circle"></i>
+              <span id="statusText">Loading</span>
+            </div>
+            <div class="shipment-type-badge" id="shipmentTypeBadge">
+              <i class="fas fa-user"></i>
+              <span>Solo</span>
+            </div>
           </div>
         </div>
 
-        <div class="totals">
-          <div class="row"><span>Subtotal:</span><strong id="subtotal">7000</strong></div>
-          <div class="row"><span>Delivery fee:</span><strong id="delivery">250</strong></div>
-          <div class="row grand"><span>Total to pay:</span><strong id="total">7250</strong></div>
+        <!-- Content Grid -->
+         <!-- Progress Bar Container -->
+        <div id="progressBarContainer"></div>
+        <div class="track-grid">
+          
+          <!-- Shipment Details Card -->
+          <div class="track-card">
+            <div class="card-header">
+              <i class="fas fa-shipping-fast"></i>
+              <h3>Shipment Details</h3>
+            </div>
+            <div class="card-body">
+              <div class="details-list">
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-hashtag"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Tracking Number</span>
+                    <span class="detail-value" id="trackingNumber">#BF-SHP-XXXXX</span>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Destination</span>
+                    <span class="detail-value" id="destination">Loading...</span>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-weight-hanging"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Total Weight</span>
+                    <span class="detail-value" id="weight">0 KG</span>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-boxes"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Items</span>
+                    <span class="detail-value" id="itemsCount">0 Products</span>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <div class="detail-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Amount Paid</span>
+                    <span class="detail-value" id="amountPaid">0 SAR</span>
+                  </div>
+                </div>
+
+                <div class="detail-item highlight">
+                  <div class="detail-icon">
+                    <i class="fas fa-truck"></i>
+                  </div>
+                  <div class="detail-content">
+                    <span class="detail-label">Estimated Delivery</span>
+                    <span class="detail-value" id="deliveryDate">Loading...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tracking Timeline Card -->
+          <div class="track-card">
+            <div class="card-header">
+              <i class="fas fa-route"></i>
+              <h3>Tracking Progress</h3>
+            </div>
+            <div class="card-body">
+              <div class="timeline" id="timeline">
+                <!-- Timeline will be populated by JS -->
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <a class="btn primary block" href="{{ url_for('costSharing_page')}}">Back to site</a>
+        <!-- Products Card -->
+        <div class="products-card" id="productsCard">
+          <div class="products-header">
+            <i class="fas fa-shopping-bag"></i>
+            <h3>Your Products</h3>
+          </div>
+          <div id="productsList">
+            <!-- Products will be populated by JS -->
+          </div>
+        </div>
+
+        <!-- Savings Banner (for shared shipments) -->
+        <div class="savings-banner" id="savingsBanner" style="display: none;">
+          <i class="fas fa-piggy-bank"></i>
+          <div class="text">
+            <span>You saved with Cost-Sharing!</span>
+            <strong id="savingsAmount">0 SAR</strong>
+          </div>
+        </div>
+        <br> 
+        <br> 
+        
+        <!-- Group Members Card (for shared shipments) -->
+        <div class="group-members-card" id="groupMembersCard" style="display: none;">
+          <div class="group-members-header">
+            <i class="fas fa-users"></i>
+            <h3>Group Members</h3>
+          </div>
+          <div class="members-list" id="membersList">
+            <!-- Members will be populated by JS -->
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="track-actions">
+          <a href="{{ url_for('home_index') }}" class="btn-action btn-secondary">
+            <i class="fas fa-home"></i>
+            <span>Back to Home</span>
+          </a>
+          <a href="/costSharing" class="btn-action btn-primary">
+            <i class="fas fa-users"></i>
+            <span>Cost Sharing</span>
+          </a>
+        </div>
       </div>
-    </section>
+
+    </div>
   </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="{{ url_for('static', filename='images/BFlogo.png') }}" alt="BeautyFlow" class="footer-logo">
+          <p>AI-powered collaborative import platform for beauty businesses in Saudi Arabia.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <a href="{{ url_for('home_index') }}">Home</a>
+          <a href="{{ url_for('design_options') }}">Design Options</a>
+          <a href="{{ url_for('about_page') }}">About Us</a>
+          <a href="{{ url_for('help_page') }}">Help Center</a>
+        </div>
+        
+        <div class="footer-links">
+          <h4>Services</h4>
+          <a href="/AI">AI Custom Design</a>
+          <a href="/smartPicks">SmartPicks</a>
+          <a href="/cart">Shopping Cart</a>
+        </div>
+        
+        <div class="footer-contact">
+          <h4>Contact Us</h4>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:beautyflow.team@gmail.com">beautyflow.team@gmail.com</a></p>
+          <p><i class="fas fa-phone"></i> +966 XX XXX XXXX</p>
+          <p><i class="fas fa-map-marker-alt"></i> Al-Baha, Saudi Arabia</p>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 BeautyFlow. All rights reserved.</p>
+        <p>Made with <i class="fas fa-heart"></i> by BeautyFlow Team</p>
+      </div>
+    </div>
+  </footer>
+
   <style>
-    :root {
-      --rose-50: #fff5f7;
-      --rose-100: #ffe5ea;
-      --rose-200: #ffd0da;
-      --rose-300: #ffb5c6;
-      --rose-400: #ff97af;
-      --rose-500: #f17494;
-      --rose-600: #e25b7f;
-      --rose-700: #c2476a;
-      --ink-700: #3b3b4f;
-      --ink-500: #606071;
-      --ink-300: #9a9aaa;
-      --bg: #fffdfd;
-      --radius: 18px;
-      --shadow: 0 8px 24px rgba(230, 86, 120, .15);
-    }
-
-    * {
-      box-sizing: border-box
-    }
-
-    html,
-    body {
-      height: 100%
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink-700);
-      font-family: "Cairo", "Poppins", system-ui, Arial, Helvetica, sans-serif;
-      line-height: 1.6
-    }
-
-    .container {
-      width: min(1100px, 90%);
-      margin-inline: auto
-    }
-
-    /* Topbar + Wave */
-    .topbar {
-      background: linear-gradient(135deg, var(--rose-100), var(--rose-300));
-      position: relative
-    }
-
-    .nav {
-      padding: 10px 0
-    }
-
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 22px;
-      justify-content: flex-end;
-      margin: 0;
-      padding: 10px 0
-    }
-
-    .nav-links a {
-      color: #7a2942;
-      text-decoration: none;
-      font-weight: 600;
-      opacity: .9
-    }
-
-    .nav-links a.active,
-    .nav-links a:hover {
-      opacity: 1;
-      text-decoration: underline
-    }
-
-    .wave svg {
-      display: block;
-      width: 100%;
-      height: 120px
-    }
-
-    .wave path {
-      fill: var(--rose-200);
-      opacity: .9
-    }
-
-    /* Page */
-    .page {
-      padding: 10px 0 60px
-    }
-
-    .page-title {
-      margin-top: -30px;
-      text-align: center;
-      font-weight: 800;
-      font-size: 28px;
-      color: #7a2942
-    }
-
-    /* Inputs */
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      justify-content: center;
-      margin: 14px 0 24px
-    }
-
-    .label {
-      font-weight: 600;
-      color: var(--ink-500)
-    }
-
-    .select,
-    .input {
-      border: 1px solid var(--rose-300);
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #fff;
-      box-shadow: var(--shadow);
-      outline: none;
-      min-width: 220px;
-      font-family: inherit
-    }
-
-    .label.sm {
-      font-size: .9rem
-    }
-
-    .mini-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 12px
-    }
-
-    /* Cards Grid */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px
-    }
-
-    @media (max-width:900px) {
-      .grid {
-        grid-template-columns: 1fr
-      }
-    }
-
-    .card {
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px 16px
-    }
-
-    .card.tip {
-      background: linear-gradient(180deg, var(--rose-50), #fff)
-    }
-
-    .card-title {
-      margin: 0 0 12px;
-      font-size: 18px;
-      color: #7a2942;
-      font-weight: 800
-    }
-
-    /* Avatars + Progress */
-    .avatars {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 10px
-    }
-
-    .avatars img,
-    .avatar.placeholder {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, .1)
-    }
-
-    .avatar.placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--rose-300);
-      color: #fff;
-      font-weight: 700
-    }
-
-    .progress-wrap {
-      margin-top: 8px
-    }
-
-    .progress-bar {
-      height: 10px;
-      border-radius: 999px;
-      background: var(--rose-100);
-      overflow: hidden
-    }
-
-    .progress {
-      height: 100%;
-      background: var(--rose-600)
-    }
-
-    .progress-text {
-      font-size: .9rem;
-      color: var(--ink-500);
-      margin-top: 6px
-    }
-
-    /* Estimates */
-    .estimates {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px
-    }
-
-    .estimates li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--rose-50);
-      padding: 10px;
-      border-radius: 12px
-    }
-
-    .estimates li strong {
-      color: #6f2340
-    }
-
-    .estimates li.save {
-      background: var(--rose-100);
-      font-weight: 700
-    }
-
-    /* Buttons */
-    .btn {
-      appearance: none;
-      border: none;
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: .2s;
-      box-shadow: var(--shadow)
-    }
-
-    .btn.primary {
-      background: var(--rose-600);
-      color: #fff
-    }
-
-    .btn.primary:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.05)
-    }
-
-    .btn.secondary {
-      background: var(--rose-400);
-      color: #fff
-    }
-
-    .btn.outline {
-      background: #fff;
-      color: var(--rose-700);
-      border: 2px solid var(--rose-300)
-    }
-
-    .btn.ghost {
-      background: #fff0;
-      border: 2px dashed var(--rose-300);
-      color: var(--rose-700)
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px
-    }
-
-    .block {
-      width: 100%
-    }
-
-    /* Summary */
-    .summary {
-      margin-top: 26px;
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px
-    }
-
-    .summary-title {
-      margin-top: 0;
-      color: #7a2942
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px
-    }
-
-    @media (max-width:900px) {
-      .summary-grid {
-        grid-template-columns: repeat(2, 1fr)
-      }
-    }
-
-    .summary-item {
-      background: var(--rose-50);
-      padding: 12px;
-      border-radius: 12px
-    }
-
-    .summary-item .k {
-      display: block;
-      color: var(--ink-300);
-      font-size: .9rem
-    }
-
-    .summary-item .v {
-      font-weight: 800;
-      color: #6f2340
-    }
-
-    .summary-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 10px
-    }
-
-    /* Footer */
-    .footer {
-      padding: 24px 0;
-      color: var(--ink-300);
-      text-align: center
-    }
-
-    /* ===== Shipment Details ===== */
-    .shipment-page .shipment-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px
-    }
-
-    @media(max-width:900px) {
-      .shipment-page .shipment-grid {
-        grid-template-columns: 1fr
-      }
-    }
-
-    .shipment-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px
-    }
-
-    .shipment-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--rose-50);
-      padding: 12px 16px;
-      border-radius: 14px;
-      border: 1px solid var(--rose-200);
-      font-weight: 700;
-      color: #7a2942
-    }
-
-    .shipment-list li .value {
-      color: var(--ink-500);
-      font-weight: 600
-    }
-
-    .product-mini {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px
-    }
-
-    .thumb-img {
-      width: 60px;
-      height: 60px;
-      border-radius: 16px;
-      background: var(--rose-100);
-      object-fit: contain;
-      box-shadow: var(--shadow)
-    }
-
-    .p-name {
-      font-weight: 800;
-      color: #6f2340
-    }
-
-    .p-meta {
-      font-size: .85rem;
-      color: var(--ink-300)
-    }
-
-    .totals {
-      margin: 14px 0 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px
-    }
-
-    .totals .row {
-      display: flex;
-      justify-content: space-between;
-      background: var(--rose-50);
-      padding: 10px 12px;
-      border-radius: 12px
-    }
-
-    .totals .row.grand {
-      background: var(--rose-100);
-      font-weight: 800
-    }
-
-    /* ===== Invoice ===== */
-    .invoice-page .invoice-grid {
-      display: grid;
-      grid-template-columns: 2fr 1.2fr;
-      gap: 18px
-    }
-
-    @media (max-width:900px) {
-      .invoice-page .invoice-grid {
-        grid-template-columns: 1fr
-      }
-    }
-
-    .kv {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px
-    }
-
-    .kv li {
-      display: flex;
-      justify-content: space-between;
-      background: var(--rose-50);
-      padding: 10px 12px;
-      border-radius: 12px
-    }
-
-    .cost-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px
-    }
-
-    .cost-list li {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #fff;
-      border: 1px solid var(--rose-200)
-    }
-
-    /* تعديل الموجة والعنوان */
-    .wave svg {
-      height: 80px;
-      /* تقلل ارتفاع الموجة */
-    }
-
-    .page-title {
-      margin-top: 40px;
-      /* تبعد العنوان عن الموجة */
-      text-align: center;
-      font-weight: 800;
-      font-size: 28px;
-      color: #7a2942;
+    .main-footer {
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+      color: #1a1a2e;
+      padding: 60px 0 30px;
+    }
+    .footer-container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+    .footer-logo { height: 40px; margin-bottom: 16px; }
+    .footer-brand p { font-size: 14px; color: #6b7280; line-height: 1.6; margin-bottom: 20px; }
+    .footer-social { display: flex; gap: 12px; }
+    .footer-social a { width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #e84a7f; transition: all 0.3s; box-shadow: 0 4px 15px rgba(232, 74, 127, 0.15); }
+    .footer-social a:hover { background: #e84a7f; color: white; transform: translateY(-4px); }
+    .footer-links h4, .footer-contact h4 { font-size: 16px; margin-bottom: 20px; color: #1a1a2e; font-weight: 700; }
+    .footer-links a { display: block; color: #6b7280; text-decoration: none; margin-bottom: 12px; font-size: 14px; transition: all 0.3s; }
+    .footer-links a:hover { color: #e84a7f; transform: translateX(5px); }
+    .footer-contact p { font-size: 14px; color: #6b7280; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .footer-contact i { color: #e84a7f; }
+    .footer-bottom { border-top: 1px solid rgba(232, 74, 127, 0.2); padding-top: 30px; display: flex; justify-content: space-between; font-size: 13px; color: #6b7280; }
+    .footer-bottom i { color: #e84a7f; }
+    
+    @media (max-width: 768px) {
+      .footer-grid { grid-template-columns: 1fr; text-align: center; }
+      .footer-social { justify-content: center; }
+      .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
     }
   </style>
-  <script>
-    // بيانات الشحنة (نفس اللي بالصورة)
-    const shipmentData = [
-      { label: 'Number of products', value: 'id2323288' },
-      { label: 'Weight', value: '1650 KG' },
-      { label: 'Destination', value: 'Jeddah' },
-      { label: 'Shipment Status', value: 'Preparing' },
-      { label: 'Estimated Delivery', value: '31 May' },
-      { label: 'Tracking Number', value: '#123888888' },
-    ];
 
-    // نجيب العنصر من الصفحة
-    const list = document.getElementById('shipmentList');
+  <!-- ========== SCRIPTS ========== -->
+ <script>
 
-    // نضيف البيانات داخل الصفحة
-    shipmentData.forEach(item => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-    <span>${item.label}</span>
-    <span class="value">${item.value}</span>
+const CITIES = {
+  'riyadh': { name: 'Riyadh', name_ar: 'الرياض' },
+  'jeddah': { name: 'Jeddah', name_ar: 'جدة' },
+  'makkah': { name: 'Makkah', name_ar: 'مكة' },
+  'madinah': { name: 'Madinah', name_ar: 'المدينة' },
+  'dammam': { name: 'Dammam', name_ar: 'الدمام' },
+  'khobar': { name: 'Khobar', name_ar: 'الخبر' },
+  'dhahran': { name: 'Dhahran', name_ar: 'الظهران' },
+  'tabuk': { name: 'Tabuk', name_ar: 'تبوك' },
+  'abha': { name: 'Abha', name_ar: 'أبها' },
+  'taif': { name: 'Taif', name_ar: 'الطائف' },
+  'najran': { name: 'Najran', name_ar: 'نجران' },
+  'khamis': { name: 'Khamis Mushait', name_ar: 'خميس مشيط' },
+  'jubail': { name: 'Jubail', name_ar: 'الجبيل' },
+  'yanbu': { name: 'Yanbu', name_ar: 'ينبع' },
+  'hail': { name: 'Hail', name_ar: 'حائل' },
+  'jazan': { name: 'Jazan', name_ar: 'جازان' },
+  'arar': { name: 'Arar', name_ar: 'عرعر' },
+  'al baha': { name: 'Al Baha', name_ar: 'الباحة' },
+  'buraidah': { name: 'Buraidah', name_ar: 'بريدة' },
+  'hofuf': { name: 'Hofuf', name_ar: 'الهفوف' }
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('📦 Shipment page loaded...');
+  
+  // ✅ Check if order_id is in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderId = urlParams.get('order_id');
+  
+  if (orderId) {
+    // ✅ Load order from database API
+    console.log('📦 Loading order from database, ID:', orderId);
+    await loadOrderFromDatabase(orderId);
+  } else {
+    // ✅ Fallback to sessionStorage (for fresh payments)
+    console.log('📦 No order_id in URL, checking sessionStorage...');
+    setTimeout(() => {
+      loadShipmentFromSession();
+    }, 500);
+  }
+});
+
+// ========================================
+// ✅ Load Order from Database API
+// ========================================
+async function loadOrderFromDatabase(orderId) {
+  const loadingEl = document.getElementById('loadingState');
+  const noShipmentEl = document.getElementById('noShipmentState');
+  const contentEl = document.getElementById('shipmentContent');
+  
+  // Show loading
+  if (loadingEl) loadingEl.style.display = 'block';
+  if (noShipmentEl) noShipmentEl.style.display = 'none';
+  if (contentEl) contentEl.style.display = 'none';
+  
+  try {
+    const res = await fetch(`/api/orders/${orderId}`);
+    const data = await res.json();
+    
+    console.log('📦 API Response:', data);
+    
+    // Hide loading
+    if (loadingEl) loadingEl.style.display = 'none';
+    
+    if (data.ok && data.order) {
+      console.log('✅ Order loaded successfully:', data.order);
+      console.log('✅ Order type from API:', data.order.order_type);
+      console.log('✅ Group ID from API:', data.order.group_id);
+      
+      const shipmentData = transformOrderToShipment(data.order);
+      console.log('✅ Transformed shipment data:', shipmentData);
+      showShipmentData(shipmentData);
+    } else {
+      console.error('❌ Order not found:', data.message);
+      showNoShipmentState();
+    }
+  } catch (err) {
+    console.error('❌ Error loading order:', err);
+    if (loadingEl) loadingEl.style.display = 'none';
+    showNoShipmentState();
+  }
+}
+
+// ========================================
+// ✅✅✅ Transform API Order to Shipment Format
+// ========================================
+function transformOrderToShipment(order) {
+ 
+  const orderType = order.order_type || (order.group_id ? 'shared' : 'solo');
+  
+  console.log('🔄 Transform - order_type:', order.order_type);
+  console.log('🔄 Transform - group_id:', order.group_id);
+  console.log('🔄 Transform - final type:', orderType);
+  
+  return {
+    // Basic Info
+    id: order.id,
+    order_id: order.id,
+    order_number: order.order_number || `BF-${String(order.id).padStart(6, '0')}`,
+    tracking_number: order.tracking_number || `BF-SHP-${String(order.id).padStart(6, '0')}`,
+    
+    // Status
+    status: order.status || 'PAID',
+    delivery_status: order.delivery_status || order.status,
+    
+    // ✅✅✅ Type - API
+    type: orderType,
+    order_type: orderType,
+    
+    // Dates
+    order_date: order.created_at,
+    date_formatted: order.date_formatted,
+    created_at: order.created_at,
+    
+    // City & Delivery
+    city: order.city || 'riyadh',
+    city_name: order.city_name || 'Riyadh',
+    delivery_days: order.delivery_days || '7-10',
+    delivery_estimate: order.delivery_estimate,
+    days_remaining: order.days_remaining,
+    
+    // Counts
+    items_count: order.items_count || order.products_count || 0,
+    weight: order.weight || ((order.items_count || 1) * 0.1).toFixed(2),
+    
+    // Costs
+    subtotal: order.subtotal || 0,
+    shipping_fee: order.shipping_fee || 0,
+    custom_duties: order.custom_duties || 0,
+    sfda_fee: order.sfda_fee || 0,
+    handling_fee: order.handling_fee || 0,
+    total: order.total || 0,
+    total_paid: order.total_paid || order.total || 0,
+    
+    // Products
+    products: order.products || [],
+    
+    // Tracking
+    current_stage: order.current_stage || 1,
+    total_progress: order.total_progress || 0,
+    stage_dates: order.stage_dates || {},
+    tracking: order.tracking || {},
+    
+    // ✅✅✅ Group Info (for shared) - API
+    group_id: order.group_id || null,
+    members_count: orderType === 'shared' ? 5 : 1,
+    members: order.members || [],
+    savings: order.savings || 0
+  };
+}
+
+// ========================================
+// ✅ Load from sessionStorage (legacy/fresh payment)
+// ========================================
+function loadShipmentFromSession() {
+  const loadingEl = document.getElementById('loadingState');
+  if (loadingEl) loadingEl.style.display = 'none';
+  
+  let shipmentData = null;
+  
+  // Check 'beautyflow_shipment'
+  const savedShipment = sessionStorage.getItem('beautyflow_shipment');
+  if (savedShipment) {
+    try {
+      shipmentData = JSON.parse(savedShipment);
+      console.log('✅ Loaded from beautyflow_shipment:', shipmentData);
+    } catch (e) {
+      console.error('Error parsing beautyflow_shipment:', e);
+    }
+  }
+  
+  // Fallback: Check old keys
+  if (!shipmentData) {
+    const soloPayment = sessionStorage.getItem('beautyflow_solo_payment');
+    if (soloPayment) {
+      try {
+        shipmentData = JSON.parse(soloPayment);
+        shipmentData.type = 'solo';
+        shipmentData.order_type = 'solo';
+      } catch (e) {}
+    }
+  }
+  
+  if (!shipmentData) {
+    const sharedPayment = sessionStorage.getItem('beautyflow_shared_payment');
+    if (sharedPayment) {
+      try {
+        shipmentData = JSON.parse(sharedPayment);
+        shipmentData.type = 'shared';
+        shipmentData.order_type = 'shared';
+      } catch (e) {}
+    }
+  }
+  
+  if (shipmentData) {
+    showShipmentData(shipmentData);
+  } else {
+    showNoShipmentState();
+  }
+}
+
+// ========================================
+// ✅ Show No Shipment State
+// ========================================
+function showNoShipmentState() {
+  const loadingEl = document.getElementById('loadingState');
+  const noShipmentEl = document.getElementById('noShipmentState');
+  const contentEl = document.getElementById('shipmentContent');
+  
+  if (loadingEl) loadingEl.style.display = 'none';
+  if (noShipmentEl) noShipmentEl.style.display = 'block';
+  if (contentEl) contentEl.style.display = 'none';
+}
+
+// ========================================
+// ✅✅✅ Show Shipment Data - MAIN DISPLAY FUNCTION
+// ========================================
+function showShipmentData(shipment) {
+  console.log('📦 Displaying shipment:', shipment);
+  
+  const loadingEl = document.getElementById('loadingState');
+  const noShipmentEl = document.getElementById('noShipmentState');
+  const contentEl = document.getElementById('shipmentContent');
+  
+  if (loadingEl) loadingEl.style.display = 'none';
+  if (noShipmentEl) noShipmentEl.style.display = 'none';
+  if (contentEl) contentEl.style.display = 'block';
+  
+  
+  const isShared = shipment.type === 'shared' || shipment.order_type === 'shared';
+  console.log('📦 Is Shared Shipment:', isShared);
+  console.log('📦 shipment.type:', shipment.type);
+  console.log('📦 shipment.order_type:', shipment.order_type);
+  
+  const orderDate = shipment.order_date ? new Date(shipment.order_date) : 
+                    shipment.created_at ? new Date(shipment.created_at) : new Date();
+  
+  // ✅ Order Number & Date
+  const orderNumberEl = document.getElementById('orderNumber');
+  const orderDateEl = document.getElementById('orderDate');
+  if (orderNumberEl) orderNumberEl.textContent = `Order #${shipment.order_number || 'BF-000000'}`;
+  if (orderDateEl) orderDateEl.textContent = shipment.date_formatted || formatDate(orderDate);
+  
+  // ✅ Status Badge
+  updateStatusBadge(shipment.delivery_status || shipment.status || 'Processing');
+  
+  // ✅✅✅ Shipment Type Badge - يعتمد على isShared
+  const typeBadge = document.getElementById('shipmentTypeBadge');
+  if (typeBadge) {
+    if (isShared) {
+      typeBadge.className = 'shipment-type-badge shared';
+      typeBadge.innerHTML = `<i class="fas fa-users"></i><span>Shared Shipping (${shipment.members_count || 5} members)</span>`;
+      console.log('✅ Badge set to SHARED');
+    } else {
+      typeBadge.className = 'shipment-type-badge solo';
+      typeBadge.innerHTML = `<i class="fas fa-user"></i><span>Solo Shipping</span>`;
+      console.log('✅ Badge set to SOLO');
+    }
+  }
+  
+  // ✅ Tracking Number
+  const trackingEl = document.getElementById('trackingNumber');
+  if (trackingEl) trackingEl.textContent = `#${shipment.tracking_number || 'BF-SHP-000000'}`;
+  
+  // ✅ Destination
+  const destEl = document.getElementById('destination');
+  if (destEl) {
+    const city = (shipment.city || 'riyadh').toLowerCase();
+    const cityInfo = CITIES[city] || { name: shipment.city_name || 'Riyadh' };
+    destEl.textContent = `${cityInfo.name}, Saudi Arabia`;
+  }
+  
+  // ✅ Weight & Items
+  const weightEl = document.getElementById('weight');
+  const itemsEl = document.getElementById('itemsCount');
+  if (weightEl) weightEl.textContent = `${shipment.weight || 0.5} KG`;
+  if (itemsEl) itemsEl.textContent = `${shipment.items_count || 1} Product${(shipment.items_count || 1) !== 1 ? 's' : ''}`;
+  
+  // ✅ Amount Paid
+  const amountEl = document.getElementById('amountPaid');
+  if (amountEl) amountEl.textContent = `${(shipment.total_paid || shipment.total || 0).toFixed(2)} SAR`;
+  
+  // ✅ Delivery Date with days remaining
+  const deliveryEl = document.getElementById('deliveryDate');
+  if (deliveryEl) {
+    let deliveryText = shipment.delivery_estimate || calculateDeliveryEstimate(orderDate, shipment.delivery_days);
+    
+    if (shipment.days_remaining !== undefined && shipment.days_remaining > 0) {
+      deliveryText += ` (${Math.ceil(shipment.days_remaining)} days left)`;
+    } else if ((shipment.delivery_status || '').toUpperCase() === 'DELIVERED') {
+      deliveryText = '✓ Delivered!';
+    }
+    
+    deliveryEl.textContent = deliveryText;
+  }
+  
+  // ✅ Timeline with dynamic dates
+  renderTimeline(shipment);
+  
+  // ✅ Products
+  renderProducts(shipment.products || []);
+  
+  // ✅ Progress Bar
+  updateProgressBar(shipment);
+  
+  // ✅✅✅ Savings Banner (for shared shipments only)
+  const savingsBanner = document.getElementById('savingsBanner');
+  const savingsAmount = document.getElementById('savingsAmount');
+  if (savingsBanner && savingsAmount) {
+    if (isShared && shipment.savings > 0) {
+      savingsBanner.style.display = 'flex';
+      savingsAmount.textContent = `${shipment.savings} SAR`;
+      console.log('✅ Savings banner shown:', shipment.savings);
+    } else {
+      savingsBanner.style.display = 'none';
+    }
+  }
+  
+  // ✅✅✅ Group Members (for shared shipments only)
+  const groupCard = document.getElementById('groupMembersCard');
+  if (groupCard) {
+    if (isShared && shipment.members && shipment.members.length > 0) {
+      groupCard.style.display = 'block';
+      renderMembers(shipment.members);
+      console.log('✅ Group members card shown');
+    } else {
+      groupCard.style.display = 'none';
+    }
+  }
+}
+
+// ========================================
+// ✅ Update Progress Bar
+// ========================================
+function updateProgressBar(shipment) {
+  const progressContainer = document.getElementById('progressBarContainer');
+  if (!progressContainer) return;
+  
+  const progress = shipment.total_progress || shipment.tracking?.total_progress || 0;
+  const cityName = shipment.city_name || 'Riyadh';
+  const deliveryDays = shipment.delivery_days || '7-10';
+  
+  progressContainer.innerHTML = `
+    <div class="overall-progress">
+      <div class="progress-header">
+        <span>📦 Delivery Progress</span>
+        <span>${progress}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${progress}%"></div>
+      </div>
+      <div class="progress-info">
+        <span>📍 ${cityName}</span>
+        <span>🚚 ${deliveryDays} days delivery</span>
+      </div>
+    </div>
   `;
-      list.appendChild(li);
-    });
+}
 
-  </script>
+// ========================================
+// ✅ Calculate Delivery Estimate
+// ========================================
+function calculateDeliveryEstimate(orderDate, deliveryDays) {
+  const daysStr = deliveryDays || '7-10';
+  const parts = daysStr.split('-');
+  const daysMin = parseInt(parts[0]) || 7;
+  const daysMax = parseInt(parts[1]) || 10;
+  
+  const date = new Date(orderDate);
+  const deliveryStart = new Date(date);
+  deliveryStart.setDate(deliveryStart.getDate() + daysMin);
+  const deliveryEnd = new Date(date);
+  deliveryEnd.setDate(deliveryEnd.getDate() + daysMax);
+  
+  return `${deliveryStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${deliveryEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+}
 
-  <footer class="footer">
-    <div class="container"><small>© BeautyFlow 2025</small></div>
-  </footer>
+// ========================================
+// ✅ Update Status Badge
+// ========================================
+function updateStatusBadge(status) {
+  const badge = document.getElementById('statusBadge');
+  const statusText = document.getElementById('statusText');
+  
+  if (!badge || !statusText) return;
+  
+  badge.className = 'status-badge';
+  const statusUpper = (status || '').toUpperCase();
+  
+  if (statusUpper.includes('DELIVER')) {
+    badge.classList.add('delivered');
+    statusText.textContent = 'Delivered';
+  } else if (statusUpper.includes('TRANSIT') || statusUpper === 'OUT_FOR_DELIVERY') {
+    badge.classList.add('out-for-delivery');
+    statusText.textContent = 'Out for Delivery';
+  } else if (statusUpper.includes('SHIP')) {
+    badge.classList.add('shipped');
+    statusText.textContent = 'Shipped';
+  } else if (statusUpper.includes('PROCESS')) {
+    badge.classList.add('processing');
+    statusText.textContent = 'Processing';
+  } else if (statusUpper === 'PAID' || statusUpper === 'CONFIRMED') {
+    badge.classList.add('confirmed');
+    statusText.textContent = 'Confirmed';
+  } else {
+    badge.classList.add('processing');
+    statusText.textContent = status || 'Processing';
+  }
+}
+
+// ========================================
+// ✅ Render Timeline - DYNAMIC WITH DATES
+// ========================================
+function renderTimeline(shipment) {
+  const timeline = document.getElementById('timeline');
+  if (!timeline) return;
+  
+  const currentStage = shipment.current_stage || shipment.tracking?.current_stage || 1;
+  const stageDates = shipment.stage_dates || shipment.tracking?.stage_dates || {};
+  
+  const stages = [
+    { id: 'confirmed', icon: 'fa-check', title: 'Order Confirmed', desc: 'Payment received successfully', key: 'confirmed' },
+    { id: 'processing', icon: 'fa-cog', title: 'Processing', desc: 'Order is being prepared', key: 'processing' },
+    { id: 'shipped', icon: 'fa-plane', title: 'Shipped', desc: 'Handed to shipping carrier', key: 'shipped' },
+    { id: 'out_for_delivery', icon: 'fa-truck', title: 'Out for Delivery', desc: 'On the way to your address', key: 'out_for_delivery' },
+    { id: 'delivered', icon: 'fa-home', title: 'Delivered', desc: 'Package arrived at destination', key: 'delivered' }
+  ];
+  
+  let html = '';
+  
+  stages.forEach((stage, index) => {
+    const stageNum = index + 1;
+    const stageData = stageDates[stage.key] || {};
+    
+    let stageClass = 'pending';
+    let dateText = 'Pending';
+    let dateClass = '';
+    
+    if (stageData.completed || stageNum < currentStage) {
+      stageClass = 'completed';
+      dateText = stageData.formatted || 'Completed';
+      dateClass = 'completed';
+    } else if (stageData.is_current || stageNum === currentStage) {
+      stageClass = 'active';
+      dateText = '⏳ In Progress';
+      dateClass = 'active';
+    } else {
+    
+      dateText = stageData.formatted ? `Expected: ${stageData.formatted}` : 'Pending';
+      dateClass = 'expected';
+    }
+    
+    html += `
+      <div class="timeline-item ${stageClass}">
+        <div class="timeline-marker">
+          <i class="fas ${stageClass === 'completed' ? 'fa-check' : stage.icon}"></i>
+        </div>
+        <div class="timeline-content">
+          <h4>${stage.title}</h4>
+          <p>${stage.desc}</p>
+          <span class="timeline-date ${dateClass}">${dateText}</span>
+        </div>
+      </div>
+    `;
+  });
+  
+  timeline.innerHTML = html;
+}
+
+// ========================================
+// ✅ Render Products
+// ========================================
+function renderProducts(products) {
+  const container = document.getElementById('productsList');
+  if (!container) return;
+  
+  if (!products || products.length === 0) {
+    container.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 20px;">No products found</p>';
+    return;
+  }
+  
+  let html = '';
+  
+  products.forEach(product => {
+    const hasImage = product.image && (product.image.startsWith('data:') || product.image.startsWith('http'));
+    const totalPrice = (product.price || 0) * (product.qty || 1);
+    
+    html += `
+      <div class="product-item">
+        ${hasImage 
+          ? `<img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.outerHTML='<div class=\\'product-image-placeholder\\'><i class=\\'fas fa-box\\'></i></div>'">`
+          : `<div class="product-image-placeholder"><i class="fas fa-box"></i></div>`
+        }
+        <div class="product-details">
+          <div class="product-name">${product.name || 'Product'}</div>
+          <div class="product-qty">Qty: ${product.qty || 1}</div>
+        </div>
+        <div class="product-price">${totalPrice.toFixed(2)} SAR</div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// ========================================
+// ✅ Render Members (for shared shipments)
+// ========================================
+function renderMembers(members) {
+  const container = document.getElementById('membersList');
+  if (!container) return;
+  
+  if (!members || members.length === 0) {
+    container.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 20px;">No members found</p>';
+    return;
+  }
+  
+  let html = '';
+  
+  members.forEach(member => {
+    const isPaid = (member.status || '').toUpperCase() === 'PAID';
+    
+    html += `
+      <div class="member-item ${member.is_you ? 'is-you' : ''}">
+        <img src="${member.avatar || `https://i.pravatar.cc/60?img=${(member.id || 1) % 70}`}" alt="${member.username || 'User'}" class="member-avatar">
+        <div class="member-info">
+          <div class="member-name">${member.username || 'User'} ${member.is_you ? '(You)' : ''} ${member.is_creator ? '👑' : ''}</div>
+          <div class="member-status">${(member.weight || 0).toFixed(2)} KG • ${(member.product_cost || 0).toFixed(2)} SAR</div>
+        </div>
+        <span class="member-badge ${isPaid ? 'paid' : 'pending'}">
+          ${isPaid ? '✓ Paid' : 'Pending'}
+        </span>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// ========================================
+// ✅ Utility Functions
+// ========================================
+function formatDate(dateInput) {
+  if (!dateInput) return 'N/A';
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return 'N/A';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// ========================================
+// ✅ Mobile Menu
+// ========================================
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+if (mobileMenuBtn && mobileMenu) {
+  mobileMenuBtn.addEventListener('click', () => {
+    mobileMenuBtn.classList.toggle('active');
+    mobileMenu.classList.toggle('open');
+  });
+}
+
+// ========================================
+// ✅ Header scroll effect
+// ========================================
+const header = document.getElementById("mainHeader");
+let lastScrollY = window.pageYOffset;
+
+window.addEventListener("scroll", function () {
+  const currentY = window.pageYOffset;
+  if (!header) return;
+  
+  if (currentY <= 0) {
+    header.classList.remove("hide", "scrolled");
+    return;
+  }
+  if (Math.abs(currentY - lastScrollY) < 5) return;
+  
+  if (currentY > lastScrollY) {
+    header.classList.add("hide");
+  } else {
+    header.classList.remove("hide");
+  }
+  
+  if (currentY > 20) {
+    header.classList.add("scrolled");
+  } else {
+    header.classList.remove("scrolled");
+  }
+  lastScrollY = currentY;
+});
+
+// ========================================
+// ✅ Load cart count
+// ========================================
+fetch('/cart/count')
+  .then(res => res.json())
+  .then(data => {
+    const badge = document.getElementById('cart-count');
+    if (badge && data.count !== undefined) {
+      badge.textContent = data.count;
+      if (data.count < 1) badge.classList.add('is-empty');
+    }
+  })
+  .catch(() => {});
+</script>
+<!-- 🤖 AI Bot -->
+  {% include 'aiBot.html' %}
+</body>
+</html>

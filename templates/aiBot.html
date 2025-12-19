@@ -1,0 +1,1146 @@
+ <!--
+============================================================================
+BeautyFlow - Mika AI Chat Component
+============================================================================
+Interactive AI chatbot assistant with animated robot mascot.
+Features expressions, speech bubbles, and real-time chat functionality.
+
+Component: mika_chat.html
+Author: BeautyFlow Team
+Version: 1 .0.0
+============================================================================
+-->
+
+<div class="bf-bot-wrapper" id="bfBotWrapper">
+  
+  <!-- ==========================================================================
+       SECTION 1: FLOATING ROBOT MASCOT
+       ========================================================================== -->
+  <div class="bf-robot-container" id="bfRobotContainer">
+    
+    <!-- ==================== Robot SVG Illustration ==================== -->
+    <svg class="bf-robot-svg" id="bfRobot" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- Shadow on Ground -->
+      <ellipse class="robot-shadow" cx="100" cy="228" rx="35" ry="8" fill="rgba(0,0,0,0.15)"/>
+      
+      <!-- ========== ANTENNA ========== -->
+      <g class="antenna-group">
+        <rect x="96" y="22" width="8" height="20" rx="4" fill="#2d3047"/>
+        <circle class="antenna-ball" cx="100" cy="14" r="12" fill="#f7c9d4" stroke="#2d3047" stroke-width="2.5"/>
+      </g>
+      
+      <!-- ========== EARS ========== -->
+      <!-- Left Ear -->
+      <ellipse cx="38" cy="95" rx="12" ry="22" fill="#f7c9d4" stroke="#2d3047" stroke-width="2.5"/>
+      <!-- Right Ear -->
+      <ellipse cx="162" cy="95" rx="12" ry="22" fill="#f7c9d4" stroke="#2d3047" stroke-width="2.5"/>
+      
+      <!-- ========== HEAD ========== -->
+      <ellipse cx="100" cy="90" rx="50" ry="45" fill="white" stroke="#2d3047" stroke-width="3"/>
+      <path d="M50 90 L50 108 Q50 128 100 128 Q150 128 150 108 L150 90" fill="white" stroke="#2d3047" stroke-width="3"/>
+      <rect x="52" y="88" width="96" height="22" fill="white"/>
+      
+      <!-- ========== VISOR (Face Screen) ========== -->
+      <rect x="58" y="55" width="84" height="65" rx="24" fill="#2d3047"/>
+      <rect x="63" y="60" width="74" height="55" rx="20" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
+      
+      <!-- ========== BLUSH (For Shy Expression) ========== -->
+      <ellipse class="blush blush-left" cx="62" cy="105" rx="10" ry="5" fill="#ff8fa8" opacity="0"/>
+      <ellipse class="blush blush-right" cx="138" cy="105" rx="10" ry="5" fill="#ff8fa8" opacity="0"/>
+      
+      <!-- ========== EYES ========== -->
+      <ellipse class="eye eye-left" cx="82" cy="88" rx="9" ry="11" fill="#f7c9d4"/>
+      <ellipse class="eye eye-right" cx="118" cy="88" rx="9" ry="11" fill="#f7c9d4"/>
+      
+      <!-- ========== MOUTH ========== -->
+      <path class="mouth" d="M90 106 Q100 114, 110 106" stroke="#f7c9d4" stroke-width="3" stroke-linecap="round" fill="none"/>
+      
+      <!-- ========== BODY ========== -->
+      <path class="body-shape" d="M72 132 L58 145 L62 178 L78 198 L100 210 L122 198 L138 178 L142 145 L128 132 Z" fill="white" stroke="#2d3047" stroke-width="2.5"/>
+      
+      <!-- ========== HEART (Inside Body) ========== -->
+      <path class="heart" d="M100 158 C96 153, 86 156, 86 165 C86 174, 100 186, 100 186 C100 186, 114 174, 114 165 C114 156, 104 153, 100 158Z" fill="#f7c9d4" stroke="#2d3047" stroke-width="1.5"/>
+      
+      <!-- ========== ARMS ========== -->
+      <!-- Left Arm -->
+      <g class="arm-left">
+        <line x1="58" y1="150" x2="32" y2="168" stroke="#2d3047" stroke-width="7" stroke-linecap="round"/>
+        <line x1="58" y1="150" x2="34" y2="166" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="28" cy="172" r="10" fill="#f7c9d4" stroke="#2d3047" stroke-width="2"/>
+      </g>
+      <!-- Right Arm -->
+      <g class="arm-right">
+        <line x1="142" y1="150" x2="168" y2="168" stroke="#2d3047" stroke-width="7" stroke-linecap="round"/>
+        <line x1="142" y1="150" x2="166" y2="166" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="172" cy="172" r="10" fill="#f7c9d4" stroke="#2d3047" stroke-width="2"/>
+      </g>
+      
+    </svg>
+    
+    <!-- ==================== Speech Bubble ==================== -->
+    <div class="robot-bubble" id="robotBubble">
+      <span>Hi there!</span>
+    </div>
+    
+    <!-- ==================== Notification Badge ==================== -->
+    <div class="robot-badge" id="robotBadge">1</div>
+    
+  </div>
+
+  <!-- ==========================================================================
+       SECTION 2: CHAT WINDOW
+       ========================================================================== -->
+  <div class="bf-chat" id="bfChat">
+    
+    <!-- ==================== Chat Header ==================== -->
+    <div class="bf-chat-header">
+      
+      <!-- Robot Avatar -->
+      <div class="bf-header-robot">
+        <svg viewBox="0 0 60 70" fill="none">
+          <ellipse cx="8" cy="28" rx="5" ry="9" fill="#f7c9d4" stroke="#2d3047" stroke-width="1.5"/>
+          <ellipse cx="52" cy="28" rx="5" ry="9" fill="#f7c9d4" stroke="#2d3047" stroke-width="1.5"/>
+          <rect x="27" y="5" width="4" height="10" rx="2" fill="#2d3047"/>
+          <circle cx="30" cy="4" r="5" fill="#f7c9d4" stroke="#2d3047" stroke-width="1.5"/>
+          <ellipse cx="30" cy="28" rx="20" ry="18" fill="white" stroke="#2d3047" stroke-width="2"/>
+          <rect x="14" y="18" width="32" height="24" rx="10" fill="#2d3047"/>
+          <ellipse cx="23" cy="28" rx="5" ry="6" fill="#f7c9d4"/>
+          <ellipse cx="37" cy="28" rx="5" ry="6" fill="#f7c9d4"/>
+          <path d="M25 36 Q30 40, 35 36" stroke="#f7c9d4" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <path d="M22 46 L18 50 L20 58 L30 63 L40 58 L42 50 L38 46" fill="white" stroke="#2d3047" stroke-width="1.5"/>
+          <path d="M30 51 C28 49, 25 50, 25 53 C25 56, 30 59, 30 59 C30 59, 35 56, 35 53 C35 50, 32 49, 30 51" fill="#f7c9d4"/>
+        </svg>
+      </div>
+      
+      <!-- Header Info -->
+      <div class="bf-header-info">
+        <h3>Mika</h3>
+        <div class="bf-header-status">
+          <span class="bf-status-dot"></span>
+          <span>BeautyFlow AI Assistant</span>
+        </div>
+      </div>
+      
+      <!-- Close Button -->
+      <button class="bf-header-close" id="bfChatClose">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+      
+    </div>
+
+    <!-- ==================== Chat Body (Messages Area) ==================== -->
+    <div class="bf-chat-body" id="bfChatBody">
+      <div class="bf-messages" id="bfMessages">
+        
+        <!-- Welcome Message from Mika -->
+        <div class="bf-msg bot">
+          <div class="bf-msg-avatar">M</div>
+          <div class="bf-msg-content">
+            <div class="bf-msg-bubble">
+              Hi! I am <b>Mika</b>, your BeautyFlow AI Assistant.<br><br>
+              How can I help you today?
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- ==================== Chat Input Area ==================== -->
+    <div class="bf-chat-input">
+      
+      <!-- Input Container -->
+      <div class="bf-input-container">
+        <input type="text" id="bfInput" placeholder="Ask Mika anything..." autocomplete="off">
+        <button class="bf-btn-send" id="bfSend">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Quick Suggestion Chips -->
+      <div class="bf-suggestions">
+        <button class="bf-chip" data-msg="Thank you Mika">Thanks</button>
+        <button class="bf-chip" data-msg="I need design ideas">Design Ideas</button>
+        <button class="bf-chip" data-msg="How does cost sharing work?">Cost Sharing</button>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</div>
+
+
+<!-- =============================================================================
+     STYLES
+     ============================================================================= -->
+<style>
+/*
+ * ============================================================================
+ * BeautyFlow - Mika Chat Styles
+ * ============================================================================
+ * Styling for the AI chatbot component including robot mascot,
+ * chat window, messages, and animations.
+ * ============================================================================
+ */
+
+/* =============================================================================
+   CSS VARIABLES (Design Tokens)
+   ============================================================================= */
+:root {
+  /* Brand Colors */
+  --bf-navy: #2d3047;
+  --bf-pink: #f7c9d4;
+  --bf-pink-dark: #e84a7f;
+  --bf-blush: #ff8fa8;
+  --bf-white: #ffffff;
+  --bf-bg: #fff5f7;
+}
+
+
+/* =============================================================================
+   WRAPPER & CONTAINER
+   ============================================================================= */
+.bf-bot-wrapper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99999;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.bf-robot-container {
+  position: relative;
+  cursor: pointer;
+}
+
+
+/* =============================================================================
+   ROBOT MASCOT
+   ============================================================================= */
+
+/* ---------- Robot SVG ---------- */
+.bf-robot-svg {
+  width: 130px;
+  height: 156px;
+  display: block;
+  animation: robotFloat 3s ease-in-out infinite;
+}
+
+.bf-robot-container:hover .bf-robot-svg {
+  animation-duration: 1.5s;
+}
+
+/* ---------- Float Animation ---------- */
+@keyframes robotFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---------- Shadow Animation ---------- */
+.robot-shadow {
+  animation: shadowPulse 3s ease-in-out infinite;
+}
+
+@keyframes shadowPulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.08; }
+}
+
+/* ---------- Antenna Glow ---------- */
+.antenna-ball {
+  animation: antennaGlow 2s ease-in-out infinite;
+}
+
+@keyframes antennaGlow {
+  0%, 100% { fill: #f7c9d4; }
+  50% { fill: #e84a7f; }
+}
+
+/* ---------- Eyes Blink ---------- */
+.eye {
+  animation: eyeBlink 4s ease-in-out infinite;
+}
+
+@keyframes eyeBlink {
+  0%, 42%, 48%, 100% { opacity: 1; }
+  45% { opacity: 0.1; }
+}
+
+/* ---------- Heart Pulse ---------- */
+.heart {
+  animation: heartPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes heartPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ---------- Blush (Default Hidden) ---------- */
+.blush {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+
+/* =============================================================================
+   ROBOT EXPRESSIONS
+   ============================================================================= */
+
+/* ---------- HAPPY Expression ---------- */
+.bf-robot-svg.happy .eye {
+  fill: #ffb8c9;
+}
+
+/* ---------- SAD Expression ---------- */
+.bf-robot-svg.sad .eye {
+  fill: #d4a5b0;
+  opacity: 0.8;
+}
+
+.bf-robot-svg.sad .antenna-ball {
+  fill: #d4a5b0 !important;
+}
+
+.bf-robot-svg.sad .mouth {
+  d: path("M90 112 Q100 104, 110 112");
+}
+
+/* ---------- ANGRY Expression ---------- */
+.bf-robot-svg.angry .eye {
+  fill: #ff8888;
+}
+
+.bf-robot-svg.angry .eye-left {
+  ry: 8;
+}
+
+.bf-robot-svg.angry .eye-right {
+  ry: 8;
+}
+
+.bf-robot-svg.angry .mouth {
+  d: path("M88 108 L112 108");
+}
+
+.bf-robot-svg.angry .antenna-ball {
+  fill: #ff6b6b !important;
+  animation: antennaAngry 0.2s linear infinite !important;
+}
+
+@keyframes antennaAngry {
+  0%, 100% { fill: #ff6b6b; }
+  50% { fill: #ff4444; }
+}
+
+/* ---------- SURPRISED Expression ---------- */
+.bf-robot-svg.surprised .eye {
+  fill: #ffffff;
+  rx: 11;
+  ry: 13;
+  animation: none !important;
+}
+
+.bf-robot-svg.surprised .mouth {
+  d: path("M95 106 Q100 114, 105 106 Q100 114, 95 106");
+}
+
+/* ---------- THINKING Expression ---------- */
+.bf-robot-svg.thinking .eye-left {
+  fill: #e0d0d5;
+  rx: 7;
+}
+
+.bf-robot-svg.thinking .eye-right {
+  fill: #ffccd8;
+  rx: 10;
+}
+
+.bf-robot-svg.thinking .mouth {
+  d: path("M88 108 Q95 105, 100 108 Q105 111, 112 108");
+}
+
+.bf-robot-svg.thinking .antenna-ball {
+  animation: thinkingAntenna 1s ease-in-out infinite !important;
+}
+
+@keyframes thinkingAntenna {
+  0%, 100% { fill: #f7c9d4; }
+  50% { fill: #dda0b8; }
+}
+
+/* ---------- LOVE / SHY Expression ---------- */
+.bf-robot-svg.love .blush {
+  opacity: 0.8 !important;
+  animation: blushFade 1s ease-in-out infinite;
+}
+
+@keyframes blushFade {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.9; }
+}
+
+.bf-robot-svg.love .eye {
+  fill: #ffaabb;
+  ry: 6;
+  animation: shyEyes 0.8s ease-in-out infinite !important;
+}
+
+@keyframes shyEyes {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.bf-robot-svg.love .mouth {
+  d: path("M85 104 Q100 118, 115 104");
+}
+
+.bf-robot-svg.love .antenna-ball {
+  fill: #ff8fa8 !important;
+}
+
+.bf-robot-svg.love .heart {
+  fill: #ff6b9d;
+  animation: loveHeart 0.5s ease-in-out infinite !important;
+}
+
+@keyframes loveHeart {
+  0%, 100% { opacity: 1; fill: #ff6b9d; }
+  50% { opacity: 0.8; fill: #ff8fb8; }
+}
+
+/* ---------- TYPING Expression ---------- */
+.bf-robot-svg.typing .eye {
+  animation: typingBlink 0.6s ease-in-out infinite !important;
+}
+
+@keyframes typingBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+
+/* =============================================================================
+   SPEECH BUBBLE & BADGE
+   ============================================================================= */
+
+/* ---------- Speech Bubble ---------- */
+.robot-bubble {
+  position: absolute;
+  top: 20px;
+  right: 140px;
+  background: white;
+  padding: 12px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bf-navy);
+  box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+  opacity: 0;
+  transform: translateX(15px);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.robot-bubble::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 10px solid transparent;
+  border-left-color: white;
+}
+
+.bf-robot-container:hover .robot-bubble {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ---------- Notification Badge ---------- */
+.robot-badge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 26px;
+  height: 26px;
+  background: #ff6b6b;
+  color: white;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid white;
+  box-shadow: 0 3px 12px rgba(255,107,107,0.4);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+.robot-badge.hidden {
+  display: none;
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+
+/* =============================================================================
+   CHAT WINDOW
+   ============================================================================= */
+
+/* ---------- Chat Container ---------- */
+.bf-chat {
+  position: fixed;
+  bottom: 200px;
+  right: 20px;
+  width: 380px;
+  height: 500px;
+  max-height: calc(100vh - 230px);
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(232, 74, 127, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: all 0.4s ease;
+}
+
+.bf-chat.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+
+/* =============================================================================
+   CHAT HEADER
+   ============================================================================= */
+.bf-chat-header {
+  background: linear-gradient(135deg, #e84a7f 0%, #f472b6 100%);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  flex-shrink: 0;
+}
+
+/* ---------- Header Robot Avatar ---------- */
+.bf-header-robot {
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.bf-header-robot svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Header Info ---------- */
+.bf-header-info {
+  flex: 1;
+}
+
+.bf-header-info h3 {
+  margin: 0 0 3px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.bf-header-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.bf-status-dot {
+  width: 8px;
+  height: 8px;
+  background: #4ade80;
+  border-radius: 50%;
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ---------- Close Button ---------- */
+.bf-header-close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.bf-header-close:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+
+/* =============================================================================
+   CHAT BODY (Messages Area)
+   ============================================================================= */
+.bf-chat-body {
+  flex: 1;
+  overflow-y: auto;
+  background: linear-gradient(180deg, var(--bf-bg) 0%, white 100%);
+}
+
+/* Custom Scrollbar */
+.bf-chat-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.bf-chat-body::-webkit-scrollbar-thumb {
+  background: var(--bf-pink);
+  border-radius: 3px;
+}
+
+
+/* =============================================================================
+   MESSAGES
+   ============================================================================= */
+.bf-messages {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------- Message Base ---------- */
+.bf-msg {
+  display: flex;
+  gap: 10px;
+  max-width: 85%;
+  animation: msgIn 0.4s ease;
+}
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Bot Message ---------- */
+.bf-msg.bot {
+  align-self: flex-start;
+}
+
+/* ---------- User Message ---------- */
+.bf-msg.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+/* ---------- Message Avatar ---------- */
+.bf-msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.bf-msg.bot .bf-msg-avatar {
+  background: var(--bf-pink);
+}
+
+.bf-msg.user .bf-msg-avatar {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+/* ---------- Message Content ---------- */
+.bf-msg-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.bf-msg-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.bf-msg.bot .bf-msg-bubble {
+  background: white;
+  color: var(--bf-navy);
+  border-bottom-left-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.bf-msg.user .bf-msg-bubble {
+  background: linear-gradient(135deg, #e84a7f 0%, #f472b6 100%);
+  color: white;
+  border-bottom-right-radius: 6px;
+}
+
+/* ---------- Message Timestamp ---------- */
+.bf-msg-time {
+  font-size: 10px;
+  color: #aaa;
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.bf-msg.user .bf-msg-time {
+  text-align: right;
+}
+
+
+/* =============================================================================
+   TYPING INDICATOR
+   ============================================================================= */
+.bf-typing {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.bf-typing-dots {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.bf-typing-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--bf-pink-dark);
+  border-radius: 50%;
+  animation: typingDot 1.4s infinite;
+}
+
+.bf-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.bf-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingDot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+
+/* =============================================================================
+   CHAT INPUT AREA
+   ============================================================================= */
+.bf-chat-input {
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+/* ---------- Input Container ---------- */
+.bf-input-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bf-bg);
+  border-radius: 25px;
+  padding: 6px 6px 6px 18px;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+}
+
+.bf-input-container:focus-within {
+  border-color: var(--bf-pink);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(247, 201, 212, 0.3);
+}
+
+/* ---------- Text Input ---------- */
+.bf-input-container input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  padding: 8px 0;
+}
+
+.bf-input-container input::placeholder {
+  color: #aaa;
+}
+
+/* ---------- Send Button ---------- */
+.bf-btn-send {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: linear-gradient(135deg, #e84a7f 0%, #f472b6 100%);
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(232, 74, 127, 0.3);
+  flex-shrink: 0;
+}
+
+.bf-btn-send:hover {
+  transform: scale(1.05);
+}
+
+
+/* =============================================================================
+   SUGGESTION CHIPS
+   ============================================================================= */
+.bf-suggestions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.bf-chip {
+  padding: 7px 14px;
+  background: white;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 18px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.bf-chip:hover {
+  border-color: var(--bf-pink-dark);
+  color: var(--bf-pink-dark);
+  background: var(--bf-bg);
+}
+
+
+/* =============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================= */
+@media (max-width: 480px) {
+  
+  /* Wrapper Position */
+  .bf-bot-wrapper {
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  /* Smaller Robot */
+  .bf-robot-svg {
+    width: 100px;
+    height: 120px;
+  }
+  
+  /* Full-width Chat */
+  .bf-chat {
+    width: calc(100vw - 30px);
+    height: calc(100vh - 200px);
+    max-height: none;
+    bottom: 160px;
+    right: 15px;
+  }
+  
+  /* Single Column Cards */
+  .bf-welcome-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Hide Speech Bubble */
+  .robot-bubble {
+    display: none;
+  }
+}
+</style>
+
+
+<!-- =============================================================================
+     JAVASCRIPT
+     ============================================================================= -->
+<script>
+/**
+ * ============================================================================
+ * BeautyFlow - Mika Chat Controller
+ * ============================================================================
+ * Handles chat functionality, robot expressions, and API communication.
+ * 
+ * Features:
+ * - Toggle chat window open/close
+ * - Robot expression animations
+ * - Send/receive messages via API
+ * - Typing indicators
+ * - Quick suggestion chips
+ * ============================================================================
+ */
+
+(function() {
+  'use strict';
+  
+  // ===========================================================================
+  // DOM ELEMENTS
+  // ===========================================================================
+  
+  const robotContainer = document.getElementById('bfRobotContainer');
+  const robot = document.getElementById('bfRobot');
+  const chat = document.getElementById('bfChat');
+  const chatClose = document.getElementById('bfChatClose');
+  const chatBody = document.getElementById('bfChatBody');
+  const messages = document.getElementById('bfMessages');
+  const input = document.getElementById('bfInput');
+  const btnSend = document.getElementById('bfSend');
+  const bubble = document.getElementById('robotBubble');
+  const badge = document.getElementById('robotBadge');
+  const chips = document.querySelectorAll('.bf-chip');
+
+  // ===========================================================================
+  // STATE
+  // ===========================================================================
+  
+  let isOpen = false;
+
+  // ===========================================================================
+  // EXPRESSION CONTROL
+  // ===========================================================================
+  
+  /**
+   * Set robot facial expression
+   * @param {string} exp - Expression name: happy, sad, angry, surprised, thinking, love, typing
+   */
+  function setExpression(exp) {
+    // Remove all expression classes
+    const expressions = ['happy', 'sad', 'angry', 'surprised', 'thinking', 'love', 'typing'];
+    expressions.forEach(e => robot.classList.remove(e));
+    
+    // Add new expression
+    if (exp && exp !== 'default') {
+      robot.classList.add(exp);
+    }
+  }
+
+  // ===========================================================================
+  // SPEECH BUBBLE ROTATION
+  // ===========================================================================
+  
+  const bubbleTexts = [
+    'Hi! I am Mika',
+    'Need help?',
+    'Click me!',
+    'Ask anything!',
+    'Let us chat!'
+  ];
+  let bubbleIdx = 0;
+  
+  setInterval(() => {
+    if (!isOpen) {
+      bubbleIdx = (bubbleIdx + 1) % bubbleTexts.length;
+      bubble.querySelector('span').textContent = bubbleTexts[bubbleIdx];
+    }
+  }, 3500);
+
+  // ===========================================================================
+  // CHAT TOGGLE
+  // ===========================================================================
+  
+  /**
+   * Open chat window
+   */
+  robotContainer.addEventListener('click', () => {
+    isOpen = !isOpen;
+    chat.classList.toggle('open', isOpen);
+    
+    if (isOpen) {
+      badge.classList.add('hidden');
+      setExpression('happy');
+      setTimeout(() => input.focus(), 300);
+    } else {
+      setExpression('default');
+    }
+  });
+
+  /**
+   * Close chat window
+   */
+  chatClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    isOpen = false;
+    chat.classList.remove('open');
+    setExpression('default');
+  });
+
+  // ===========================================================================
+  // QUICK SUGGESTION CHIPS
+  // ===========================================================================
+  
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      sendMessage(chip.dataset.msg || chip.textContent);
+    });
+  });
+
+  // ===========================================================================
+  // SEND MESSAGE (API CALL)
+  // ===========================================================================
+  
+  /**
+   * Send message to Mika API and display response
+   * @param {string|null} text - Message text (optional, uses input value if null)
+   */
+  async function sendMessage(text = null) {
+    const msg = text || input.value.trim();
+    if (!msg) return;
+    
+    // Display user message
+    addMessage(msg, 'user');
+    input.value = '';
+    
+    // Show typing state
+    setExpression('typing');
+    showTyping();
+    
+    try {
+      // Call backend API
+      const response = await fetch('/mika/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: msg })
+      });
+      
+      const data = await response.json();
+      
+      hideTyping();
+      
+      if (data.ok) {
+        setExpression(data.expression || 'happy');
+        addMessage(data.response, 'bot');
+      } else {
+        setExpression('sad');
+        addMessage('Sorry, I could not process your request. Please try again.', 'bot');
+      }
+      
+    } catch (error) {
+      console.error('Mika Chat Error:', error);
+      hideTyping();
+      setExpression('sad');
+      addMessage('Sorry, there was a connection error. Please try again.', 'bot');
+    }
+    
+    // Reset expression after delay
+    setTimeout(() => {
+      const currentExp = robot.className.match(/happy|sad|love|thinking/);
+      if (currentExp && !['happy', 'love'].includes(currentExp[0])) {
+        setExpression('happy');
+      }
+    }, 4000);
+  }
+
+  // Event listeners for sending
+  btnSend.addEventListener('click', () => sendMessage());
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // ===========================================================================
+  // MESSAGE DISPLAY
+  // ===========================================================================
+  
+  /**
+   * Add message to chat
+   * @param {string} text - Message content
+   * @param {string} type - 'user' or 'bot'
+   */
+  function addMessage(text, type) {
+    const div = document.createElement('div');
+    div.className = `bf-msg ${type}`;
+    div.innerHTML = `
+      <div class="bf-msg-avatar">${type === 'user' ? 'U' : 'M'}</div>
+      <div class="bf-msg-content">
+        <div class="bf-msg-bubble">${text}</div>
+      </div>
+    `;
+    messages.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  // ===========================================================================
+  // TYPING INDICATOR
+  // ===========================================================================
+  
+  /**
+   * Show typing indicator
+   */
+  function showTyping() {
+    const div = document.createElement('div');
+    div.className = 'bf-typing';
+    div.id = 'bfTyping';
+    div.innerHTML = `
+      <div class="bf-msg-avatar" style="background:var(--bf-pink);">M</div>
+      <div class="bf-typing-dots">
+        <div class="bf-typing-dot"></div>
+        <div class="bf-typing-dot"></div>
+        <div class="bf-typing-dot"></div>
+      </div>
+    `;
+    messages.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  /**
+   * Hide typing indicator
+   */
+  function hideTyping() {
+    const t = document.getElementById('bfTyping');
+    if (t) t.remove();
+  }
+
+  // ===========================================================================
+  // INITIALIZATION
+  // ===========================================================================
+  
+  // Set initial happy expression after short delay
+  setTimeout(() => setExpression('happy'), 500);
+
+})();
+</script>
